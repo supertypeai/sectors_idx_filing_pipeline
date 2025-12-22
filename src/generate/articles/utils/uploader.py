@@ -172,28 +172,22 @@ def upload_news_file_cli(
         key=supabase_key,
     )
 
-    print(f'\nfinal filing news to upload: {normed}\n')
-    print(f'\n[DRY-RUN] final filing news to upload: {len(normed)} rows\n')
-    ok = len(normed)
-    bad = 0
+    res = uploader.upload_records(
+        table=table,
+        rows=normed,
+        allowed_columns=list(_ALLOWED_COLS),
+        normalize_keys=False,
+        stop_on_first_error=False,
+    )
+    ok = res.inserted
+    bad = len(res.failed_rows)
+
+    if bad:
+        log.warning("Some rows failed to insert: %d failed / %d total", bad, len(normed))
+        for i, fr in enumerate(res.failed_rows[:5]):
+            log.error("Failed row %d: %s", i, fr)
+    else:
+        log.info("All rows inserted OK: %d", ok)
     return (ok, bad)
-
-    # res = uploader.upload_records(
-    #     table=table,
-    #     rows=normed,
-    #     allowed_columns=list(_ALLOWED_COLS),
-    #     normalize_keys=False,
-    #     stop_on_first_error=False,
-    # )
-    # ok = res.inserted
-    # bad = len(res.failed_rows)
-
-    # if bad:
-    #     log.warning("Some rows failed to insert: %d failed / %d total", bad, len(normed))
-    #     for i, fr in enumerate(res.failed_rows[:5]):
-    #         log.error("Failed row %d: %s", i, fr)
-    # else:
-    #     log.info("All rows inserted OK: %d", ok)
-    # return (ok, bad)
 
 __all__ = ["upload_news_file_cli"]
