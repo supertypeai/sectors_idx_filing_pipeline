@@ -133,7 +133,7 @@ jobs:
           # (Optional) HTTP proxy only for IDX fetch/downloader
           HTTP_PROXY:  ${{ secrets.PROXY }}
           HTTPS_PROXY: ${{ secrets.PROXY }}
-          NO_PROXY: "localhost,127.0.0.1,supabase.co,.supabase.co,amazonaws.com,.amazonaws.com"
+          NO_PROXY: "localhost,127.0.0.1,supabase.co,.supabase.co,amazonaws.com,.amazonaws.com,generativelanguage.googleapis.com,.googleapis.com,openai.com,.openai.com,groq.com,.groq.com"
 
           # AWS / SES
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
