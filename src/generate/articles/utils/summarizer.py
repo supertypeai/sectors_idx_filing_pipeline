@@ -150,6 +150,7 @@ class Summarizer:
 
     def summarize_from_facts(self, facts: Dict[str, Any], text_hint: Optional[str] = None) -> Tuple[str, str]:
         if not self.use_llm:
+            print('manual')
             return _compose_rule_based(facts)
 
         if self.provider == "gemini" and self._gem_client is not None:
@@ -159,6 +160,7 @@ class Summarizer:
             try:
                 response = _get_llm_response(self._gem_client, self.model, prompt)
                 print('use llm')
+                print(f'raw response: {response}')
                 title = str(response.get("title") or "").strip()
                 body = str(response.get("body") or "").strip()
 

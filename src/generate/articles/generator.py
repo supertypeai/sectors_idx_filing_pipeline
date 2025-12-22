@@ -380,7 +380,7 @@ class ArticleGenerator:
             "announcement_published_at": filing.get("announcement_published_at"),
         }
 
-        log.info('generating title body')
+        print('generating title body')
         title, body = self.summarizer.summarize_from_facts(facts)
         print(f'title: {title}')
         print(f'\nbody: {body}')
