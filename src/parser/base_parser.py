@@ -151,7 +151,7 @@ class BaseParser(ABC):
             main_link = ann.get("main_link", "")
             if main_link:
                 main_file = os.path.basename(main_link.strip())
-                file_to_announcement[main_file] = ann
+                file_to_announcement[main_file.lower()] = ann
 
             for attachment in ann.get("attachments", []):
                 filename = attachment.get("filename", "").strip()
@@ -223,6 +223,7 @@ class BaseParser(ABC):
         """
         Construct a v2 alert for the parser stage, enriched with current announcement context.
         """
+        # pdf mapping dict key=filename data=ingestion.json
         ann = self._current_alert_context or {}
 
         doc_url = (
@@ -333,6 +334,8 @@ class BaseParser(ABC):
 
         parsed_results: List[Dict[str, Any]] = []
         pdf_mapping = self.build_pdf_mapping()
+        # print(f'\nraw pdf_mapping output: {pdf_mapping}\n')
+
         pdf_files = [f for f in os.listdir(self.pdf_folder) if f.lower().endswith(".pdf")]
 
         logger.info(f"Found {len(pdf_files)} PDF files to process")
@@ -346,9 +349,15 @@ class BaseParser(ABC):
 
             try:
                 result = self.parse_single_pdf(filepath, filename, pdf_mapping)
+                # Skip from new parser if shares unchanged
+                if isinstance(result, str):
+                    if result.lower() == 'skip':
+                        continue
+
                 if result and self.validate_parsed_data(result):
                     parsed_results.append(result)
                     logger.info(f"Successfully parsed {filename}")
+                    
                 else:
                     if not (isinstance(result, dict) and result.get("skip_filing")):
                         self._parser_warn(
