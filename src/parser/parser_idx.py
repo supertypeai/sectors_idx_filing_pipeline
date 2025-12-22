@@ -1,13 +1,14 @@
 # parser_idx.py
 from __future__ import annotations
 from typing import List, Dict, Optional, Any
-import os, re
+from datetime import datetime
 from pathlib import Path
 
 from src.common.log import get_logger
 from src.common.datetime import MONTHS_EN
 
 from .base_parser import BaseParser
+from .parser_idx_new import parser_new_document
 from .utils.text_extractor import TextExtractor
 from .utils.number_parser import NumberParser
 from .utils.name_cleaner import NameCleaner
@@ -21,6 +22,8 @@ from .utils.company_resolver import (
     resolve_symbol_and_name,
     pretty_company_name,
 )
+
+import os, re
 
 logger = get_logger(__name__)
 
@@ -151,48 +154,99 @@ class IDXParser(BaseParser):
             )
             return None
 
-        text = self._slice_to_english(text)
-        self.save_debug_output(filename, text)
+        pdf_file = pdf_mapping.get(filename)
+        source_pdf_url = pdf_file.get('main_link', '')
+        # print(f'\nraw pdf mapping: {pdf_file}')
+        # print(f'\nfilename: {filename}')
+        # print(f'\npdf url to if condition: {source_pdf_url}\n')
 
-        try:
-            data = self.extract_fields_from_text(text, filename)
-            data["source"] = filename
+        if 'From_KSEI' in source_pdf_url:
+            try:
+                timestamp = pdf_file.get('date', '')
+                timestamp_object = datetime.fromisoformat(timestamp)
+                timestamp_str = timestamp_object.strftime('%Y-%m-%d')
 
-            # Compute standardized tags
-            # Flags from text (MESOP, free-float, inheritance/transfer hints)
-            flags = TransactionClassifier.detect_flags_from_text(text)
+                data = parser_new_document(f'downloads/idx-format/{filename}')
 
-            # Build txns list from parsed rows
-            txns = (data.get("transactions") or [])
-            # If rows empty, synthesize from doc-level type
-            if not txns and data.get("transaction_type") in {"buy", "sell", "transfer"}:
-                txns = [{"type": data["transaction_type"], "amount": data.get("amount_transacted") or 0}]
+                # Build tags
+                purpose = data.get('purpose')
+                shares_percentage_before = data.get('shares_percentage_before')
+                shares_percentage_after = data.get('shares_percentage_after')
+                transaction_type = data.get('transaction_type')
 
-            data["tags"] = TransactionClassifier.compute_filings_tags(
-                txns=txns,
-                share_percentage_before=data.get("share_percentage_before"),
-                share_percentage_after=data.get("share_percentage_after"),
-                flags=flags,
-            )
+                tags = TransactionClassifier.detect_tags_for_new_document(
+                    purpose, shares_percentage_before, shares_percentage_after, transaction_type
+                )
 
-            return data
-        
-        except Exception as e:
-            logger.error(f"extract_fields error {filename}: {e}", exc_info=True)
-            # Fatal: structural parse error
-            self._parser_fail(
-                code="parse_exception",
-                filename=filename,
-                reasons=[
-                    {
-                        "scope": "parser",
-                        "code": "parse_exception",
-                        "message": f"Error while extracting fields from IDX PDF: {e}",
-                        "details": {"announcement": self._current_alert_context},
-                    }
-                ],
-            )
-            return None
+                # Build holder type
+                holder_type = NameCleaner.classify_holder_type(data.get('holder_name'))
+
+                # Update the payload parser
+                data.update({'tags': tags})
+                data.update({'holder_type': holder_type})
+                data.update({'source': source_pdf_url})    
+                data.update({'timestamp': timestamp_str})            
+                return data 
+
+            except Exception as e:
+                logger.error(f"extract_fields error {filename}: {e}", exc_info=True)
+                # Fatal: structural parse error
+                self._parser_fail(
+                    code="parse_exception",
+                    filename=filename,
+                    reasons=[
+                        {
+                            "scope": "parser",
+                            "code": "parse_exception",
+                            "message": f"Error while extracting fields from IDX NEW FORMAT PDF: {e}",
+                            "details": {"announcement": self._current_alert_context},
+                        }
+                    ],
+                )
+                return None
+        else:
+            text = self._slice_to_english(text)
+            self.save_debug_output(filename, text)
+
+            try:
+                data = self.extract_fields_from_text(text, filename)
+                data["source"] = filename
+                
+                # Compute standardized tags
+                # Flags from text (MESOP, free-float, inheritance/transfer hints)
+                flags = TransactionClassifier.detect_flags_from_text(text)
+
+                # Build txns list from parsed rows
+                txns = (data.get("transactions") or [])
+                # If rows empty, synthesize from doc-level type
+                if not txns and data.get("transaction_type") in {"buy", "sell", "transfer"}:
+                    txns = [{"type": data["transaction_type"], "amount": data.get("amount_transacted") or 0}]
+
+                data["tags"] = TransactionClassifier.compute_filings_tags(
+                    txns=txns,
+                    share_percentage_before=data.get("share_percentage_before"),
+                    share_percentage_after=data.get("share_percentage_after"),
+                    flags=flags,
+                )
+
+                return data
+            
+            except Exception as e:
+                logger.error(f"extract_fields error {filename}: {e}", exc_info=True)
+                # Fatal: structural parse error
+                self._parser_fail(
+                    code="parse_exception",
+                    filename=filename,
+                    reasons=[
+                        {
+                            "scope": "parser",
+                            "code": "parse_exception",
+                            "message": f"Error while extracting fields from IDX PDF: {e}",
+                            "details": {"announcement": self._current_alert_context},
+                        }
+                    ],
+                )
+                return None
 
     def _slice_to_english(self, text: str) -> str:
         lines = (text or "").splitlines()
@@ -627,4 +681,7 @@ class IDXParser(BaseParser):
         if all_zero:
             return False
 
-        return bool(d.get("transactions"))
+        has_old_tx = bool(d.get("transactions"))
+        has_new_tx = bool(d.get("price_transaction"))
+
+        return has_old_tx or has_new_tx

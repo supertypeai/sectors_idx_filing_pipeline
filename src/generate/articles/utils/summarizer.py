@@ -1,16 +1,30 @@
 # src/generate/articles/utils/summarizer.py
 from __future__ import annotations
 from typing import Dict, Tuple, Optional, Any, List
+from pydantic import BaseModel, Field 
+
 import os
 import json
+import time 
+
 
 # Optional: Gemini SDK
 _GEMINI_OK = False
 try:
-    import google.generativeai as genai  # pip install google-generativeai
+    from google.genai import types
+    from google import genai # pip install google-generativeai
     _GEMINI_OK = True
 except Exception:
     genai = None  # type: ignore
+
+
+class SummaryResult(BaseModel): 
+    """ 
+    Result for summarized article. includes title and body.
+    """
+    title: str = Field(None, description="The summarized title.")
+    body: str = Field(None, description="The summarized body text.")
+
 
 def _fmt_int(n: Any) -> str:
     try:
@@ -18,11 +32,13 @@ def _fmt_int(n: Any) -> str:
     except Exception:
         return str(n)
 
+
 def _coerce_flo(x: Any) -> Optional[float]:
     try:
         return float(x)
     except Exception:
         return None
+
 
 def _compose_rule_based(f: Dict[str, Any]) -> Tuple[str, str]:
     sym = f.get("symbol") or ""
@@ -53,24 +69,53 @@ def _compose_rule_based(f: Dict[str, Any]) -> Tuple[str, str]:
     body = f"{holder} {tx} shares of {cname} ({sym}){p_phrase}{delta}. This filing was disclosed by the exchange."
     return title, body
 
-def _gemini_client(model_name: str):
+
+_SYS_PROMPT = """
+    You are a precise financial writer. Write a concise, news-style title and a 2–4 sentence body from the given facts.
+    - Keep it factual; don't speculate.
+    - Currency: IDR.
+    - Use thousands separator with comma (e.g., 83,420,100) and use dot for decimal separator.
+    - If prices exist, show one representative price like "IDR 490 per share".
+    - If holdings_before/after exist, show the transition and delta if clear.
+    Return with the following structure JSON SummarizeResult.
+"""
+
+
+def _gemini_client():
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not _GEMINI_OK or not api_key:
         return None
     try:
-        genai.configure(api_key=api_key)
-        return genai.GenerativeModel(model_name)
+        client = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(api_version='v1alpha') 
+        )
+        return client 
     except Exception:
         return None
 
-_SYS_PROMPT = """You are a precise financial writer. Write a concise, news-style title and a 2–4 sentence body from the given facts.
-- Keep it factual; don't speculate.
-- Currency: IDR.
-- Use thousands separator with dots (e.g., 83.420.100).
-- If prices exist, show one representative price like "≈ IDR 490 per share".
-- If holdings_before/after exist, show the transition and delta if clear.
-Return JSON: {"title": "...", "body": "..."} only.
-"""
+
+def _get_llm_response(client: any, model: str, prompt_input: str) -> SummaryResult:
+    try: 
+        llm_response = client.models.generate_content( 
+            model = model, 
+            contents = [
+                prompt_input
+            ], 
+            config = types.GenerateContentConfig(
+                system_instruction=_SYS_PROMPT, 
+                response_mime_type='application/json',
+                response_schema=SummaryResult,
+                temperature=0.4
+            )
+        )
+        parsed_json = json.loads(llm_response.text)
+        return parsed_json
+    
+    except Exception as error: 
+        print(f"Error during LLM response parsing: {error}") 
+        return SummaryResult(title="", body="")
+
 
 def _facts_to_bullets(f: Dict[str, Any]) -> str:
     lines: List[str] = []
@@ -90,34 +135,37 @@ def _facts_to_bullets(f: Dict[str, Any]) -> str:
     add("reason", f.get("reason"))
     return "\n".join(lines)
 
+
 class Summarizer:
     def __init__(self, use_llm: bool = False, groq_model: str = "", provider: Optional[str] = None) -> None:
         # keep signature compat
         self.use_llm = use_llm
         self.provider = (provider or os.getenv("LLM_PROVIDER") or "").strip().lower()
-        self.model = (os.getenv("GEMINI_MODEL") or "gemini-1.5-pro") if self.provider == "gemini" else groq_model
+        self.model = (os.getenv("GEMINI_MODEL") or "gemini-2.5-flash") if self.provider == "gemini" else groq_model
 
         # Prepare Gemini client if chosen
-        self._gem = None
+        self._gem_client = None
         if self.provider == "gemini":
-            self._gem = _gemini_client(self.model)
+            self._gem_client = _gemini_client()
 
     def summarize_from_facts(self, facts: Dict[str, Any], text_hint: Optional[str] = None) -> Tuple[str, str]:
         if not self.use_llm:
             return _compose_rule_based(facts)
 
-        if self.provider == "gemini" and self._gem is not None:
-            prompt = _SYS_PROMPT + "\nFacts:\n" + _facts_to_bullets(facts)
+        if self.provider == "gemini" and self._gem_client is not None:
+            prompt = "\nFacts:\n" + _facts_to_bullets(facts)
             if text_hint:
                 prompt += "\n\nContext:\n" + text_hint
             try:
-                resp = self._gem.generate_content(prompt)
-                txt = (resp.text or "").strip()
-                obj = json.loads(txt)
-                title = str(obj.get("title") or "").strip()
-                body = str(obj.get("body") or "").strip()
+                response = _get_llm_response(self._gem_client, self.model, prompt)
+                print('use llm')
+                title = str(response.get("title") or "").strip()
+                body = str(response.get("body") or "").strip()
+
+                time.sleep(12)
                 if title and body:
                     return title, body
+                
             except Exception:
                 pass  # fall back if anything fails
 

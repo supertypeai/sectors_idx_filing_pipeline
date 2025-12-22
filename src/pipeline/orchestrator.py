@@ -590,7 +590,7 @@ def step_upload_supabase(
     # 2. Get the list of valid columns from our core type
     try:
         valid_columns = FILINGS_ALLOWED_COLUMNS
-        valid_columns.update(["id", "created_at"]) 
+        valid_columns.update(["id", "created_at", "source_is_manual"]) 
     except Exception:
         LOG.error("[UPLOAD] Could not get valid columns from FilingRecord. Upload may fail.")
         valid_columns = None # Continue without filtering
@@ -598,6 +598,9 @@ def step_upload_supabase(
     LOG.info("[UPLOAD] Loaded %d rows from %s. Starting deduplication and upload...", len(rows), input_json)
 
     # 3. Call the deduplication service
+    for row in rows: 
+        row['source_is_manual'] = False 
+        
     res, stats = upload_filings_with_dedup(
         uploader=uploader,
         table=table,

@@ -121,6 +121,11 @@ jobs:
       # Main pipeline
       - name: Run orchestrator
         env:
+          # testing override 
+          ALERT_TO_EMAIL: "fawazzatha@gmail.com" 
+          ALERT_TO_EMAIL_INSERTED: "fawazzatha@gmail.com"
+          ALERT_TO_EMAIL_NOT_INSERTED: "fawazzatha@gmail.com"
+          
           # App secrets
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

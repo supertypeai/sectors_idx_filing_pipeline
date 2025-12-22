@@ -357,6 +357,7 @@ class ArticleGenerator:
         prices, amounts = _extract_prices_amounts_from_filing(filing)
         filing_tickers = filing.get("tickers") or []
         tickers_norm = _dedup_preserve([_with_jk(t) for t in filing_tickers if t])
+
         if symbol and symbol not in tickers_norm:
             tickers_norm.insert(0, symbol)
 
@@ -379,17 +380,24 @@ class ArticleGenerator:
             "announcement_published_at": filing.get("announcement_published_at"),
         }
 
+        log.info('generating title body')
         title, body = self.summarizer.summarize_from_facts(facts)
-        title, body = _to_narrative_if_keyfacts(title, body, facts)
+        print(f'title: {title}')
+        print(f'\nbody: {body}')
+        # title, body = _to_narrative_if_keyfacts(title, body, facts)
 
-        if not body.lstrip().lower().startswith("according to the published announcement"):
-            # Remove 'On <date>, ' if it matches the announcement date
-            body = _strip_redundant_on_date(body, facts.get("announcement_published_at"))
-            opening = _opening_sentence(facts)
-            body = f"{opening}{body}"
+        # if not body.lstrip().lower().startswith("according to the published announcement"):
+        #     # Remove 'On <date>, ' if it matches the announcement date
+        #     body = _strip_redundant_on_date(body, facts.get("announcement_published_at"))
+        #     opening = _opening_sentence(facts)
+        #     body = f"{opening}{body}"
 
         tags = self.classifier.infer_tags(facts, text_hint=None)
         sentiment = self.classifier.infer_sentiment(facts, text_hint=None)
+        print(f'\ntags: {tags}, sentiment: {sentiment}')
+
+        # tags = 'test'
+        # sentiment = 'test'
 
         article = Article(
             title=title, body=body, source=pdf_url,

@@ -6,26 +6,30 @@ logger = logging.getLogger(__name__)
 
 # Canonical whitelist (exactly 9)
 TAGS_WHITELIST = {
-    "bullish", "bearish", "takeover", "investment", "divestment",
+    #"bullish", "bearish", 
+    "takeover", "investment", "divestment",
     "free-float-requirement", "MESOP", "inheritance", "share-transfer",
 }
 
 # Keyword banks for side-signals (parser may pass text here)
 _KW_BUY = [
     "beli", "pembelian", "buy", "akumulasi", "investasi", "acquisition",
-    "penambahan", "increase", "buyback", "buy back",
+    "penambahan", "increase", "buyback", "buy back", "investment",
+    "peningkatan"
 ]
 _KW_SELL = [
     "jual", "penjualan", "sell", "divestasi", "divestment", "pengurangan",
-    "reduksi", "disposal",
+    "reduksi", "disposal"
 ]
 _KW_TRANSFER = [
     "transfer", "pemindahan", "konversi", "conversion", "neutral",
-    "tanpa perubahan", "alih", "pengalihan",
+    "tanpa perubahan", "alih", "pengalihan"
 ]
 _KW_INHERIT = ["waris", "inheritance", "hibah", "grant", "bequest"]
 _KW_MESOP = ["mesop", "msop", "esop", "program opsi saham", "employee stock option"]
 _KW_FREEFLOAT = ["free float", "free-float", "freefloat", "pemenuhan porsi publik"]
+_KW_RESTRUCTURING = ["restrukturisasi", "restructuring", "reorganisasi"]
+_KW_REPURCHASE = ['repo', 'penempatan saham revo']
 
 
 def _crosses_50(before_pp: Optional[float], after_pp: Optional[float]) -> bool:
@@ -110,7 +114,52 @@ class TransactionClassifier:
             "free_float_requirement": _any_kw(tl, _KW_FREEFLOAT),
             "inheritance": _any_kw(tl, _KW_INHERIT),
             "share_transfer_hint": _any_kw(tl, _KW_TRANSFER),
+            'capital-restructuring': _any_kw(tl, _KW_RESTRUCTURING)
         }
+
+    @staticmethod
+    def detect_tags_for_new_document(
+        purpose: str,
+        share_percentage_before: Optional[float],
+        share_percentage_after: Optional[float],
+        transaction_type: str,
+    ) -> list[str]: 
+        purpose = (purpose or '').lower()
+
+        detect_tag = {
+            "MESOP": _any_kw(purpose, _KW_MESOP),
+            "free_float_requirement": _any_kw(purpose, _KW_FREEFLOAT),
+            "inheritance": _any_kw(purpose, _KW_INHERIT),
+            "share-transfer": _any_kw(purpose, _KW_TRANSFER),
+            'capital-restructuring': _any_kw(purpose, _KW_RESTRUCTURING),
+            'investment': _any_kw(purpose, _KW_BUY),
+            'divestment': _any_kw(purpose, _KW_SELL),
+            'repurchase-agreement': _any_kw(purpose, _KW_REPURCHASE),
+        }
+        
+        tags = set()
+
+        for tag, found in detect_tag.items(): 
+            if found: 
+                tags.add(tag)
+        
+        if not tags: 
+            if transaction_type == 'buy':
+                tags.add('investment')
+            elif transaction_type == 'sell':
+                tags.add('divestment')
+
+        if 'investment' in tags and 'divestment' in tags: 
+            if transaction_type == 'buy':
+                tags.remove('divestment')
+            elif transaction_type == 'sell':
+                tags.remove('investment')
+
+        if _crosses_50(share_percentage_before, share_percentage_after):
+            tags.add("takeover")
+
+        tags = list(tags)
+        return sorted(tags)
 
     @staticmethod
     def compute_filings_tags(
@@ -154,10 +203,10 @@ class TransactionClassifier:
             tags.add("inheritance")
 
         # bullish/bearish net
-        if net_amount > 0 and has_buy:
-            tags.add("bullish")
-        elif net_amount < 0 and has_sell:
-            tags.add("bearish")
+        # if net_amount > 0 and has_buy:
+        #     tags.add("bullish")
+        # elif net_amount < 0 and has_sell:
+        #     tags.add("bearish")
 
         # takeover (50% crossing)
         if _crosses_50(share_percentage_before, share_percentage_after):

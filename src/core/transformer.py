@@ -6,6 +6,7 @@ import json
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
+from deep_translator import GoogleTranslator
 
 from src.core.types import FilingRecord, PriceTransaction, floor_pct_5, close_pct
 from src.common.strings import to_float, to_int, kebab
@@ -14,7 +15,9 @@ from src.common.strings import to_float, to_int, kebab
 TAG_WHITELIST = {
     "takeover", "mesop", "inheritance", "award",
     "share-transfer", "internal-strategy",
-    "bullish", "bearish", "investment", "divestment",
+    "investment", "divestment", "capital-restructuring", 
+    "free_float_requirement", 'repurchase-agreement'
+    #"bullish", "bearish", 
 }
 
 
@@ -29,11 +32,11 @@ PURPOSE_TAG_MAP = {
     "divestasi": "divestment", "difvestment": "divestment",
 }
 
-import google.generativeai as _genai 
-try:
-    from deep_translator import GoogleTranslator as _GTTranslator 
-except Exception:  # pragma: no cover - optional dep
-    _GTTranslator = None
+# import google.generativeai as _genai 
+# try:
+#     from deep_translator import GoogleTranslator as _GTTranslator 
+# except Exception:  # pragma: no cover - optional dep
+#     _GTTranslator = None
 
 # Config: allow fast opt-out or short timeouts for translation
 _GEMINI_CLIENT: Optional[Any] = None
@@ -48,68 +51,80 @@ _GOOGLETRANS_ALLOW_PROXY = os.getenv("GOOGLETRANS_ALLOW_PROXY", "1").lower() in 
 # Lazily initialized Gemini client (None when unavailable)
 _GEMINI_CLIENT: Optional[Any] = None
 
-def _get_gemini_translator():
-    """Best-effort Gemini client for purpose translation."""
-    global _GEMINI_CLIENT
+# def _get_gemini_translator():
+#     """Best-effort Gemini client for purpose translation."""
+#     global _GEMINI_CLIENT
 
-    # Opt-out or skip when behind a proxy that breaks gRPC unless explicitly allowed
-    if not _GEMINI_PURPOSE_ENABLED:
-        return None
-    if not _GEMINI_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
-        return None
+#     # Opt-out or skip when behind a proxy that breaks gRPC unless explicitly allowed
+#     if not _GEMINI_PURPOSE_ENABLED:
+#         return None
+#     if not _GEMINI_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
+#         return None
 
-    if _GEMINI_CLIENT is not None:
-        return _GEMINI_CLIENT
-    if _genai is None:
-        return None
+#     if _GEMINI_CLIENT is not None:
+#         return _GEMINI_CLIENT
+#     if _genai is None:
+#         return None
 
-    api_key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL") or "gemini-1.5-flash"
-    if not api_key:
-        return None
+#     api_key = os.getenv("GEMINI_API_KEY")
+#     model = os.getenv("GEMINI_MODEL") or "gemini-1.5-flash"
+#     if not api_key:
+#         return None
+#     try:
+#         _genai.configure(api_key=api_key)
+#         _GEMINI_CLIENT = _genai.GenerativeModel(model)
+#     except Exception as exc: 
+#         logging.warning("Failed to init Gemini translator: %s", exc)
+#         _GEMINI_CLIENT = None
+#     return _GEMINI_CLIENT
+
+
+
+# def _get_google_translator():
+#     """Best-effort Google Translate (non-LLM) client."""
+#     global _GOOGLETRANS_CLIENT
+#     if not _GOOGLETRANS_ENABLED:
+#         return None
+#     if not _GOOGLETRANS_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
+#         return None
+#     if _GOOGLETRANS_CLIENT is not None:
+#         return _GOOGLETRANS_CLIENT
+#     if _GTTranslator is None:
+#         return None
+#     try:
+#         _GOOGLETRANS_CLIENT = _GTTranslator(source="auto", target="en")
+#     except Exception as exc:  # pragma: no cover - best effort
+#         logging.warning("Failed to init Google Translate client: %s", exc)
+#         _GOOGLETRANS_CLIENT = None
+#     return _GOOGLETRANS_CLIENT
+
+
+# def _translate_purpose_google(text: str) -> Optional[str]:
+#     """Use googletrans (non-LLM) to translate to English."""
+#     if not text:
+#         return None
+#     client = _get_google_translator()
+#     if not client:
+#         return None
+#     try:
+#         out = (client.translate(text) or "").strip()
+#         return out or None
+#     except Exception as exc:  # pragma: no cover - network best effort
+#         logging.warning("googletrans purpose translation failed: %s", exc)
+#         return None
+
+def translator(text: str) -> str:
+    if not text: 
+        return ''
+    
     try:
-        _genai.configure(api_key=api_key)
-        _GEMINI_CLIENT = _genai.GenerativeModel(model)
-    except Exception as exc: 
-        logging.warning("Failed to init Gemini translator: %s", exc)
-        _GEMINI_CLIENT = None
-    return _GEMINI_CLIENT
-
-
-
-def _get_google_translator():
-    """Best-effort Google Translate (non-LLM) client."""
-    global _GOOGLETRANS_CLIENT
-    if not _GOOGLETRANS_ENABLED:
+        translated = GoogleTranslator(source='auto', target='en').translate(text) 
+        return translated
+    
+    except Exception as error:
+        print(f'Error translator: {error}')
         return None
-    if not _GOOGLETRANS_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
-        return None
-    if _GOOGLETRANS_CLIENT is not None:
-        return _GOOGLETRANS_CLIENT
-    if _GTTranslator is None:
-        return None
-    try:
-        _GOOGLETRANS_CLIENT = _GTTranslator(source="auto", target="en")
-    except Exception as exc:  # pragma: no cover - best effort
-        logging.warning("Failed to init Google Translate client: %s", exc)
-        _GOOGLETRANS_CLIENT = None
-    return _GOOGLETRANS_CLIENT
-
-
-def _translate_purpose_google(text: str) -> Optional[str]:
-    """Use googletrans (non-LLM) to translate to English."""
-    if not text:
-        return None
-    client = _get_google_translator()
-    if not client:
-        return None
-    try:
-        out = (client.translate(text) or "").strip()
-        return out or None
-    except Exception as exc:  # pragma: no cover - network best effort
-        logging.warning("googletrans purpose translation failed: %s", exc)
-        return None
-
+    
 # Small helpers
 def _is_url(s: Optional[str]) -> bool:
     if not s:
@@ -192,7 +207,7 @@ def _translate_to_english(text: str) -> str:
         return ""
 
     # 1) Try googletrans (non-LLM)
-    gt = _translate_purpose_google(text)
+    gt = translator(text)
     # Kadang-kadang library balikannya sama persis → anggap gagal
     if gt and gt.strip().lower() != text.strip().lower():
         return gt
@@ -311,9 +326,9 @@ def _normalize_transaction_type(raw_type: Any, holding_before: Any, holding_afte
     Prefer explicit type; otherwise infer buy/sell from holding delta.
     If still unknown (incl. strings that contain 'transfer'), fall back to 'other'.
     """
-    t = (_to_str(raw_type) or "").lower()
-    if t in {"buy", "sell", "share-transfer", "award", "inheritance", "mesop"}:
-        return t
+    type_str = (_to_str(raw_type) or "").lower()
+    if type_str in {"buy", "sell", "share-transfer", "others", "award", "inheritance", "mesop"}:
+        return type_str
 
     hb = to_int(holding_before)
     ha = to_int(holding_after)
@@ -325,7 +340,7 @@ def _normalize_transaction_type(raw_type: Any, holding_before: Any, holding_afte
 
     # Any uncertain/ambiguous descriptor defaults to 'other'
     # (including strings containing 'transfer' but not explicitly recognized)
-    return "other"
+    return "others"
 
 def _build_tx_list_from_list(tx_list: List[Dict[str, Any]], raw_date: Any) -> List[PriceTransaction]:
     """New input format: list of dicts → List[PriceTransaction]. Prefer per-row ISO date if present."""
@@ -429,48 +444,48 @@ def _generate_title_and_body(
     return title, body
 
 
-def _apply_bull_bear_tags(
-    tags: List[str],
-    tx_type: str,
-    hb: Optional[int],
-    ha: Optional[int],
-    pp_before: Optional[float],
-    pp_after: Optional[float],
-) -> List[str]:
-    """
-    Add 'bullish' for effective buys (holding or % up), 'bearish' for sells (down).
-    Works even when tx_type was inferred as 'other' but the delta is clear.
-    """
-    out = set(tags or [])
-    t = (tx_type or "").lower()
+# def _apply_bull_bear_tags(
+#     tags: List[str],
+#     tx_type: str,
+#     hb: Optional[int],
+#     ha: Optional[int],
+#     pp_before: Optional[float],
+#     pp_after: Optional[float],
+# ) -> List[str]:
+#     """
+#     Add 'bullish' for effective buys (holding or % up), 'bearish' for sells (down).
+#     Works even when tx_type was inferred as 'other' but the delta is clear.
+#     """
+#     out = set(tags or [])
+#     t = (tx_type or "").lower()
 
-    # Prefer explicit tx_type first
-    if t == "buy":
-        out.add("bullish")
-    elif t == "sell":
-        out.add("bearish")
-    else:
-        # Fall back to deltas if available
-        if hb is not None and ha is not None:
-            if ha > hb:
-                out.add("bullish")
-            elif ha < hb:
-                out.add("bearish")
-        elif pp_before is not None and pp_after is not None:
-            try:
-                if not close_pct(pp_after, pp_before):
-                    if pp_after > pp_before:
-                        tags = sorted(set(tags) | {"bullish"})
-                    elif pp_after < pp_before:
-                        tags = sorted(set(tags) | {"bearish"})
-            except NameError:
-                delta = (pp_after or 0) - (pp_before or 0)
-                if delta > 1e-5:
-                    tags = sorted(set(tags) | {"bullish"})
-                elif delta < -1e-5:
-                    tags = sorted(set(tags) | {"bearish"})
+#     # Prefer explicit tx_type first
+#     if t == "buy":
+#         out.add("bullish")
+#     elif t == "sell":
+#         out.add("bearish")
+#     else:
+#         # Fall back to deltas if available
+#         if hb is not None and ha is not None:
+#             if ha > hb:
+#                 out.add("bullish")
+#             elif ha < hb:
+#                 out.add("bearish")
+#         elif pp_before is not None and pp_after is not None:
+#             try:
+#                 if not close_pct(pp_after, pp_before):
+#                     if pp_after > pp_before:
+#                         tags = sorted(set(tags) | {"bullish"})
+#                     elif pp_after < pp_before:
+#                         tags = sorted(set(tags) | {"bearish"})
+#             except NameError:
+#                 delta = (pp_after or 0) - (pp_before or 0)
+#                 if delta > 1e-5:
+#                     tags = sorted(set(tags) | {"bullish"})
+#                 elif delta < -1e-5:
+#                     tags = sorted(set(tags) | {"bearish"})
 
-    return sorted(out)
+#     return sorted(out)
 
 
 def _enrich_sector_from_provider(symbol: Optional[str], sec: Any, sub: Any) -> tuple[str, str]:
@@ -488,6 +503,7 @@ def _enrich_sector_from_provider(symbol: Optional[str], sec: Any, sub: Any) -> t
 def _normalize_tags(raw_tags: Any, purpose_en: str, tx_type: str) -> List[str]:
     tags = set()
     tag_list: List[str] = []
+
     if isinstance(raw_tags, list):
         tag_list = raw_tags
     elif isinstance(raw_tags, str):
@@ -502,20 +518,27 @@ def _normalize_tags(raw_tags: Any, purpose_en: str, tx_type: str) -> List[str]:
         t_low = (_to_str(tag) or "").lower()
         if not t_low:
             continue
-        if t_low == "share-transfer" and tx_low != "share-transfer":
-            continue
+
+        if t_low == "share-transfer":
+            # Guard: only allow 'share-transfer' tag if tx_type is compatible (old)
+            if tx_low not in ("share-transfer", "others", "buy", "sell"):
+                continue
+
         if t_low in TAG_WHITELIST:
             tags.add(t_low)
 
-    purpose_low = (purpose_en or "").lower()
-    for key, mapped in PURPOSE_TAG_MAP.items():
-        if key in purpose_low:
-            if mapped == "share-transfer" and tx_low != "share-transfer":
-                continue
-            tags.add(mapped)
+    # purpose_low = (purpose_en or "").lower()
+    # for key, mapped in PURPOSE_TAG_MAP.items():
+    #     if key in purpose_low:
+    #         if mapped == "share-transfer": 
+    #             if tx_low not in ("share-transfer", "others"):
+    #                 continue
+
+    #         tags.add(mapped)
 
     if tx_low in TAG_WHITELIST:
         tags.add(tx_low)
+
     return sorted(tags)
 
 
@@ -643,26 +666,28 @@ def transform_raw_to_record(
     )
 
     # Tags (with transfer guard)
+    print(f'\nraw tags before normalize: {raw_dict.get("tags")}\n')
     tags = _normalize_tags(raw_dict.get("tags"), purpose_en, tx_type)
+    print(f'\ntags after normalize: {tags}\n')
 
     # Add bullish/bearish from direction (tx_type or holdings/% deltas)
-    t_low = (tx_type or "").lower()
-    if t_low == "buy":
-        tags = sorted(set(tags) | {"bullish"})
-    elif t_low == "sell":
-        tags = sorted(set(tags) | {"bearish"})
-    else:
-        # Infer from holdings or percentages when tx_type is "other"/"share-transfer"/etc.
-        if holding_before is not None and holding_after is not None:
-            if holding_after > holding_before:
-                tags = sorted(set(tags) | {"bullish"})
-            elif holding_after < holding_before:
-                tags = sorted(set(tags) | {"bearish"})
-        elif pp_before is not None and pp_after is not None:
-            if pp_after > pp_before:
-                tags = sorted(set(tags) | {"bullish"})
-            elif pp_after < pp_before:
-                tags = sorted(set(tags) | {"bearish"})
+    # t_low = (tx_type or "").lower()
+    # if t_low == "buy":
+    #     tags = sorted(set(tags) | {"bullish"})
+    # elif t_low == "sell":
+    #     tags = sorted(set(tags) | {"bearish"})
+    # else:
+    #     # Infer from holdings or percentages when tx_type is "other"/"share-transfer"/etc.
+    #     if holding_before is not None and holding_after is not None:
+    #         if holding_after > holding_before:
+    #             tags = sorted(set(tags) | {"bullish"})
+    #         elif holding_after < holding_before:
+    #             tags = sorted(set(tags) | {"bearish"})
+    #     elif pp_before is not None and pp_after is not None:
+    #         if pp_after > pp_before:
+    #             tags = sorted(set(tags) | {"bullish"})
+    #         elif pp_after < pp_before:
+    #             tags = sorted(set(tags) | {"bearish"})
 
     # Symbol + sector/sub_sector (provider enrichment)
     symbol_norm = _normalize_symbol(raw_dict.get("symbol") or raw_dict.get("issuer_code"))
@@ -722,7 +747,7 @@ def transform_raw_to_record(
 
     # Alert flags for manual review
     # Pairing/UID checks are important for transfers and "other".
-    if (record.transaction_type or "").lower() in {"share-transfer", "other"}:
+    if (record.transaction_type or "").lower() in {"share-transfer", "other", "others"}:
         record.audit_flags["needs_manual_uid"] = True
         record.audit_flags["reason"] = f"{record.transaction_type} detected"
 

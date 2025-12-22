@@ -5,6 +5,7 @@ from rapidfuzz import fuzz
 
 IDX_KNOWN = [
     "Ownership Report or Any Changes in Ownership of Public Company Shares",
+    "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES"
 ]
 NON_IDX_KNOWN = [
     "Share Ownership Report",
