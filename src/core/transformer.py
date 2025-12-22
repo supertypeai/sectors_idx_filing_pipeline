@@ -4,9 +4,7 @@ from __future__ import annotations
 from urllib.parse import urlparse
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from google.genai import types
-from google import genai 
-from pydantic import BaseModel, Field
+from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
 
 from src.core.types import FilingRecord, PriceTransaction, floor_pct_5, close_pct
@@ -121,49 +119,16 @@ _GEMINI_CLIENT: Optional[Any] = None
 #         logging.warning("googletrans purpose translation failed: %s", exc)
 #         return None
 
-class PurposeTranslated(BaseModel): 
-    """ 
-    Result for purpose translation response.
-    """
-    translated_text: str = Field(None, description="Translated purpose text in English")
-
-def _gemini_client():
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
-    try:
-        client = genai.Client(
-            api_key=api_key,
-            http_options=types.HttpOptions(api_version='v1alpha') 
-        )
-        return client 
-    except Exception:
-        return None
     
 def translator(text: str) -> str:
-    if not text: 
-        return ''
+    if not text:
+        return ""
     
     try:
-        client = _gemini_client()
-        response = client.models.generate_content(
-            model = 'gemini-2.5-flash-lite', 
-            contents = [
-                text
-            ], 
-            config = types.GenerateContentConfig(
-                system_instruction="Translate the given Indonesian text to English concisely in finance context.", 
-                response_mime_type='application/json',
-                response_schema=PurposeTranslated,
-                temperature=0.5,
-            )
-        )
-        parsed_json = json.loads(response.text)
-        logging.info(f'\nraw purpose parsed json: {parsed_json}\n')
-        time.sleep(10)
-        return str(parsed_json.get("translated_text") or "").strip()
-    
+        return GoogleTranslator(source='auto', target='en').translate(text)
     except Exception as error:
-        logging.error(f'Error translator: {error}')
-        return None
+        logging.error(f"Translator warning: {error}")
+        return text
     
 # Small helpers
 def _is_url(s: Optional[str]) -> bool:
