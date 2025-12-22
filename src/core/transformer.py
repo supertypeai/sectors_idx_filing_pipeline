@@ -1,15 +1,23 @@
 # src/core/transformer.py
 from __future__ import annotations
-import os
+
 from urllib.parse import urlparse
-import json
-import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from deep_translator import GoogleTranslator
+from google.genai import types
+from google import genai 
+from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 from src.core.types import FilingRecord, PriceTransaction, floor_pct_5, close_pct
 from src.common.strings import to_float, to_int, kebab
+
+import os 
+import time 
+import json
+import logging
+
+load_dotenv()
 
 # Tag dictionaries / mappings
 TAG_WHITELIST = {
@@ -113,13 +121,45 @@ _GEMINI_CLIENT: Optional[Any] = None
 #         logging.warning("googletrans purpose translation failed: %s", exc)
 #         return None
 
+class PurposeTranslated(BaseModel): 
+    """ 
+    Result for purpose translation response.
+    """
+    translated_text: str = Field(None, description="Translated purpose text in English")
+
+def _gemini_client():
+    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+    try:
+        client = genai.Client(
+            api_key=api_key,
+            http_options=types.HttpOptions(api_version='v1alpha') 
+        )
+        return client 
+    except Exception:
+        return None
+    
 def translator(text: str) -> str:
     if not text: 
         return ''
     
     try:
-        translated = GoogleTranslator(source='auto', target='en').translate(text) 
-        return translated
+        client = _gemini_client()
+        response = client.models.generate_content(
+            model = 'gemini-2.5-flash-lite', 
+            contents = [
+                text
+            ], 
+            config = types.GenerateContentConfig(
+                system_instruction="Translate the given Indonesian text to English concisely in finance context.", 
+                response_mime_type='application/json',
+                response_schema=PurposeTranslated,
+                temperature=0.5,
+            )
+        )
+        parsed_json = json.loads(response.text)
+
+        time.sleep(10)
+        return str(parsed_json.get("translated_text") or "").strip()
     
     except Exception as error:
         print(f'Error translator: {error}')

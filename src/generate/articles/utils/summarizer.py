@@ -12,7 +12,7 @@ import time
 _GEMINI_OK = False
 try:
     from google.genai import types
-    from google import genai # pip install google-generativeai
+    from google import genai 
     _GEMINI_OK = True
 except Exception:
     genai = None  # type: ignore
