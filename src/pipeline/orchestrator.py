@@ -600,7 +600,7 @@ def step_upload_supabase(
     # 3. Call the deduplication service
     for row in rows: 
         row['source_is_manual'] = False 
-        row['filings_input_source'] = 'test_automated'
+        row['filings_input_source'] = 'automated'
 
     res, stats = upload_filings_with_dedup(
         uploader=uploader,
