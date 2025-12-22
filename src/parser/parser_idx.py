@@ -164,7 +164,7 @@ class IDXParser(BaseParser):
             try:
                 timestamp = pdf_file.get('date', '')
                 timestamp_object = datetime.fromisoformat(timestamp)
-                timestamp_str = timestamp_object.strftime('%Y-%m-%d')
+                timestamp_str = timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
 
                 data = parser_new_document(f'downloads/idx-format/{filename}')
 
