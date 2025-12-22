@@ -157,7 +157,7 @@ def translator(text: str) -> str:
             )
         )
         parsed_json = json.loads(response.text)
-
+        print(f'\nraw purpose parsed json: {parsed_json}\n')
         time.sleep(10)
         return str(parsed_json.get("translated_text") or "").strip()
     
@@ -248,6 +248,7 @@ def _translate_to_english(text: str) -> str:
 
     # 1) Try googletrans (non-LLM)
     gt = translator(text)
+    logging.info(f'\npurpose en: {gt}\n')
     # Kadang-kadang library balikannya sama persis → anggap gagal
     if gt and gt.strip().lower() != text.strip().lower():
         return gt
