@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 from statistics import median
 from decimal import Decimal, InvalidOperation, ROUND_FLOOR
-from src.core.types import FilingRecord, PriceTransaction, floor_pct_5
+from src.core.types import FilingRecord, PriceTransaction, floor_pct_3
 
 try:
     from src.config.config import (
@@ -428,14 +428,14 @@ def _recompute_percentages_model(record: FilingRecord) -> Dict[str, Any]:
 
     if total_shares and total_shares > 0:
         delta_raw = ( (_safe_float(signed_amount) or 0.0) / float(total_shares) ) * 100.0
-        delta_pp_model = floor_pct_5(delta_raw)
+        delta_pp_model = floor_pct_3(delta_raw)
 
         if record.share_percentage_before is not None:
-            pp_after_model = floor_pct_5((record.share_percentage_before or 0.0) + (delta_pp_model or 0.0))
+            pp_after_model = floor_pct_3((record.share_percentage_before or 0.0) + (delta_pp_model or 0.0))
 
     if pp_after_model is not None and record.share_percentage_after is not None:
-        a = floor_pct_5(pp_after_model)
-        b = floor_pct_5(record.share_percentage_after)
+        a = floor_pct_3(pp_after_model)
+        b = floor_pct_3(record.share_percentage_after)
         discrepancy_pp = abs((a or 0.0) - (b or 0.0))
         percent_discrepancy = discrepancy_pp > float(PERCENT_TOL_PP)
 

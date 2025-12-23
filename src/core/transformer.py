@@ -1,19 +1,22 @@
 # src/core/transformer.py
 from __future__ import annotations
-
+import os
 from urllib.parse import urlparse
+import json
+import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
-from deep_translator import GoogleTranslator
+from google.genai import types
+from google import genai 
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
+from deep_translator import GoogleTranslator
 
-from src.core.types import FilingRecord, PriceTransaction, floor_pct_5, close_pct
+from src.core.types import FilingRecord, PriceTransaction, floor_pct_3, close_pct
 from src.common.strings import to_float, to_int, kebab
 
 import os 
 import time 
-import json
-import logging
 
 load_dotenv()
 
@@ -38,11 +41,6 @@ PURPOSE_TAG_MAP = {
     "divestasi": "divestment", "difvestment": "divestment",
 }
 
-# import google.generativeai as _genai 
-# try:
-#     from deep_translator import GoogleTranslator as _GTTranslator 
-# except Exception:  # pragma: no cover - optional dep
-#     _GTTranslator = None
 
 # Config: allow fast opt-out or short timeouts for translation
 _GEMINI_CLIENT: Optional[Any] = None
@@ -57,77 +55,13 @@ _GOOGLETRANS_ALLOW_PROXY = os.getenv("GOOGLETRANS_ALLOW_PROXY", "1").lower() in 
 # Lazily initialized Gemini client (None when unavailable)
 _GEMINI_CLIENT: Optional[Any] = None
 
-# def _get_gemini_translator():
-#     """Best-effort Gemini client for purpose translation."""
-#     global _GEMINI_CLIENT
-
-#     # Opt-out or skip when behind a proxy that breaks gRPC unless explicitly allowed
-#     if not _GEMINI_PURPOSE_ENABLED:
-#         return None
-#     if not _GEMINI_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
-#         return None
-
-#     if _GEMINI_CLIENT is not None:
-#         return _GEMINI_CLIENT
-#     if _genai is None:
-#         return None
-
-#     api_key = os.getenv("GEMINI_API_KEY")
-#     model = os.getenv("GEMINI_MODEL") or "gemini-1.5-flash"
-#     if not api_key:
-#         return None
-#     try:
-#         _genai.configure(api_key=api_key)
-#         _GEMINI_CLIENT = _genai.GenerativeModel(model)
-#     except Exception as exc: 
-#         logging.warning("Failed to init Gemini translator: %s", exc)
-#         _GEMINI_CLIENT = None
-#     return _GEMINI_CLIENT
 
 
-
-# def _get_google_translator():
-#     """Best-effort Google Translate (non-LLM) client."""
-#     global _GOOGLETRANS_CLIENT
-#     if not _GOOGLETRANS_ENABLED:
-#         return None
-#     if not _GOOGLETRANS_ALLOW_PROXY and (os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")):
-#         return None
-#     if _GOOGLETRANS_CLIENT is not None:
-#         return _GOOGLETRANS_CLIENT
-#     if _GTTranslator is None:
-#         return None
-#     try:
-#         _GOOGLETRANS_CLIENT = _GTTranslator(source="auto", target="en")
-#     except Exception as exc:  # pragma: no cover - best effort
-#         logging.warning("Failed to init Google Translate client: %s", exc)
-#         _GOOGLETRANS_CLIENT = None
-#     return _GOOGLETRANS_CLIENT
-
-
-# def _translate_purpose_google(text: str) -> Optional[str]:
-#     """Use googletrans (non-LLM) to translate to English."""
-#     if not text:
-#         return None
-#     client = _get_google_translator()
-#     if not client:
-#         return None
-#     try:
-#         out = (client.translate(text) or "").strip()
-#         return out or None
-#     except Exception as exc:  # pragma: no cover - network best effort
-#         logging.warning("googletrans purpose translation failed: %s", exc)
-#         return None
-
-    
-def translator(text: str) -> str:
-    if not text:
-        return ""
-    
-    try:
-        return GoogleTranslator(source='auto', target='en').translate(text)
-    except Exception as error:
-        logging.error(f"Translator warning: {error}")
+def translator(text: str) -> str:   
+    try: 
+        return GoogleTranslator(source='auto', target='en').translate(text) 
+    except Exception as error: 
+        logging.error(f"GoogleTranslator failed: {error}. Returning original text.") 
         return text
     
 # Small helpers
@@ -213,9 +147,10 @@ def _translate_to_english(text: str) -> str:
 
     # 1) Try googletrans (non-LLM)
     gt = translator(text)
+
     # Kadang-kadang library balikannya sama persis → anggap gagal
     if gt and gt.strip().lower() != text.strip().lower():
-        logging.info(f'purpose en: {gt}')
+        print(f'\nraw purpose en: {gt}')
         return gt
 
     s = text.strip().lower()
@@ -450,50 +385,6 @@ def _generate_title_and_body(
     return title, body
 
 
-# def _apply_bull_bear_tags(
-#     tags: List[str],
-#     tx_type: str,
-#     hb: Optional[int],
-#     ha: Optional[int],
-#     pp_before: Optional[float],
-#     pp_after: Optional[float],
-# ) -> List[str]:
-#     """
-#     Add 'bullish' for effective buys (holding or % up), 'bearish' for sells (down).
-#     Works even when tx_type was inferred as 'other' but the delta is clear.
-#     """
-#     out = set(tags or [])
-#     t = (tx_type or "").lower()
-
-#     # Prefer explicit tx_type first
-#     if t == "buy":
-#         out.add("bullish")
-#     elif t == "sell":
-#         out.add("bearish")
-#     else:
-#         # Fall back to deltas if available
-#         if hb is not None and ha is not None:
-#             if ha > hb:
-#                 out.add("bullish")
-#             elif ha < hb:
-#                 out.add("bearish")
-#         elif pp_before is not None and pp_after is not None:
-#             try:
-#                 if not close_pct(pp_after, pp_before):
-#                     if pp_after > pp_before:
-#                         tags = sorted(set(tags) | {"bullish"})
-#                     elif pp_after < pp_before:
-#                         tags = sorted(set(tags) | {"bearish"})
-#             except NameError:
-#                 delta = (pp_after or 0) - (pp_before or 0)
-#                 if delta > 1e-5:
-#                     tags = sorted(set(tags) | {"bullish"})
-#                 elif delta < -1e-5:
-#                     tags = sorted(set(tags) | {"bearish"})
-
-#     return sorted(out)
-
-
 def _enrich_sector_from_provider(symbol: Optional[str], sec: Any, sub: Any) -> tuple[str, str]:
     from src.generate.filings.utils.provider import get_company_info
     s = _to_str(sec)
@@ -576,9 +467,9 @@ def transform_raw_to_record(
     )
 
     # Percentages
-    pp_before = floor_pct_5(raw_dict.get("share_percentage_before"))
-    pp_after  = floor_pct_5(raw_dict.get("share_percentage_after"))
-    pp_tx     = floor_pct_5(raw_dict.get("share_percentage_transaction"))
+    pp_before = floor_pct_3(raw_dict.get("share_percentage_before"))
+    pp_after  = floor_pct_3(raw_dict.get("share_percentage_after"))
+    pp_tx     = floor_pct_3(raw_dict.get("share_percentage_transaction"))
 
     # Timestamp & source (ingestion_map → parser → first tx)
         # Timestamp & source (robust resolver for IDX & NON-IDX)
@@ -676,25 +567,6 @@ def transform_raw_to_record(
     tags = _normalize_tags(raw_dict.get("tags"), purpose_en, tx_type)
     print(f'\ntags after normalize: {tags}\n')
 
-    # Add bullish/bearish from direction (tx_type or holdings/% deltas)
-    # t_low = (tx_type or "").lower()
-    # if t_low == "buy":
-    #     tags = sorted(set(tags) | {"bullish"})
-    # elif t_low == "sell":
-    #     tags = sorted(set(tags) | {"bearish"})
-    # else:
-    #     # Infer from holdings or percentages when tx_type is "other"/"share-transfer"/etc.
-    #     if holding_before is not None and holding_after is not None:
-    #         if holding_after > holding_before:
-    #             tags = sorted(set(tags) | {"bullish"})
-    #         elif holding_after < holding_before:
-    #             tags = sorted(set(tags) | {"bearish"})
-    #     elif pp_before is not None and pp_after is not None:
-    #         if pp_after > pp_before:
-    #             tags = sorted(set(tags) | {"bullish"})
-    #         elif pp_after < pp_before:
-    #             tags = sorted(set(tags) | {"bearish"})
-
     # Symbol + sector/sub_sector (provider enrichment)
     symbol_norm = _normalize_symbol(raw_dict.get("symbol") or raw_dict.get("issuer_code"))
 
@@ -723,6 +595,7 @@ def transform_raw_to_record(
         timestamp=_to_iso_date_full(main_date),
         transaction_type=tx_type,
         holder_name=holder_name,
+        company_name=company_name,
 
         holding_before=holding_before,
         holding_after=holding_after,

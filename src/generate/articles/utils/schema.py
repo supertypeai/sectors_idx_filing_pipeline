@@ -22,7 +22,7 @@ class Article:
     source: str
     timestamp: Any
     company_name: str = ""
-    symbol: Optional[str] = None
+    # symbol: Optional[str] = None
     tickers: Optional[List[str]] = None
     sector: str = ""
     sub_sector: Optional[List[str]] = None

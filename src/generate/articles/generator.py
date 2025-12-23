@@ -339,49 +339,51 @@ class ArticleGenerator:
 
     # From filings
     def from_filing(self, filing: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        pdf_url = self._map_source_url(filing)
-        symbol_raw = (filing.get("symbol") or (filing.get("tickers") or [None])[0])
-        symbol = _with_jk(symbol_raw)
-        meta = self._enrich_company(symbol)
+        # pdf_url = self._map_source_url(filing)
+        # symbol_raw = (filing.get("symbol") or (filing.get("tickers") or [None])[0])
+        # symbol = _with_jk(symbol_raw)
+        # meta = self._enrich_company(symbol)
 
-        holdings_before = (
-            filing.get("holdings_before") or filing.get("holding_before")
-            or filing.get("previous_holding") or filing.get("prev_holding")
-        )
-        holdings_after = (
-            filing.get("holdings_after") or filing.get("holding_after")
-            or filing.get("new_holding") or filing.get("post_holding")
-        )
-        reason = filing.get("reason") or filing.get("purpose") or filing.get("objective")
+        # holdings_before = (
+        #     filing.get("holdings_before") or filing.get("holding_before")
+        #     or filing.get("previous_holding") or filing.get("prev_holding")
+        # )
+        # holdings_after = (
+        #     filing.get("holdings_after") or filing.get("holding_after")
+        #     or filing.get("new_holding") or filing.get("post_holding")
+        # )
+        # # reason = filing.get("reason") or filing.get("purpose") or filing.get("objective")
 
-        prices, amounts = _extract_prices_amounts_from_filing(filing)
-        filing_tickers = filing.get("tickers") or []
-        tickers_norm = _dedup_preserve([_with_jk(t) for t in filing_tickers if t])
+        # # prices, amounts = _extract_prices_amounts_from_filing(filing)
+        # # filing_tickers = filing.get("tickers") or []
+        # # tickers_norm = _dedup_preserve([_with_jk(t) for t in filing_tickers if t])
 
-        if symbol and symbol not in tickers_norm:
-            tickers_norm.insert(0, symbol)
+        # # if symbol and symbol not in tickers_norm:
+        # #     tickers_norm.insert(0, symbol)
 
-        facts = {
-            "symbol": symbol,
-            "tickers": tickers_norm,
-            "company_name": filing.get("company_name") or meta["company_name"],
-            "sector": filing.get("sector") or meta["sector"],
-            "sub_sector": filing.get("sub_sector") or meta["sub_sector"],
-            "holder_type": filing.get("holder_type") or "",
-            "holder_name": filing.get("holder_name") or "",
-            "transaction_type": filing.get("transaction_type") or filing.get("type") or "",
-            "prices": prices,
-            "amount_transacted": amounts,
-            "holdings_before": holdings_before,
-            "holdings_after": holdings_after,
-            "reason": reason,
-            "timestamp": filing.get("timestamp"),
-            "source": pdf_url,
-            "announcement_published_at": filing.get("announcement_published_at"),
-        }
+        # # print(f'filing for article input: {json.dumps(filing, indent=2)}')
 
-        print('generating title body')
-        title, body = self.summarizer.summarize_from_facts(facts)
+        # facts = {
+        #     "symbol": symbol,
+        #     # "tickers": tickers_norm,
+        #     "company_name": filing.get("company_name") or meta["company_name"],
+        #     "sector": filing.get("sector") or meta["sector"],
+        #     "sub_sector": filing.get("sub_sector") or meta["sub_sector"],
+        #     "holder_type": filing.get("holder_type") or "",
+        #     "holder_name": filing.get("holder_name") or "",
+        #     "transaction_type": filing.get("transaction_type") or filing.get("type") or "",
+        #     # "prices": prices,
+        #     # "amount_transacted": amounts,
+        #     "holdings_before": holdings_before,
+        #     "holdings_after": holdings_after,
+        #     # "reason": reason,
+        #     "timestamp": filing.get("timestamp"),
+        #     "source": pdf_url,
+        #     "announcement_published_at": filing.get("announcement_published_at"),
+        # }
+
+        log.info('generating title body')
+        title, body = self.summarizer.summarize_from_facts(filing)
         print(f'title: {title}')
         print(f'\nbody: {body}')
         # title, body = _to_narrative_if_keyfacts(title, body, facts)
@@ -392,27 +394,29 @@ class ArticleGenerator:
         #     opening = _opening_sentence(facts)
         #     body = f"{opening}{body}"
 
-        tags = self.classifier.infer_tags(facts, text_hint=None)
-        sentiment = self.classifier.infer_sentiment(facts, text_hint=None)
+        tags = self.classifier.infer_tags(filing, text_hint=None)
+        sentiment = self.classifier.infer_sentiment(filing, text_hint=None)
         print(f'\ntags: {tags}, sentiment: {sentiment}')
 
         # tags = 'test'
         # sentiment = 'test'
+        symbol = filing.get("symbol") or [] 
+        tickers = _dedup_preserve([symbol])
 
         article = Article(
-            title=title, body=body, source=pdf_url,
-            timestamp=facts["timestamp"],
-            company_name=facts["company_name"],
-            symbol=facts["symbol"],
-            tickers=facts["tickers"],
-            sector=facts["sector"],
-            sub_sector=_ensure_list(facts["sub_sector"]),
+            title=title, body=body, source=filing.get('source'),
+            timestamp=filing["timestamp"],
+            company_name=filing["company_name"],
+            # symbol=filing["symbol"],
+            tickers=tickers,
+            sector=filing["sector"],
+            sub_sector=_ensure_list(filing["sub_sector"]),
             tags=tags, sentiment=sentiment,
             dimension={},
             score=0.0,
         ).to_dict()
 
-        article["announcement_published_at"] = facts.get("announcement_published_at")
+        article["announcement_published_at"] = filing.get("announcement_published_at", '')
 
         return self._finalize(article)
 
