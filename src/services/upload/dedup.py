@@ -127,7 +127,7 @@ def _fetch_existing_rows_same_days(
         "symbol", "timestamp", "transaction_type", "holder_name",
         "holding_before", "holding_after",
         "share_percentage_before", "share_percentage_after",
-        "amount_transaction", "transaction_value", "price", "filings_input_source"
+        "amount_transaction", "transaction_value", "price"
     ])
 
     try:
