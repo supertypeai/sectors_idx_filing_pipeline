@@ -167,7 +167,10 @@ class IDXParser(BaseParser):
                 timestamp_str = timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
 
                 data = parser_new_document(f'downloads/idx-format/{filename}')
-
+                if not data: 
+                    logger.warning(f"Skipping {filename}: parser_new_document returned None (likely no share change).")
+                    return None
+                
                 # Build tags
                 purpose = data.get('purpose')
                 shares_percentage_before = data.get('shares_percentage_before')

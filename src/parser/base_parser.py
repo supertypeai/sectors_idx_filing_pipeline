@@ -350,9 +350,8 @@ class BaseParser(ABC):
             try:
                 result = self.parse_single_pdf(filepath, filename, pdf_mapping)
                 # Skip from new parser if shares unchanged
-                if isinstance(result, str):
-                    if result.lower() == 'skip':
-                        continue
+                if result is None:
+                    continue 
 
                 if result and self.validate_parsed_data(result):
                     parsed_results.append(result)
