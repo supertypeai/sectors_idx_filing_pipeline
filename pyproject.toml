@@ -1,0 +1,54 @@
+[project]
+name = "sectors-idx-filing-pipeline-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.7",
+  "pydantic-settings>=2.2.1",
+  "python-dotenv>=1.0.1",
+  "rich>=13.7.1",
+  "typer>=0.12.3",
+  "pendulum>=3.0.0",
+  "holidays>=0.57",
+  "PyMuPDF>=1.24.0",
+  "python-dateutil>=2.9",
+  "pandas>=2.2",
+  "camelot-py>=0.11.0",
+  "pdfplumber>=0.11.0",
+  "pdfminer.six>=20231228",
+
+  "requests>=2.32.3",
+  "rapidfuzz>=3.9.6",
+  "httpx>=0.27.0",
+
+  'urllib3<2; python_version < "3.10"',
+  'urllib3>=2.5.0; python_version >= "3.10"',
+
+  "supabase>=2.4.0",
+
+  "sendgrid>=6.11.0",
+  "boto3>=1.28.0",
+
+  "twilio",
+
+  "gspread>=5.12.0",
+
+  'selenium>=4.23.1; python_version >= "3.10"',
+  'webdriver-manager>=4.0.2; python_version >= "3.10"',
+  "playwright>=1.45",
+  "cloudscraper>=1.2.71",
+  "brotli",
+
+  "langchain>=0.2,<0.3",
+  "langchain-groq>=0.1.6",
+  "langchain-openai>=0.1.20",
+  "groq>=0.8.0",
+  "openai>=1.50.0",
+  "google-generativeai>=0.7.2",
+  "google-genai",
+
+  "deep-translator>=1.11.4",
+  "Jinja2>=3.1"
+]
