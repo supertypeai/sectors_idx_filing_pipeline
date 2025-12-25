@@ -270,13 +270,31 @@ def extract_price_transaction(text: str) -> dict[str, any]:
 
                 if index < len(lines) and lines[index] == "Saham": 
                     index += 1
-
-                if index < len(lines) and lines[index] == "Biasa": 
-                    index += 1
                 
                 # Find Price
-                price = lines[index] if index < len(lines) else None
-                index += 1
+                # The item immediately before the date is the Price.
+                date_start_index = -1
+                scan_limit_date = min(index + 10, len(lines))
+                
+                for k in range(index, scan_limit_date):
+                    val = lines[k]
+                    # Regex to find Date start: 1 or 2 digits followed by hyphen (e.g., "01-", "24-")
+                    if re.match(r'^\d{1,2}\s?-$', val): 
+                        date_start_index = k
+                        break
+                
+                if date_start_index != -1 and date_start_index > index:
+                    # Found the date, The line before it is the Price
+                    price = lines[date_start_index - 1]
+                    index = date_start_index 
+
+                else:
+                    # Fallback if Regex fails (assume standard "Biasa" structure)
+                    if index < len(lines) and lines[index] == "Biasa": 
+                        index += 1
+
+                    price = lines[index] if index < len(lines) else None
+                    index += 1
                 
                 # Find Date
                 date_parts = []

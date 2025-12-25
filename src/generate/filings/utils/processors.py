@@ -579,37 +579,38 @@ def process_filing_record(
             },
         })
         row_flags["mismatch_transaction_type"] = True
-    else:
-        # Additional guard: mixed buy/sell with transfer/other in the same doc
-        tx_types = {(_tx_get_type(tx) or "").lower() for tx in tx_list}
-        has_buy_sell = bool(tx_types & {"buy", "sell"})
-        has_other = bool(tx_types - {"buy", "sell", ""})
-        transfer_only = (not has_buy_sell) and bool(tx_types) and tx_types <= {"transfer", "other", ""}
+    
+    # Additional guard: mixed buy/sell with transfer/other in the same doc
+    tx_types = {(_tx_get_type(tx) or "").lower() for tx in tx_list}
+    has_buy_sell = bool(tx_types & {"buy", "sell"})
+    has_other = bool(tx_types - {"buy", "sell", ""})
+    transfer_only = (not has_buy_sell) and bool(tx_types) and tx_types <= {"transfer", "other", ""}
 
-        if transfer_only:
-            reasons.append({
-                "scope": "row",
-                "code": "transfer_only_transaction",
-                "message": "Transfer/other-only transaction; requires manual handling.",
-                "details": {"tx_types": sorted(tx_types)},
-            })
-            row_flags["transfer_only_transaction"] = True
-            record.skip_reason = "transfer_only_transaction"
-            record.audit_flags["needs_review"] = True
-        elif has_buy_sell and has_other:
-            reasons.append({
-                "scope": "row",
-                "code": "mixed_transaction_type",
-                "message": "Buy/Sell transaction appears together with transfer/other in the same document.",
-                "details": {
-                    "tx_types": sorted(tx_types),
-                    "holding_before": record.holding_before,
-                    "holding_after": record.holding_after,
-                },
-            })
-            row_flags["mixed_transaction_type"] = True
-            record.skip_reason = "mixed_transaction_type"
-            record.audit_flags["needs_review"] = True
+    if transfer_only:
+        reasons.append({
+            "scope": "row",
+            "code": "transfer_only_transaction",
+            "message": "Transfer/other-only transaction; requires manual handling.",
+            "details": {"tx_types": sorted(tx_types)},
+        })
+        row_flags["transfer_only_transaction"] = True
+        record.skip_reason = "transfer_only_transaction"
+        record.audit_flags["needs_review"] = True
+        
+    elif has_buy_sell and has_other:
+        reasons.append({
+            "scope": "row",
+            "code": "mixed_transaction_type",
+            "message": "Buy/Sell transaction appears together with transfer/other in the same document.",
+            "details": {
+                "tx_types": sorted(tx_types),
+                "holding_before": record.holding_before,
+                "holding_after": record.holding_after,
+            },
+        })
+        row_flags["mixed_transaction_type"] = True
+        record.skip_reason = "mixed_transaction_type"
+        record.audit_flags["needs_review"] = True
 
     # 4.7) price_transaction structure sanity
     pt_invalid = False
