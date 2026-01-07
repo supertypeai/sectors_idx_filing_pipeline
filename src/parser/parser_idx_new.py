@@ -1,7 +1,10 @@
+from src.common.log import get_logger
+
 import fitz
 import re
 import json 
 
+LOGGER = get_logger(__name__)
 
 def open_json(filepath: str) -> dict | None:
     try:
@@ -10,7 +13,7 @@ def open_json(filepath: str) -> dict | None:
             return data
     
     except Exception as error:
-        print(f'Error opening JSON file {filepath}: {error}')
+        LOGGER.error(f'Error opening JSON file {filepath}: {error}')
         return None
 
 
@@ -23,7 +26,7 @@ def clean_number(num_str) -> int:
     try:
         return int(float(clean_str))
     except ValueError as error:
-        print(f'clean number error: {error} {num_str}')
+        LOGGER.error(f'clean number error: {error} {num_str}')
         return None
 
 
@@ -36,7 +39,7 @@ def clean_percentage(num_str) -> float:
     try:
         return round(float(clean_str), 3)
     except ValueError as error:
-        print(f'clean percentage error: {error}')
+        LOGGER.error(f'clean percentage error: {error}')
         return None
     
 
@@ -49,7 +52,7 @@ def standardize_date(date_raw: str) -> str:
         }
 
         parts = date_raw.split('-')
-        # print(f'\nraw parts date: {parts}')
+        
         if len(parts) == 3:
             day = parts[0].zfill(2)
             month = month_map.get(parts[1].strip(), '01')
@@ -61,7 +64,7 @@ def standardize_date(date_raw: str) -> str:
         return date.strip()
     
     except Exception as error:
-        print(f'standardize date error: {error}') 
+        LOGGER.error(f'standardize date error: {error}') 
         return None 
 
 
@@ -101,7 +104,7 @@ def extract_holder_name(text: str) -> dict[str, str]:
         return holder_name
     
     except Exception as error: 
-        print(f'extract holder name error: {error}')
+        LOGGER.error(f'extract holder name error: {error}')
         return None 
 
 
@@ -123,7 +126,7 @@ def extract_symbol_and_company_name(text: str) -> dict[str, str]:
             if 'Tbk' in text[match.end():match.end()+20]:
                 company_name += ' Tbk'
             
-            print(f'\nExtracted symbol: {symbol}, company_name: {company_name}')
+            LOGGER.info(f'\nExtracted symbol: {symbol}, company_name: {company_name}')
             return {
                 'symbol': f'{symbol}.JK',
                 'company_name': company_name
@@ -132,7 +135,7 @@ def extract_symbol_and_company_name(text: str) -> dict[str, str]:
         return {'symbol': None, 'company_name': None}
 
     except Exception as error: 
-        print(f'extract symbol and company name error: {error}')
+        LOGGER.error(f'extract symbol and company name error: {error}')
         return {'symbol': None, 'company_name': None}
 
 
@@ -162,7 +165,7 @@ def extract_shares(text: str) -> dict[str, any]:
         return shares_payload
     
     except Exception as error:
-        print(f'extract shares error: {error}')
+        LOGGER.error(f'extract shares error: {error}')
         return {} 
 
 
@@ -369,7 +372,7 @@ def extract_price_transaction(text: str) -> dict[str, any]:
         return result
         
     except Exception as error:
-        print(f'extract price transaction error: {error}')
+        LOGGER.error(f'extract price transaction error: {error}')
         return None
 
 
@@ -447,15 +450,12 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
             }
 
     except Exception as error:
-        print(f'compute transaction error: {error}')
+        LOGGER.error(f'compute transaction error: {error}')
         return {}
 
 
 def parser_new_document(filename: str): 
     doc = fitz.open(filename)
-    # for page in doc:
-    #     text = page.get_text()
-    #     print(text)
 
     extracted_data = {}
 
@@ -477,9 +477,10 @@ def parser_new_document(filename: str):
 
         if share_before is not None and share_after is not None:
             if share_before == share_after:
-                print(f"Skipping {filename}: Shares unchanged.")
+                LOGGER.info(f"Skipping {filename}: Shares unchanged.")
                 return None
-    print(f'\nextracted_data_shares: {extracted_data}\n')
+            
+    LOGGER.info(f'extracted_data_shares: {extracted_data}\n')
 
     company_lookup = open_json('data/company/company_map.json')
 
@@ -495,6 +496,7 @@ def parser_new_document(filename: str):
     holder_name = extract_holder_name(text)
 
     symbol = extract_symbol_and_company_name(text)
+    
     # Cross verify symbol with company lookup
     if company_lookup and symbol: 
         company_name_lookup = company_lookup.get(symbol.get('symbol'))
@@ -504,7 +506,7 @@ def parser_new_document(filename: str):
     extracted_data.update(symbol)
     extracted_data.update(holder_name)
 
-    print(f'\nextracted_data holder and symbol: {extracted_data}\n')
+    LOGGER.info(f'\nextracted_data holder and symbol: {extracted_data}\n')
 
     # Extract price transaction
     full_text_lines = []
@@ -518,7 +520,7 @@ def parser_new_document(filename: str):
         price_data = extract_price_transaction(combined_text)
         if price_data:
             extracted_data.update(price_data)
-            print(f"Found price transaction on page {page_index + 1}\n")
+            LOGGER.info(f"Found price transaction on page {page_index + 1}\n")
     
     # Compute top level transaction type, transaction value, price
     transaction_computed = compute_transactions(extracted_data.get('price_transaction'))

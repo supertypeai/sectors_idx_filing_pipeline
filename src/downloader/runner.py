@@ -129,9 +129,9 @@ def download_pdfs(
     """
     - Classify title as IDX / NON-IDX / UNKNOWN (fuzzy).
     - IDX     : download main_link.
-    - NON-IDX : download all attachments URLs.
+    - NON-IDX : pass into alert no further processing.
     - UNKNOWN : no download; record alert.
-    - Write two JSONs: metadata list & low-similarity alerts.
+    - Write two JSONs: metadata list & alerts.
     """
     logger = get_logger("downloader", 10 if verbose else 20)
 
@@ -199,15 +199,54 @@ def download_pdfs(
             logger.info("    Skipped download (UNKNOWN -> low_title_similarity). Alert recorded.")
             continue
 
+        if label == 'NON-IDX':
+            urls = [url for url in (_attachment_to_url(attachment) for attachment in ann.attachments) if url] 
+            
+            if not urls and ann.main_link:
+                urls = [ann.main_link] 
+
+            if not urls:
+                logger.warning("No URLs found for this announcement (label=%s).", label)
+                continue
+
+            for url in urls:
+                ref_filename = safe_filename_from_url(url) if url else None
+                ann_trim = idx_map.get(ref_filename.lower()) if ref_filename else None
+                doc_ctx = {"filename": ref_filename, "url": url, "title": ann.title} 
+                if ann_trim:
+                    meta = resolve_doc_context_from_announcement(ann_trim, ref_filename)
+                    if meta:
+                        doc_ctx.update(meta)
+
+                alerts.append(build_alert(
+                    category="not_inserted",
+                    stage="downloader",
+                    code="non_idx_document",
+                    doc_filename=ref_filename,
+                    context_doc_url=doc_ctx.get("url"),
+                    context_doc_title=doc_ctx.get("title"),
+                    announcement=ann_trim,
+                    ctx={
+                        "classification": "NON-IDX",
+                        "similarity_idx": sim_idx,
+                        "similarity_non_idx": sim_non,
+                    },
+                    needs_review=True,
+                ))
+
+            logger.info("Skipped download (NON-IDX -> alert recorded)")
+            continue
+
         # Build URL list + output folder
         urls: List[str] = []
         out_folder = paths["out_non_idx"]
         if label == "IDX" and ann.main_link:
             urls = [ann.main_link]
             out_folder = paths["out_idx"]
-        elif label == "NON-IDX" and ann.attachments:
-            urls = [u for u in (_attachment_to_url(x) for x in ann.attachments) if u]
-            out_folder = paths["out_non_idx"]
+
+        # elif label == "NON-IDX" and ann.attachments:
+        #     urls = [u for u in (_attachment_to_url(x) for x in ann.attachments) if u]
+        #     out_folder = paths["out_non_idx"]
 
         # Dedup & guard
         urls = list(dict.fromkeys(urls))
@@ -271,7 +310,8 @@ def download_pdfs(
     not_inserted = [a for a in alerts if a.get("category") == "not_inserted"]
 
     # Legacy file: mirror all not_inserted alerts for readability/compat
-    atomic_write_json(paths["alerts_out"], not_inserted)
+    # Legacy file disabled to avoid duplicates/misleading name
+    # atomic_write_json(paths["alerts_out"], not_inserted)
 
     # v2 standardized outputs
     safe_mkdirs("alerts")

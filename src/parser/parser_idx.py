@@ -156,9 +156,6 @@ class IDXParser(BaseParser):
 
         pdf_file = pdf_mapping.get(filename)
         source_pdf_url = pdf_file.get('main_link', '')
-        # print(f'\nraw pdf mapping: {pdf_file}')
-        # print(f'\nfilename: {filename}')
-        # print(f'\npdf url to if condition: {source_pdf_url}\n')
 
         if 'From_KSEI' in source_pdf_url:
             try:

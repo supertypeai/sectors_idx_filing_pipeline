@@ -45,7 +45,7 @@ INSERTED_CANDIDATES: List[Tuple[str, str]] = [
 NOT_INSERTED_CANDIDATES: List[Tuple[str, str]] = [
     ("alerts_not_inserted_idx.json", "alerts_not_inserted_idx.json"),
     ("alerts_not_inserted_non_idx.json", "alerts_not_inserted_non_idx.json"),
-    ("low_title_similarity_alerts.json", "low_title_similarity_alerts.json"),
+    # ("low_title_similarity_alerts.json", "low_title_similarity_alerts.json"),
 ]
 
 # V2 dynamic filenames (emitted by your step_alerts_v2_from_filings)

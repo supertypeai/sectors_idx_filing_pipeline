@@ -351,6 +351,7 @@ def step_parse_pdfs(
     idx_output: Path,
     non_idx_output: Path,
     announcements_json: Path,
+    parse_non_idx: bool,
 ) -> None:
     # IDX
     IDXClass = getattr(parser_idx_mod, "IDXParser", None)
@@ -362,6 +363,10 @@ def step_parse_pdfs(
     LOG.info("[PARSER] IDXParser = %s", idx_parser.__class__.__name__)
     idx_parser.parse_folder()
 
+    if not parse_non_idx:
+        LOG.info("[PARSER] Non-IDX parsing disabled; skipping.")
+        return
+    
     # Non-IDX
     NonIDXClass = getattr(parser_non_idx_mod, "NonIDXParser", None)
     nonidx_parser = NonIDXClass(
@@ -689,7 +694,7 @@ def build_argparser() -> argparse.ArgumentParser:
     p.add_argument("--dry-run-download", action="store_true")
 
     # Parser scope
-    p.add_argument("--parser", choices=["idx", "non-idx", "both"], default="both")
+    p.add_argument("--parser", choices=["idx", "non-idx", "both"], default="idx")
 
     # Upload (filings)
     p.add_argument("--upload", action="store_true", help="Upload filings to Supabase (requires URL/KEY)")
@@ -863,14 +868,16 @@ def main():
     # 3) Parse PDFs
     idx_out = Path("data/parsed_idx_output.json")
     non_idx_out = Path("data/parsed_non_idx_output.json")
-    if args.parser in ("idx", "both"):
-        pass
+    
+    parser_non_idx = args.parser in ("non-idx", "both")
+
     step_parse_pdfs(
         idx_folder=Path("downloads/idx-format"),
         non_idx_folder=Path("downloads/non-idx-format"),
         idx_output=idx_out,
         non_idx_output=non_idx_out,
         announcements_json=ann_out,
+        parse_non_idx=parser_non_idx,
     )
 
     # 4) Generate filings

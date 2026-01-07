@@ -10,6 +10,7 @@ IDX_KNOWN = [
 NON_IDX_KNOWN = [
     "Share Ownership Report",
     "Laporan Kepemilikan Saham",
+    "KSEI Data on Share Ownership"
 ]
 
 IDX_KNOWN_L = [s.lower() for s in IDX_KNOWN]

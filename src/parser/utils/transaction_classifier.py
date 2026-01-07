@@ -29,7 +29,7 @@ _KW_INHERIT = ["waris", "inheritance", "hibah", "grant", "bequest"]
 _KW_MESOP = ["mesop", "msop", "esop", "program opsi saham", "employee stock option"]
 _KW_FREEFLOAT = ["free float", "free-float", "freefloat", "pemenuhan porsi publik"]
 _KW_RESTRUCTURING = ["restrukturisasi", "restructuring", "reorganisasi"]
-_KW_REPURCHASE = ['repo', 'penempatan saham revo']
+_KW_REPURCHASE = ['repo', 'penempatan saham revo', 'transaksi repurchase']
 
 
 def _crosses_50(before_pp: Optional[float], after_pp: Optional[float]) -> bool:
