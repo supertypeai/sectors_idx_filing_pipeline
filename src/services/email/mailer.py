@@ -224,6 +224,7 @@ def _render_email_content(alerts: List[Dict[str, Any]],
         src = flds["source"]
 
         stage = a.get("stage") or "-"
+        category = a.get('category') or "-"
         code = a.get("code") or "-"
         msg = (a.get("message") or code)
         reason_code, reason_msg, reason_det = _primary_reason(a)
@@ -238,7 +239,7 @@ def _render_email_content(alerts: List[Dict[str, Any]],
 
         # text row
         lines.append(
-            f"{ts} | {stage} | {code}: {msg} | action: {action} | "
+            f"{ts} | {stage} | {category} | {code}: {msg} | action: {action} | "
             f"{sym} holder={holder} val={value} | doc={_short_url(doc_url)} ann={_short_url(ann_url)}"
         )
         if reason_code or reason_msg:
@@ -259,6 +260,7 @@ def _render_email_content(alerts: List[Dict[str, Any]],
             "<tr>"
             f"<td>{_esc(ts)}</td>"
             f"<td>{_esc(stage)}</td>"
+            f"<td>{_esc(category)}</td>"
             f"<td>{_esc(code)}</td>"
             f"<td>{_esc(msg)}</td>"
             f"<td>{_esc(action)}</td>"
@@ -279,6 +281,7 @@ def _render_email_content(alerts: List[Dict[str, Any]],
         "<tr style='background:#f3f4f6'>"
         "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Time</th>"
         "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Stage</th>"
+        "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Category</th>"
         "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Code</th>"
         "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Problem</th>"
         "<th style='text-align:left;padding:6px;border:1px solid #e5e7eb'>Action</th>"

@@ -33,7 +33,7 @@ from services.email.bucketize import bucketize as bucketize_alerts
 from services.upload.artifacts import make_artifact_zip
 
 from services.email.ses_email import send_attachments
-from src.services.email.mailer import _render_email_content
+from src.services.email.mailer import _render_email_content, _tolist
 
 from generate.articles.runner import run_from_filings as run_articles_from_filings
 from generate.articles.utils.uploader import upload_news_file_cli
@@ -467,60 +467,53 @@ def step_email_alerts(
     cc_not_inserted: Optional[str] = None,
     bcc_inserted: Optional[str] = None,
     bcc_not_inserted: Optional[str] = None,
-    title_inserted: str = "IDX Alerts — Inserted (DB OK)",
-    title_not_inserted: str = "IDX Alerts — Not Inserted (Action Needed)",
     aws_region: Optional[str] = None,
     attach_budget_bytes: int = 7_500_000,
 ) -> None:
-    def _send_one(group_title: str, folder: Path, to_csv: Optional[str],
-                  cc_csv: Optional[str], bcc_csv: Optional[str]) -> None:
-        files = _gather_json_files(folder)
-        # Dedup legacy low_title file if the consolidated downloader file exists
-        names = {p.name for p in files}
-        if "alerts_not_inserted_downloader.json" in names and "low_title_similarity_alerts.json" in names:
-            files = [p for p in files if p.name != "low_title_similarity_alerts.json"]
-        # Skip legacy suspicious if present; prefer v2 alerts_inserted_*.json
-        files = [p for p in files if p.name != "suspicious_alerts.json"]
-        if not files:
-            LOG.info("[EMAIL] '%s' skipped: folder %s missing or empty", group_title, folder)
-            return
-        alerts = _load_alerts_from_files(files)
-        if not alerts:
-            LOG.info("[EMAIL] '%s' skipped: no alerts parsed from %s", group_title, folder)
-            return
-        picked, total_bytes, skipped = _pick_attachments(files, attach_budget_bytes)
-        if skipped:
-            LOG.warning("[EMAIL] '%s' some attachments skipped due to size: %s",
-                        group_title, ", ".join(s.name for s in skipped))
+    files = _gather_json_files(inserted_dir) + _gather_json_files(not_inserted_dir)
 
-        subject, body_text, body_html = _render_email_content(alerts, title=group_title)
-        if picked:
-            body_text += "\n\nAttached files:\n" + "\n".join(f"- {p.name}" for p in picked)
+    # remove duplicate legacy if present
+    names = {p.name for p in files}
+    if "alerts_not_inserted_downloader.json" in names and "low_title_similarity_alerts.json" in names:
+        files = [p for p in files if p.name != "low_title_similarity_alerts.json"]
+    files = [p for p in files if p.name != "suspicious_alerts.json"]
 
-        to_list  = [s.strip() for s in (to_csv or "").split(",") if s.strip()]
-        cc_list  = [s.strip() for s in (cc_csv or "").split(",") if s.strip()] or None
-        bcc_list = [s.strip() for s in (bcc_csv or "").split(",") if s.strip()] or None
-        if not to_list:
-            LOG.info("[EMAIL] '%s' skipped: no recipients configured", group_title)
-            return
+    if not files:
+        LOG.info("[EMAIL] skipped: both alert folders empty")
+        return
 
-        LOG.info("[EMAIL] sending '%s' to=%s attach=%d (~%d bytes)",
-                 group_title, to_list, len(picked), total_bytes)
+    alerts = _load_alerts_from_files(files)
+    if not alerts:
+        LOG.info("[EMAIL] skipped: no alerts parsed")
+        return
 
-        res = send_attachments(
-            to=to_list,
-            subject=subject,
-            body_text=body_text,
-            body_html=body_html,
-            files=[str(p) for p in picked],
-            cc=cc_list,
-            bcc=bcc_list,
-            aws_region=aws_region,
-        )
-        LOG.info("[EMAIL] result '%s': %s", group_title, res)
+    picked, total_bytes, skipped = _pick_attachments(files, attach_budget_bytes)
+    if skipped:
+        LOG.warning("[EMAIL] some attachments skipped due to size: %s", ", ".join(s.name for s in skipped))
 
-    _send_one(title_inserted, inserted_dir, to_inserted, cc_inserted, bcc_inserted)
-    _send_one(title_not_inserted, not_inserted_dir, to_not_inserted, cc_not_inserted, bcc_not_inserted)
+    # single recipient list (merge inserted/not_inserted)
+    to_list = [s.strip() for s in (to_inserted or "").split(",") if s.strip()]
+    if not to_list:
+        to_list = [s.strip() for s in (to_not_inserted or "").split(",") if s.strip()]
+    if not to_list:
+        LOG.info("[EMAIL] skipped: no recipients configured")
+        return
+
+    subject, body_text, body_html = _render_email_content(alerts, title="IDX Alerts")
+    if picked:
+        body_text += "\n\nAttached files:\n" + "\n".join(f"- {p.name}" for p in picked)
+
+    res = send_attachments(
+        to=to_list,
+        subject=subject,
+        body_text=body_text,
+        body_html=body_html,
+        files=[str(p) for p in picked],
+        cc=_tolist(cc_inserted) or _tolist(cc_not_inserted) or None,
+        bcc=_tolist(bcc_inserted) or _tolist(bcc_not_inserted) or None,
+        aws_region=aws_region,
+    )
+    LOG.info("[EMAIL] result: %s", res)
 
 
 def step_zip_artifacts(
@@ -723,10 +716,6 @@ def build_argparser() -> argparse.ArgumentParser:
     p.add_argument("--email-cc-not-inserted", default=os.getenv("ALERT_CC_EMAIL_NOT_INSERTED"))
     p.add_argument("--email-bcc-inserted", default=os.getenv("ALERT_BCC_EMAIL_INSERTED"))
     p.add_argument("--email-bcc-not-inserted", default=os.getenv("ALERT_BCC_EMAIL_NOT_INSERTED"))
-    p.add_argument("--email-title-inserted",
-                   default=os.getenv("ALERT_TITLE_INSERTED", "IDX Alerts — Inserted (DB OK)"))
-    p.add_argument("--email-title-not-inserted",
-                   default=os.getenv("ALERT_TITLE_NOT_INSERTED", "IDX Alerts — Not Inserted (Action Needed)"))
     p.add_argument("--email-region", default=os.getenv("AWS_REGION") or os.getenv("SES_REGION"))
     p.add_argument("--email-attach-budget", type=int,
                    default=int(os.getenv("ATTACH_BUDGET_BYTES", "7500000")),
@@ -938,8 +927,6 @@ def main():
             cc_not_inserted=args.email_cc_not_inserted,
             bcc_inserted=args.email_bcc_inserted,
             bcc_not_inserted=args.email_bcc_not_inserted,
-            title_inserted=args.email_title_inserted,
-            title_not_inserted=args.email_title_not_inserted,
             aws_region=args.email_region,
             attach_budget_bytes=args.email_attach_budget,
         )
