@@ -200,39 +200,22 @@ def upload_filings_with_dedup(
     # 7) Upload only new rows
     print(f'\ndebug data to filing: {json.dumps(final_rows, indent=2)}\n')
 
-    class MockResult:
-        inserted = len(final_rows)
-        failed_rows = []
-        errors = []
+    # print(f'\n[DRY-RUN] Would upload {len(final_rows)} rows to {table}\n')
+    logging.info(f'\nfinal rows to upload filings: {final_rows}\n')
 
-    res = MockResult()
-    
+    res: UploadResult = uploader.upload_records(
+        table=table,
+        rows=final_rows,
+        allowed_columns=allowed_columns,
+        stop_on_first_error=stop_on_first_error,
+    )
+
     stats = {
         "input": len(rows),
         "intrarun_unique": len(intra),
         "existing_same_day_rows": len(existing_rows),
         "to_insert": len(final_rows),
-        "inserted": len(final_rows),
-        "failed": 0,
+        "inserted": getattr(res, "inserted", 0),
+        "failed": len(getattr(res, "failed_rows", [])),
     }
     return res, stats
-
-    # print(f'\n[DRY-RUN] Would upload {len(final_rows)} rows to {table}\n')
-    # logging.info(f'\nfinal rows to upload filings: {final_rows}\n')
-
-    # res: UploadResult = uploader.upload_records(
-    #     table=table,
-    #     rows=final_rows,
-    #     allowed_columns=allowed_columns,
-    #     stop_on_first_error=stop_on_first_error,
-    # )
-
-    # stats = {
-    #     "input": len(rows),
-    #     "intrarun_unique": len(intra),
-    #     "existing_same_day_rows": len(existing_rows),
-    #     "to_insert": len(final_rows),
-    #     "inserted": getattr(res, "inserted", 0),
-    #     "failed": len(getattr(res, "failed_rows", [])),
-    # }
-    # return res, stats

@@ -22,10 +22,10 @@ load_dotenv()
 
 # Tag dictionaries / mappings
 TAG_WHITELIST = {
-    "takeover", "mesop", "inheritance", "award",
-    "share-transfer", "internal-strategy",
+    "takeover", "mesop", "inheritance", #"award",
+    "share-transfer", #"internal-strategy",
     "investment", "divestment", "capital-restructuring", 
-    "free_float_requirement", 'repurchase-agreement'
+    "free-float-compliance", 'repurchase-agreement', 'placement'
     #"bullish", "bearish", 
 }
 
