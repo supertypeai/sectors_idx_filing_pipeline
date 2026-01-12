@@ -164,30 +164,37 @@ def upload_news_file_cli(
 
     supabase_url = supabase_url or os.getenv("SUPABASE_URL", "")
     supabase_key = supabase_key or os.getenv("SUPABASE_KEY", "")
+
     if not supabase_url or not supabase_key:
         raise RuntimeError("Missing SUPABASE_URL or SUPABASE_KEY in environment.")
 
-    uploader = SupabaseUploader(
-        url=supabase_url,
-        key=supabase_key,
-    )
+    print(f'\ndebug data to filing to news: {json.dumps(normed, indent=2)}\n')
 
-    res = uploader.upload_records(
-        table=table,
-        rows=normed,
-        allowed_columns=list(_ALLOWED_COLS),
-        normalize_keys=False,
-        stop_on_first_error=False,
-    )
-    ok = res.inserted
-    bad = len(res.failed_rows)
-
-    if bad:
-        log.warning("Some rows failed to insert: %d failed / %d total", bad, len(normed))
-        for i, fr in enumerate(res.failed_rows[:5]):
-            log.error("Failed row %d: %s", i, fr)
-    else:
-        log.info("All rows inserted OK: %d", ok)
+    ok = len(normed)
+    bad = 0
     return (ok, bad)
+
+    # uploader = SupabaseUploader(
+    #     url=supabase_url,
+    #     key=supabase_key,
+    # )
+
+    # res = uploader.upload_records(
+    #     table=table,
+    #     rows=normed,
+    #     allowed_columns=list(_ALLOWED_COLS),
+    #     normalize_keys=False,
+    #     stop_on_first_error=False,
+    # )
+    # ok = res.inserted
+    # bad = len(res.failed_rows)
+
+    # if bad:
+    #     log.warning("Some rows failed to insert: %d failed / %d total", bad, len(normed))
+    #     for i, fr in enumerate(res.failed_rows[:5]):
+    #         log.error("Failed row %d: %s", i, fr)
+    # else:
+    #     log.info("All rows inserted OK: %d", ok)
+    # return (ok, bad)
 
 __all__ = ["upload_news_file_cli"]
