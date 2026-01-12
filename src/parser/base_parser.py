@@ -353,34 +353,42 @@ class BaseParser(ABC):
                 if result is None:
                     continue 
 
-                if result and self.validate_parsed_data(result):
-                    parsed_results.append(result)
-                    logger.info(f"Successfully parsed {filename}")
+                items = []
+                if isinstance(result, (list, tuple)): 
+                    items = [record for record in result if record is not None]
+                else: 
+                    items = [result]
+
+                for item in items:
+                    if self.validate_parsed_data(item):
+                        parsed_results.append(item)
+                        logger.info(f"Successfully parsed {filename}")
                     
-                else:
-                    if not (isinstance(result, dict) and result.get("skip_filing")):
-                        self._parser_warn(
-                            code="validation_failed",
-                            filename=filename,
-                            reasons=[
-                                {
-                                    "scope": "parser",
-                                    "code": "validation_failed",
-                                    "message": "Parsed result failed validate_parsed_data check.",
-                                    "details": {
-                                        "filename": filename,
-                                        "result_type": type(result).__name__,
-                                    },
-                                }
-                            ],
-                            needs_review=True,
-                        )
-            except Exception as e:
-                logger.error(f"Error processing {filename}: {e}")
+                    else:
+                        if not (isinstance(item, dict) and item.get("skip_filing")):
+                            self._parser_warn(
+                                code="validation_failed",
+                                filename=filename,
+                                reasons=[
+                                    {
+                                        "scope": "parser",
+                                        "code": "validation_failed",
+                                        "message": "Parsed result failed validate_parsed_data check.",
+                                        "details": {
+                                            "filename": filename,
+                                            "result_type": type(item).__name__,
+                                        },
+                                    }
+                                ],
+                                needs_review=True,
+                            )
+
+            except Exception as error:
+                logger.error(f"Error processing {filename}: {error}")
                 self._parser_warn(
                     code="parse_exception",
                     filename=filename,
-                    ctx={"announcement": ann_ctx, "message": str(e)},
+                    ctx={"announcement": ann_ctx, "message": str(error)},
                     needs_review=True,
                 )
 

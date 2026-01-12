@@ -120,6 +120,38 @@ class IDXParser(BaseParser):
             logger.error(f"load company_map error: {e}")
             return {}
 
+    def _populate_new_data(self, data: dict[str, any], source_pdf: str, timestamp_str: str):
+        try:
+            # Build tags
+            purpose = data.get('purpose')
+            shares_percentage_before = data.get('shares_percentage_before')
+            shares_percentage_after = data.get('shares_percentage_after')
+            transaction_type = data.get('transaction_type')
+            price_transaction = data.get('price_transaction')
+
+            tags = TransactionClassifier.detect_tags_for_new_document(
+                purpose, 
+                shares_percentage_before, 
+                shares_percentage_after, 
+                transaction_type,
+                price_transaction
+            ) 
+
+            # Build holder type
+            holder_type = NameCleaner.classify_holder_type(data.get('holder_name'))
+
+            # Update the payload parser
+            data.update({'tags': tags})
+            data.update({'holder_type': holder_type})
+            data.update({'source': source_pdf})    
+            data.update({'timestamp': timestamp_str})
+            
+            return tags
+        
+        except Exception as error: 
+            logger.error(f"construct new tags: {error}")
+            return [] 
+        
     # Entry point
     def parse_single_pdf(
         self,
@@ -163,30 +195,24 @@ class IDXParser(BaseParser):
                 timestamp_object = datetime.fromisoformat(timestamp)
                 timestamp_str = timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
 
-                data = parser_new_document(f'downloads/idx-format/{filename}')
-                if not data: 
+                data_others, data_no_others = parser_new_document(f'downloads/idx-format/{filename}')
+                if not data_others and not data_no_others: 
                     logger.warning(f"Skipping {filename}: parser_new_document returned None (likely no share change).")
                     return None
                 
-                # Build tags
-                purpose = data.get('purpose')
-                shares_percentage_before = data.get('shares_percentage_before')
-                shares_percentage_after = data.get('shares_percentage_after')
-                transaction_type = data.get('transaction_type')
+                out = []
 
-                tags = TransactionClassifier.detect_tags_for_new_document(
-                    purpose, shares_percentage_before, shares_percentage_after, transaction_type
-                )
+                if data_no_others is not None:
+                    self._populate_new_data(data_no_others, source_pdf_url, timestamp_str)
+                    data_no_others["split_variant"] = "primary"
+                    out.append(data_no_others)
 
-                # Build holder type
-                holder_type = NameCleaner.classify_holder_type(data.get('holder_name'))
+                if data_others is not None:
+                    self._populate_new_data(data_others, source_pdf_url, timestamp_str)
+                    data_others["split_variant"] = "others"
+                    out.append(data_others)
 
-                # Update the payload parser
-                data.update({'tags': tags})
-                data.update({'holder_type': holder_type})
-                data.update({'source': source_pdf_url})    
-                data.update({'timestamp': timestamp_str})            
-                return data 
+                return out or None
 
             except Exception as e:
                 logger.error(f"extract_fields error {filename}: {e}", exc_info=True)
