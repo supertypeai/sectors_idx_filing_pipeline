@@ -77,11 +77,17 @@ _SYS_PROMPT = """
     
 PROMPT_INPUT = """"
     Analyze this filing transaction and provide:
-    1. A title following this structure: (Shareholder name) (Transaction type) Shares of (Company)
-    2. A one-paragraph summary (max 150 tokens) focusing on: entities involved, transaction type, ownership changes, purpose, and significance
+    1. A title following this structure:
+        - if transaction type is sell or buy:
+            (Shareholder name) (Transaction type) Shares of (Company)
+        - if transaction type is others: 
+            (Company) Shareholder (holder_name) Reports New Transaction
+    2. A one-paragraph summary (max 150 tokens) focusing on: entities involved, transaction type, ownership changes, purpose, and significance.
     
     Note: 
-    - Keep it factual; don't speculate.
+    - CRITICAL: If the transaction type is classified as 'others', do NOT state "described as others" or mention the category name. 
+        Instead, describe the specific underlying action as the transaction type.
+    - Keep it factual, don't speculate.
     - Currency: IDR.
     - Use thousands separator with comma (e.g., 83,420,100) and use dot for decimal separator.
     - If prices exist, show one representative price like "IDR 490 per share".

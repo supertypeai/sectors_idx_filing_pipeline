@@ -201,7 +201,7 @@ def upload_filings_with_dedup(
     print(f'\ndebug data to filing: {json.dumps(final_rows, indent=2)}\n')
 
     # print(f'\n[DRY-RUN] Would upload {len(final_rows)} rows to {table}\n')
-    logging.info(f'\nfinal rows to upload filings: {final_rows}\n')
+    # logging.info(f'\nfinal rows to upload filings: {final_rows}\n')
 
     res: UploadResult = uploader.upload_records(
         table=table,
