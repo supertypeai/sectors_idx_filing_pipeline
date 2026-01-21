@@ -22,8 +22,9 @@ class LLMCollection:
             cls._instance = super(LLMCollection, cls).__new__(cls)
 
             model_providers = {
-                "openai/gpt-oss-120b": "groq",
                 "gemini-2.5-flash": "google_genai",
+                "gemini-2.5-flash-lite": "google_genai",
+                "openai/gpt-oss-120b": "groq",
                 "openai/gpt-oss-20b": "groq",
             }
 
