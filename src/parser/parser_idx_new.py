@@ -221,7 +221,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
         while index < len(lines):
             line = lines[index]
             
-            # If hit a footer line, stop everything
+            # If we hit a footer line, stop everything
             if any(line.startswith(k) for k in footer_keywords):
                 break
             
@@ -235,7 +235,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 continue
             
             if line in transaction_keywords:
-                # A real transaction must be followed by "Tidak", "Ya", or "Langsung" 
+                # A real transaction typically followed by "Tidak", "Ya", or "Langsung" 
                 # before hitting a footer
                 is_real_start = False
                 # Look ahead 10 lines
@@ -248,7 +248,8 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                     if any(val.startswith(fk) for fk in footer_keywords):
                         break 
                 
-                # If it's not a real start (e.g., it's just the word "Penjualan" in the purpose)
+                # If it's not a real start (e.g., it's just the word "Penjualan" in the purpose),
+                # skip this block and let the 'else' handle it or the previous purpose loop consume it
                 if not is_real_start:
                     index += 1
                     continue
@@ -273,49 +274,50 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 if index < len(lines) and lines[index] == "Langsung": 
                     index += 1
 
-                # Find Amount 
+                # Find Amount (Anchor to "Saham" with validation)
                 scan_limit = min(index + 100, len(lines))
                 saham_found = False
 
                 for i in range(index, scan_limit):
                     if lines[i] == "Saham":
-                        # Amount is the line immediately before "Saham"
-                        index = i - 1
-                        saham_found = True
-                        break
+                        # Verify line before "Saham" is a valid amount, 
+                        # to handle page splitted
+                        if i > 0:
+                            prev_line = lines[i - 1]
+                            # Amount must have comma and digits
+                            if ',' in prev_line and any(c.isdigit() for c in prev_line):
+                                # Valid Saham, amount is line before it
+                                index = i - 1
+                                saham_found = True
+                                break
+                        # Otherwise, this is orphaned "Saham", keep searching
 
                 if not saham_found:
                     # Fallback: skip to next transaction
                     index += 1
                     continue
 
-                amount = lines[index] if index < len(lines) else None
-                index += 1  
+                amount = lines[index] if index < len(lines) else None  # Extract amount
+                index += 1  # Move to "Saham"
 
                 if index < len(lines) and lines[index] == "Saham": 
                     index += 1
                 
                 # Find Price
-                date_start_index = -1
-                scan_limit_date = min(index + 10, len(lines))
-                
-                for k in range(index, scan_limit_date):
-                    val = lines[k]
-                    # Regex to find Date start
-                    if re.match(r'^\d{1,2}\s?-$', val): 
-                        date_start_index = k
-                        break
-                
-                if date_start_index != -1 and date_start_index > index:
-                    # Found the date, The line before it is the Price
-                    price = lines[date_start_index - 1]
-                    index = date_start_index 
-                    
-                else:
-                    # Fallback if Regex fails (assume standard "Biasa" structure)
-                    if index < len(lines) and lines[index] == "Biasa": 
-                        index += 1
+                # The item immediately before the date is the Price.
+                scan_limit_price = min(index + 10, len(lines))
+                price = None
 
+                for i in range(index, scan_limit_price):
+                    line = lines[i]
+                    # Price pattern: contains comma and has digits (e.g., "29,00", "121,00")
+                    if ',' in line and any(c.isdigit() for c in line):
+                        price = line
+                        index = i + 1
+                        break
+
+                if price is None:
+                    # Fallback
                     price = lines[index] if index < len(lines) else None
                     index += 1
                 
@@ -323,16 +325,30 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 date_parts = []
                 while index < len(lines):
                     part = lines[index]
-                    date_parts.append(part)
-                    index += 1
-                    if part.isdigit() and len(part) == 4: 
-                        break
-                    if len(date_parts) >= 5: 
-                        break
-                
-                date = ' '.join(date_parts)
+                    # Check if this line starts a date
+                    if re.match(r'^\d{1,2}[\s-]', part):
+                        date_parts.append(part)
+                        index += 1
 
-                # Find Purpose
+                        # Collect remaining date parts
+                        while index < len(lines):
+                            part = lines[index]
+                            date_parts.append(part)
+                            index += 1
+                            
+                            if part.isdigit() and len(part) == 4: 
+                                break
+                            if len(date_parts) >= 5: 
+                                break
+                        break
+
+                    index += 1
+                    if len(date_parts) > 0 or index >= min(len(lines), index + 10):
+                        break
+
+                date = ' '.join(date_parts) if date_parts else None
+
+                # Find Purpose (always exactly one line after date)
                 purpose_parts = []
                 while index < len(lines):
                     curr = lines[index]
@@ -345,12 +361,11 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                     if curr == "Jenis" and index + 1 < len(lines) and lines[index + 1] == "Transaksi":
                         break
 
-                    # Check if next line is start of new transaction 
+                    # Check if NEXT line is start of new transaction (look ahead)
                     if index + 1 < len(lines) and lines[index + 1] in transaction_keywords:
                         # Verify next line is real transaction start
                         is_next_real_start = False
-                        # Look from index+2 onwards
-                        for i in range(2, 12):  
+                        for i in range(2, 12):  # Look from index+2 onwards
                             if index + i >= len(lines): break
                             val = lines[index + i]
                             if val in ["Tidak", "Ya", "Langsung"]:
@@ -400,7 +415,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
         return result_others, result_no_others 
     
     except Exception as error:
-        LOGGER.error(f'Error extract_price_transaction: {error}')
+        LOGGER.error(f'extract price transaction error: {error}')
         return None
 
 
