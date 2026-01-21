@@ -22,38 +22,43 @@ class LLMCollection:
             cls._instance = super(LLMCollection, cls).__new__(cls)
 
             model_providers = {
-                "gemini-2.5-flash": "google_genai",
                 "openai/gpt-oss-120b": "groq",
-                "gemini-2.5-flash-lite": "google_genai",
                 "openai/gpt-oss-20b": "groq",
+                "gemini-2.5-flash": "google_genai",
+                "gemini-2.5-flash-lite": "google_genai",
+                
             }
 
             groq_api_keys = os.getenv("GROQ_API_KEY", "")
+            groq_api_keys_backup = os.getenv("GROQ_API_KEY_BACKUP", "")
+
             gemini_api_key = os.getenv("GEMINI_API_KEY", "")
             gemini_api_key_backup = os.getenv("GEMINI_API_KEY_BACKUP", "")
 
             gemini_api_keys = [gemini_api_key, gemini_api_key_backup]
+            groq_api_keys = [groq_api_keys, groq_api_keys_backup]
 
             llms= []
             for model, provider in model_providers.items():
                 if provider == 'groq':
-                   llms.append(
-                        init_chat_model(
-                            model,
-                            model_provider=provider,
-                            temperature=0.7,
-                            max_retries=3,
-                            api_key=groq_api_keys,
-                        )
-                    )
-                    
-                elif provider == 'google_genai':
-                     for gemini_key in gemini_api_keys:
+                    for groq_key in groq_api_keys:
                         llms.append(
                             init_chat_model(
                                 model,
                                 model_provider=provider,
-                                temperature=0.5,
+                                temperature=0.7,
+                                max_retries=3,
+                                api_key=groq_key,
+                            )
+                        )
+                    
+                elif provider == 'google_genai':
+                    for gemini_key in gemini_api_keys:
+                        llms.append(
+                            init_chat_model(
+                                model,
+                                model_provider=provider,
+                                temperature=0.7,
                                 max_retries=3,
                                 api_key=gemini_key,
                             )
