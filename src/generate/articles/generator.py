@@ -265,7 +265,7 @@ class ArticleGenerator:
         downloads_meta_path: str = "data/downloaded_pdfs.json",
     ):
         self.company = CompanyCache(company_map_path, latest_prices_path)
-        self.summarizer = Summarizer(use_llm=use_llm, groq_model=groq_model, provider=provider)
+        self.summarizer = Summarizer(use_llm=use_llm)
         self.classifier = Classifier(use_llm=use_llm, model_name=groq_model, provider=provider)
         self.prefer_symbol = prefer_symbol
         # filename -> url index
