@@ -23,8 +23,8 @@ class LLMCollection:
 
             model_providers = {
                 "gemini-2.5-flash": "google_genai",
-                "gemini-2.5-flash-lite": "google_genai",
                 "openai/gpt-oss-120b": "groq",
+                "gemini-2.5-flash-lite": "google_genai",
                 "openai/gpt-oss-20b": "groq",
             }
 
