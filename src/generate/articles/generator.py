@@ -14,7 +14,7 @@ from .utils.classifier import Classifier
 from .utils.schema import Article, coerce_timestamp_iso
 from .utils.io_utils import get_logger
 
-log = get_logger(__name__)
+LOGGER = get_logger(__name__)
 
 # helpers (without kebab/slug)
 def _with_jk(sym: Optional[str]) -> Optional[str]:
@@ -382,10 +382,10 @@ class ArticleGenerator:
         #     "announcement_published_at": filing.get("announcement_published_at"),
         # }
 
-        log.info('generating title body')
+        LOGGER.info('generating title body')
         title, body = self.summarizer.summarize_from_facts(filing)
-        print(f'title: {title}')
-        print(f'\nbody: {body}')
+        # print(f'title: {title}')
+        # print(f'\nbody: {body}')
         # title, body = _to_narrative_if_keyfacts(title, body, facts)
 
         # if not body.lstrip().lower().startswith("according to the published announcement"):
@@ -396,10 +396,8 @@ class ArticleGenerator:
 
         tags = self.classifier.infer_tags(filing, text_hint=None)
         sentiment = self.classifier.infer_sentiment(filing, text_hint=None)
-        print(f'\ntags: {tags}, sentiment: {sentiment}')
+        # print(f'\ntags: {tags}, sentiment: {sentiment}')
 
-        # tags = 'test'
-        # sentiment = 'test'
         symbol = filing.get("symbol") or [] 
         tickers = _dedup_preserve([symbol])
 

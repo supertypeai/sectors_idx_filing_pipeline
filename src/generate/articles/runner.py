@@ -1,18 +1,21 @@
 from __future__ import annotations
+
 from typing import List, Dict, Any, Optional
 from .generator import ArticleGenerator
 from .utils.io_utils import get_logger
 
-log = get_logger(__name__)
+
+LOGGER = get_logger(__name__)
+
 
 def run_from_filings(
     filings: List[Dict[str, Any]],
     company_map_path: str = "data/company/company_map.json",
     latest_prices_path: str = "data/company/company_map.json",
     use_llm: bool = False,
-    model_name: str = "llama-3.3-70b-versatile",  # override via CLI/env if you prefer 8B
+    model_name: str = "llama-3.3-70b-versatile",  # Not used in summary
     prefer_symbol: bool = True,
-    provider: Optional[str] = None,
+    provider: Optional[str] = None,  # Not used in sumamry 
 ) -> List[Dict[str, Any]]:
     gen = ArticleGenerator(
         company_map_path=company_map_path,
@@ -23,13 +26,13 @@ def run_from_filings(
         provider=provider,
     )
     out: List[Dict[str, Any]] = []
-    for f in filings:
+    for filing in filings:
         try:
-            art = gen.from_filing(f)
+            art = gen.from_filing(filing)
             if art:
                 out.append(art)
-        except Exception as e:
-            log.exception(f"Error generating article from filing: {e}")
+        except Exception as error:
+            LOGGER.exception(f"Error generating article from filing: {error}")
     return out
 
 def run_from_text_items(
@@ -50,11 +53,11 @@ def run_from_text_items(
         provider=provider,
     )
     out: List[Dict[str, Any]] = []
-    for it in items:
+    for item in items:
         try:
-            art = gen.from_text_item(it)
+            art = gen.from_text_item(item)
             if art:
                 out.append(art)
-        except Exception as e:
-            log.exception(f"Error generating article from text item: {e}")
+        except Exception as error:
+            LOGGER.exception(f"Error generating article from text item: {error}")
     return out
