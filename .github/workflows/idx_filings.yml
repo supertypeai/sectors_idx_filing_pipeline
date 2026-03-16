@@ -2,7 +2,7 @@ name: IDX Filings
 
 on:
   schedule:
-    - cron: "0 */2 * * 1-5"
+    - cron: "0 */2 * * *" #there are some filings in weekend "0 */2 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
