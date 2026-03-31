@@ -15,7 +15,9 @@ FILINGS_ALLOWED_COLUMNS = {
     "sector", "sub_sector",
     "tags",                      
     "holder_type",
-    "source_is_manual"
+    "source_is_manual",
+    "idx_investor_slug",
+    "idx_conglomerates_group_slug"
 }
 
 # Numeric helpers 
@@ -107,6 +109,10 @@ class FilingRecord:
     source: Optional[str] = None
     holder_type: Optional[str] = None
     filings_input_source: Optional[str] = 'automated'
+
+    # Slug columns 
+    idx_investor_slug: Optional[List[str]] = None 
+    idx_conglomerates_group_slug: Optional[List[str]] = None 
 
     # Non-DB fields
     raw_data: Dict[str, Any] = field(default_factory=dict, repr=False)
@@ -205,7 +211,8 @@ class FilingRecord:
             "price_transaction",  # serialized below
             "title", "body",
             "tags", "sector", "sub_sector",
-            "source", "holder_type",
+            "source", "holder_type", 
+            "idx_investor_slug", "idx_conglomerates_group_slug",
 
             # use for llm generation news 
             "purpose_of_transaction", "company_name"

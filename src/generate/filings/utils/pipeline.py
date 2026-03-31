@@ -15,6 +15,8 @@ from src.core.transformer import transform_many
 from .loaders import load_parsed_files, build_downloads_meta_map, build_ingestion_map
 from .processors import process_all_records
 from .consolidators import dedupe_rows
+from .matching import matching_investor_and_conglomerates 
+
 
 log = logging.getLogger("filings.pipeline")
 
@@ -54,7 +56,10 @@ def run(
     records = dedupe_rows(records)
     _stage_log("Deduped", len(records))
 
-    # 6) SAVE filings rows (DB + audit helpers)
+    # 6) Matching for investor and conglomerates slug 
+    records = matching_investor_and_conglomerates(records)
+
+    # 7) SAVE filings rows (DB + audit helpers)
     outp = Path(output_file)
     outp.parent.mkdir(parents=True, exist_ok=True)
 
