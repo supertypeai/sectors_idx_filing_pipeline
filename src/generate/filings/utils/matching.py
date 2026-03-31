@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from supabase import create_client
+from rapidfuzz import process, fuzz
 
 from src.core.types import FilingRecord
 
@@ -26,14 +27,12 @@ def get_db(client, table: str):
     return response.data or []
 
 
-def get_idx_investor(client):
-    result = get_db(client, 'idx_investor') 
-    return result
-
-
-def get_idx_conglomerates(client): 
-    result = get_db(client, 'idx_conglomerates_group') 
-    return result 
+def build_slug_lookup_investor(rows: list[dict], name_key: str) -> dict[str, str]:
+    return {
+        row[name_key].strip().lower(): row["slug"]
+        for row in rows
+        if row.get(name_key) and row.get("slug")
+    }
 
 
 def build_slug_lookup(rows: list[dict]) -> dict[str, list[str]]:
@@ -51,6 +50,29 @@ def build_slug_lookup(rows: list[dict]) -> dict[str, list[str]]:
     return lookup
 
 
+def find_slug_investor(
+    holder_name: str, 
+    slug_lookup: dict[str, str], 
+    threshold: int = 90
+) -> str | None:
+    candidates = list(slug_lookup.keys())
+
+    result = process.extractOne(
+        holder_name.strip().lower(),
+        candidates,
+        scorer=fuzz.token_sort_ratio, 
+    )
+
+    if result is None:
+        return None
+
+    matched_name, score, _ = result
+    
+    if score >= threshold:
+        return slug_lookup[matched_name]
+    return None
+
+
 def matching_investor_and_conglomerates(idx_filings: list[FilingRecord]) -> list[FilingRecord]:
     if not SUPABASE_URL or not SUPABASE_KEY:
         LOGGER.warning("[MATCHING] SUPABASE_URL/KEY missing; skip slug matching.")
@@ -59,20 +81,19 @@ def matching_investor_and_conglomerates(idx_filings: list[FilingRecord]) -> list
     try:
         supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-        idx_investor = get_idx_investor(supabase_client)
-        idx_conglomerates = get_idx_conglomerates(supabase_client)    
+        idx_investor = get_db(supabase_client, 'idx_investor')
+        idx_conglomerates = get_db(supabase_client, 'idx_conglomerates_group')    
 
-        investor_lookup = build_slug_lookup(idx_investor)
+        investor_lookup = build_slug_lookup_investor(idx_investor, 'investor_name')
         conglomerate_lookup = build_slug_lookup(idx_conglomerates)
 
         for filing in idx_filings:
             filing_symbol = filing.symbol
-
-            if not filing_symbol:
-                continue
+            holder_name = filing.holder_name 
             
-            investor_slug =  investor_lookup.get(filing_symbol)
-            conglomerate_slug = conglomerate_lookup.get(filing_symbol)
+            investor_slug = find_slug_investor(holder_name=holder_name, slug_lookup=investor_lookup) if holder_name else None
+            conglomerate_slug = conglomerate_lookup.get(filing_symbol) if filing_symbol else None
+
 
             filing.idx_investor_slug = investor_slug
             filing.idx_conglomerates_group_slug = conglomerate_slug 

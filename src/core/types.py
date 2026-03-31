@@ -111,8 +111,8 @@ class FilingRecord:
     filings_input_source: Optional[str] = 'automated'
 
     # Slug columns 
-    idx_investor_slug: Optional[List[str]] = None 
-    idx_conglomerates_group_slug: Optional[List[str]] = None 
+    idx_investor_slug: Optional[str] = None 
+    idx_conglomerates_group_slug: Optional[list[str]] = None 
 
     # Non-DB fields
     raw_data: Dict[str, Any] = field(default_factory=dict, repr=False)
