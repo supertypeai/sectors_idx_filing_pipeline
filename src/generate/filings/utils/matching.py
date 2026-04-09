@@ -39,7 +39,7 @@ def build_slug_lookup(rows: list[dict]) -> dict[str, list[str]]:
     lookup = {}
     for row in rows: 
         slug = row.get('slug')
-        symbols = row.get('symbol') or [] 
+        symbols = row.get('symbols') or [] 
 
         for symbol in symbols: 
             if symbol not in lookup: 
