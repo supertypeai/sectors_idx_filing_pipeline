@@ -89,6 +89,32 @@ def map_transaction_type(type_raw: str) -> str:
     else:
         return None 
 
+
+def classify_transaction_type(type_raw: str, purpose: str) -> str | None: 
+    if not type_raw:
+        return None 
+    
+    type_lower = type_raw.lower()
+
+    if purpose is not None: 
+        purpose_lower = purpose.lower()
+
+        if type_lower == 'lainnya': 
+            buy_keywords = ['investasi', 'mesop', 'esop', 'pembelian']
+            sell_keywords = ['divestasi', 'penjualan']
+            
+            if any(keyword in purpose_lower for keyword in buy_keywords): 
+                return 'buy'
+            
+            if any(keyword in purpose_lower for keyword in sell_keywords): 
+                return 'sell'
+            
+            return 'others'
+            
+        return map_transaction_type(type_raw)
+
+    return map_transaction_type(type_raw)
+    
     
 def extract_holder_name(text: str) -> dict[str, str]:
     try: 
@@ -145,23 +171,23 @@ def extract_shares(text: str) -> dict[str, any]:
     try:
         # Regex Patterns
         shares_before = r"Jumlah Saham Sebelum Transaksi\s*:\s*([\d\.,]+)"
-        shares_after  = r"Jumlah Saham Setelah Transaksi\s*:\s*([\d\.,]+)"
+        shares_after = r"Jumlah Saham Setelah Transaksi\s*:\s*([\d\.,]+)"
         
         # New Patterns for Voting Rights (handles optional % sign)
-        vote_before   = r"Hak Suara Sebelum Transaksi\s*:\s*([\d,]+)\s*%?"
-        vote_after    = r"Hak Suara Setelah Transaksi\s*:\s*([\d,]+)\s*%?"
+        vote_before = r"Hak Suara Sebelum Transaksi\s*:\s*([\d,]+)\s*%?"
+        vote_after = r"Hak Suara Setelah Transaksi\s*:\s*([\d,]+)\s*%?"
 
         # Search
         shares_before = re.search(shares_before, text, re.IGNORECASE)
-        shares_after  = re.search(shares_after, text, re.IGNORECASE)
-        vote_before   = re.search(vote_before, text, re.IGNORECASE)
-        vote_after    = re.search(vote_after, text, re.IGNORECASE)
+        shares_after = re.search(shares_after, text, re.IGNORECASE)
+        vote_before = re.search(vote_before, text, re.IGNORECASE)
+        vote_after = re.search(vote_after, text, re.IGNORECASE)
 
         shares_payload = {
             "holding_before": clean_number(shares_before.group(1)) if shares_before else None,
-            "holding_after":  clean_number(shares_after.group(1)) if shares_after else None,
+            "holding_after": clean_number(shares_after.group(1)) if shares_after else None,
             "share_percentage_before": clean_percentage(vote_before.group(1)) if vote_before else None,
-            "share_percentage_after":  clean_percentage(vote_after.group(1)) if vote_after else None
+            "share_percentage_after": clean_percentage(vote_after.group(1)) if vote_after else None
         }
 
         return shares_payload
@@ -389,7 +415,9 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 LOGGER.info(f"DEBUG: transaction_type='{transaction_type}', amount={amount}, price={price}, date={date}")
 
                 # Build Object
-                type_mapped = map_transaction_type(transaction_type)
+                print(f'\nraw tx type: {transaction_type} | purpose: {purpose}')
+
+                type_mapped = classify_transaction_type(transaction_type, purpose)
                 amount_clean = clean_number(amount) 
                 price_clean = clean_number(price) 
                 date_clean = standardize_date(date) 
@@ -478,6 +506,7 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
 
     total_others_shares = 0
     total_others_value = 0.0
+
     try:
         has_buy_sell = False 
 
@@ -486,77 +515,83 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
             price = float(price_transaction.get('price') or 0.0)
             value = amount * price
             
-            type = str(price_transaction.get('type')).lower()
+            transaction_type = str(price_transaction.get('type')).lower()
 
-            if type =='buy': 
+            if transaction_type == 'buy': 
                 total_buy_shares += amount
                 total_buy_value += value
                 has_buy_sell = True 
-            elif type == 'sell':
+                
+            elif transaction_type == 'sell':
                 total_sell_shares += amount
                 total_sell_value += value
                 has_buy_sell = True 
+
             else:
                 total_others_shares += amount
                 total_others_value += value
 
         if has_buy_sell:
-            # Net transaction value (Buy – Sell)
             net_value = total_buy_value - total_sell_value
-            
-            # Net transacted share amount (Buy-Sell)
             net_shares = total_buy_shares - total_sell_shares
 
             if net_value > 0:
-                type = 'buy'
+                calculated_type = 'buy'
+
             elif net_value < 0:
-                type = 'sell'
+                calculated_type = 'sell'
+
             else:
-                type = 'others'
+                calculated_type = 'others'
 
             if net_shares != 0:
-                # We use abs() because price cannot be negative
-                w_avg_price = abs(net_value / net_shares)
+                weighted_average_price = abs(net_value / net_shares)
+
             else:
-                w_avg_price = 0.0
+                weighted_average_price = 0.0
 
             return {
-                "price": round(w_avg_price, 3),
+                "price": round(weighted_average_price, 3),
                 "transaction_value": abs(int(net_value)),
-                "transaction_type": type
+                "transaction_type": calculated_type,
+                "net_shares_transacted": net_shares 
             }
         
         else:
-            # Calculate Price (Total Value / Total Shares)
             if total_others_shares > 0:
-                w_avg_price = total_others_value / total_others_shares
+                weighted_average_price = total_others_value / total_others_shares
+
             else:
-                w_avg_price = 0.0
+                weighted_average_price = 0.0
             
             return {
-                "price": round(w_avg_price, 3),
+                "price": round(weighted_average_price, 3),
                 "transaction_value": abs(int(total_others_value)),
-                "transaction_type": "others"
+                "transaction_type": "others",
+                "net_shares_transacted": total_others_shares
             }
 
     except Exception as error:
-        LOGGER.error(f'compute transaction error: {error}')
+        LOGGER.error(f"Compute transaction error: {error}")
         return {}
 
 
-def run_compute_transaction(extracted_datas: dict[str, any], filename: str):
+def run_compute_transaction(extracted_data: dict[str, any], filename: str):
     try:
         # Compute top level transaction type, transaction value, price
-        transaction_computed = compute_transactions(extracted_datas.get('price_transaction'))
-        extracted_datas.update({'price': transaction_computed.get('price')})
-        extracted_datas.update({'transaction_value': transaction_computed.get('transaction_value')})
-        extracted_datas.update({'transaction_type': transaction_computed.get('transaction_type')})
-    
-        # Calculate amount transaction
-        amount_transaction = abs(extracted_datas.get('holding_before') - extracted_datas.get('holding_after'))
-        extracted_datas.update({'amount_transaction': amount_transaction})
+        transaction_computed = compute_transactions(extracted_data.get('price_transaction'))
 
-        extracted_datas.update({'source': filename}) 
+        extracted_data['price'] = transaction_computed.get('price')
+        extracted_data['transaction_value'] = transaction_computed.get('transaction_value')
+        extracted_data['transaction_type'] = transaction_computed.get('transaction_type')
+        extracted_data['net_shares_transacted'] = transaction_computed.get('net_shares_transacted')
+
+        # Calculate amount transaction
+        holding_before = extracted_data.get('holding_before', 0)
+        holding_after = extracted_data.get('holding_after', 0)
+        
+        extracted_data['amount_transaction'] = abs(holding_before - holding_after)
+        extracted_data['source'] = filename
     
     except Exception as error:
         LOGGER.error(f'Error run_compute_transaction: {error}')
@@ -656,14 +691,13 @@ def parser_new_document(filename: str):
             extracted_data_others = copy.deepcopy(extracted_data)
             extracted_data_others.update(price_data_others)
             
-
         if price_data_no_others is not None:
             extracted_data.update(price_data_no_others) 
 
     if price_data_no_others is not None:
         run_compute_transaction(extracted_data, filename)
+
     if price_data_others is not None:
         run_compute_transaction(extracted_data_others, filename)
 
     return extracted_data_others if price_data_others else None, extracted_data if price_data_no_others else None
-  

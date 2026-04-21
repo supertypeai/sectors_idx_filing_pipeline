@@ -36,6 +36,7 @@ MESSAGE_TEMPLATES = {
     "invalid_price_transaction": "price_transaction block is empty or missing date/type/amount for buy/sell filings.",
     "mixed_transaction_type": "Buy/Sell appears together with transfer/other; requires manual review.",
     "transfer_only_transaction": "Transfer/other-only transaction; requires manual handling.",
+    "mathematical_reconciliation_failed": "The transaction table does not reconcile with the reported before/after holdings.",
 }
 
 # Default severity per alert code (aligned with README policy)
@@ -70,6 +71,7 @@ DEFAULT_SEVERITY = {
     "mixed_transaction_type": "hard",
     "transfer_only_transaction": "hard",
     "non_idx_document": "warning",
+    "mathematical_reconciliation_failed": "fatal",
 }
 
 def build_alert(

@@ -141,17 +141,31 @@ class IDXParser(BaseParser):
             holder_type = NameCleaner.classify_holder_type(data.get('holder_name'))
 
             # Update the payload parser
-            data.update({'tags': tags})
-            data.update({'holder_type': holder_type})
-            data.update({'source': source_pdf})    
-            data.update({'timestamp': timestamp_str})
-            
-            return tags
+            update_payload = {
+                'tags': tags,
+                'holder_type': holder_type,
+                'source': source_pdf,
+                'timestamp': timestamp_str,
+            }
+
+            data.update(update_payload)
         
         except Exception as error: 
             logger.error(f"construct new tags: {error}")
             return [] 
+    
+    def _is_transaction_value_mismatch(self, extracted_data: dict) -> bool:
+        holding_before = extracted_data.get('holding_before', 0)
+        holding_after = extracted_data.get('holding_after', 0)
+        net_shares = extracted_data.get('net_shares_transacted', 0)
+       
+        expected_after = holding_before + net_shares
+
+        if expected_after != holding_after:
+            return True 
         
+        return False
+
     # Entry point
     def parse_single_pdf(
         self,
@@ -196,21 +210,55 @@ class IDXParser(BaseParser):
                 timestamp_str = timestamp_object.strftime('%Y-%m-%d %H:%M:%S')
 
                 data_others, data_no_others = parser_new_document(f'downloads/idx-format/{filename}')
+                
                 if not data_others and not data_no_others: 
                     logger.warning(f"Skipping {filename}: parser_new_document returned None (likely no share change).")
                     return None
                 
                 out = []
 
-                if data_no_others is not None:
-                    self._populate_new_data(data_no_others, source_pdf_url, timestamp_str)
-                    data_no_others["split_variant"] = "primary"
-                    out.append(data_no_others)
+                variants = [
+                    (data_no_others, "primary"),
+                    (data_others, "others"),
+                ]
 
-                if data_others is not None:
-                    self._populate_new_data(data_others, source_pdf_url, timestamp_str)
-                    data_others["split_variant"] = "others"
-                    out.append(data_others)
+                for data, split_variant in variants: 
+                    if data is None:
+                        continue
+
+                    self._populate_new_data(data, source_pdf_url, timestamp_str)
+
+                    if self._is_transaction_value_mismatch(data):
+                        holding_before = data.get('holding_before', 0)
+                        holding_after = data.get('holding_after', 0)
+                        net_shares = data.get('net_shares_transacted', 0)
+                        
+                        expected_after = holding_before + net_shares
+
+                        self._parser_fail(
+                            code="mathematical_reconciliation_failed",
+                            filename=filename,
+                            reasons=[
+                                {
+                                    "scope": "validation",
+                                    "code": "mathematical_reconciliation_failed",
+                                    "message": "The net transacted shares from the table do not align with the reported change in portfolio holdings.",
+                                    "details": {
+                                        "holding_before": holding_before,
+                                        "holding_after": holding_after,
+                                        "net_shares_transacted": net_shares,
+                                        "expected_holding_after": expected_after,
+                                        "share_discrepancy": abs(expected_after - holding_after),
+                                        "announcement": self._current_alert_context
+                                    },
+                                }
+                            ],
+                            ctx={**data},
+                        )
+                        continue 
+
+                    data["split_variant"] = split_variant
+                    out.append(data)
 
                 return out or None
 

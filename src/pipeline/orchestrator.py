@@ -9,6 +9,7 @@ from services.upload.dedup import upload_filings_with_dedup
 from services.upload.supabase import SupabaseUploader, UploadResult
 from services.alert.ingestion_context import build_ingestion_index
 from src.core.types import FILINGS_ALLOWED_COLUMNS
+from src.config.config import ALERTS_OUTPUT_DIR
 
 # Timezone for WIB
 try:
@@ -401,12 +402,42 @@ def step_generate_filings(
 
 def step_bucketize_alerts(
     *,
-    from_dir: Path = Path("alerts"),
     inserted_dir: Path = Path("alerts_inserted"),
     not_inserted_dir: Path = Path("alerts_not_inserted"),
 ) -> None:
-    stats = bucketize_alerts(from_dir=from_dir, inserted_dir=inserted_dir, not_inserted_dir=not_inserted_dir)
-    LOG.info("[BUCKETIZE] inserted=%d not_inserted=%d", stats["inserted"], stats["not_inserted"])
+    sources = [Path("alerts"), Path(ALERTS_OUTPUT_DIR)]
+
+    seen: set[Path] = set()
+    total = {"inserted": 0, "not_inserted": 0}
+
+    for src in sources:
+        try:
+            resolved = src.resolve()
+        except Exception:
+            resolved = src
+
+        if resolved in seen:
+            continue
+
+        seen.add(resolved)
+
+        if not src.exists():
+            continue
+
+        stats = bucketize_alerts(
+            from_dir=src,
+            inserted_dir=inserted_dir,
+            not_inserted_dir=not_inserted_dir,
+        )
+
+        total["inserted"] += stats.get("inserted", 0)
+        total["not_inserted"] += stats.get("not_inserted", 0)
+
+    LOG.info(
+        "[BUCKETIZE] inserted=%d not_inserted=%d",
+        total["inserted"],
+        total["not_inserted"],
+    )
 
 
 # Email helpers & step
