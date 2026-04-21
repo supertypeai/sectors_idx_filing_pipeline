@@ -27,6 +27,7 @@ def _key(record: FilingRecord) -> Tuple:
         record.share_percentage_before,
         record.share_percentage_after,
         record.source,
+        record.transaction_type,
         d,
     )
 
