@@ -82,7 +82,7 @@ def _coerce_iso_with_z(ts: Optional[str]) -> Optional[str]:
 _ALLOWED_COLS = {
     "title", "body", "source", "timestamp",
     "sector", "sub_sector", "tags", "tickers",
-    "dimension", "votes", "score",
+    "dimension", "votes", "score", "symbols"
 }
 
 def _normalize_article_row(row: Dict[str, Any]) -> Dict[str, Any]:
@@ -102,6 +102,7 @@ def _normalize_article_row(row: Dict[str, Any]) -> Dict[str, Any]:
     r["timestamp"] = _coerce_iso_with_z(r.get("timestamp") or r.get("date"))
 
     r["tickers"] = _ensure_str_list(r.get("tickers")) or None
+    r['symbols'] = r['tickers'].copy() if r["tickers"] else None
     r["tags"] = _ensure_str_list(r.get("tags")) or None
     r["sub_sector"] = _ensure_str_list(r.get("sub_sector")) or None
 
