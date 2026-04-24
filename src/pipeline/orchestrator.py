@@ -736,8 +736,12 @@ def build_argparser() -> argparse.ArgumentParser:
 
     # Fetch window modes
     g = p.add_mutually_exclusive_group()
-    g.add_argument("--window-minutes", type=int, default=120,
-                   help="Look back N minutes from now (WIB). Default: 120")
+    g.add_argument(
+        "--window-minutes",
+        type=int,
+        default=None,
+        help="Look back N minutes from now (WIB). Default: 120 when no last_end state exists."
+    )
     g.add_argument("--window-hours", type=int, default=None,
                    help="Alternative to window-minutes; hours back from now (WIB)")
 

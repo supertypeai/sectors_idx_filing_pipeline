@@ -29,7 +29,7 @@ class LLMCollection:
                 
             }
 
-            groq_api_keys = os.getenv("GROQ_API_KEY", "")
+            groq_api_keys = os.getenv("GROQ_API_KEY_DEV", "")
             groq_api_keys_backup = os.getenv("GROQ_API_KEY_BACKUP", "")
 
             gemini_api_key = os.getenv("GEMINI_API_KEY", "")
