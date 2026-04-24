@@ -181,8 +181,8 @@ jobs:
 
           # Mode window / date
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            # Cron: keep default window; upload to default table
-            ARGS+=( "--window-minutes" "${DEFAULT_WINDOW_MINUTES}" "--upload" "--table" "idx_filings" )
+            # Cron: no --window-minutes so state-based tracking takes over
+            ARGS+=( "--upload" "--table" "idx_filings" )
             add_arg_if_set "--prices-lookback-days" "${PRICES_LOOKBACK_DAYS}"
             [[ "${{ inputs.no_price_fallback }}" == "true" ]] && ARGS+=( "--no-price-fallback" )
           else
@@ -211,16 +211,15 @@ jobs:
                 ARGS+=( "--from-date" "$FROMD" "--to-date" "$TOD" )
                 ;;
               lookback|*)
-                # LOOKBACK: minutes only (integer)
+                # LOOKBACK: explicit minutes override; empty = use state
                 if [[ -z "${TIME:-}" ]]; then
-                  WIN="${DEFAULT_WINDOW_MINUTES}"
+                  : # no --window-minutes; orchestrator uses last_run state
                 else
                   if [[ ! "${TIME}" =~ ^[0-9]+$ ]]; then
                     echo "::error::For mode=lookback, 'time' must be an integer (minutes), e.g., 120"; exit 1;
                   fi
-                  WIN="${TIME}"
+                  ARGS+=( "--window-minutes" "${TIME}" )
                 fi
-                ARGS+=( "--window-minutes" "$WIN" )
                 ;;
             esac
 

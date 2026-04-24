@@ -42,11 +42,36 @@ from generate.articles.utils.uploader import upload_news_file_cli
 
 LOG = logging.getLogger("orchestrator")
 
+STATE_FILE = Path("data/state/last_run.json")
+
 
 # Logging / Time utils
 def _setup_logging(verbose: bool) -> None:
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(message)s")
+
+
+# Logging / Time utils
+def _setup_logging(verbose: bool) -> None:
+    level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(level=level, format="%(asctime)s [%(levelname)s] %(message)s")
+
+
+def _load_last_end() -> Optional[datetime]:
+    try:
+        raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+        dt = datetime.fromisoformat(raw["last_end"])
+        return dt if dt.tzinfo else dt.replace(tzinfo=JKT)
+    
+    except Exception:
+        return None
+
+
+def _save_last_end(end: datetime) -> None:
+    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    STATE_FILE.write_text(
+        json.dumps({"last_end": end.isoformat()}), encoding="utf-8"
+    )
 
 
 def _now_wib() -> datetime:
@@ -385,14 +410,12 @@ def step_generate_filings(
     idx_parsed: Path,
     non_idx_parsed: Path,
     downloads_meta: Path,
-    ingestion_file: Path, # Newly added argument
     filings_out: Path,
     alerts_out: Path,
 ) -> int:
     cnt = run_generate(
         parsed_files=[str(non_idx_parsed), str(idx_parsed)],
         downloads_file=str(downloads_meta),
-        ingestion_file=str(ingestion_file), # Passed through to 'run_generate'
         output_file=str(filings_out),
         alerts_file=str(alerts_out),
     )
@@ -861,16 +884,35 @@ def main():
             out_path=ann_out,
         )
     else:
-        minutes = args.window_minutes if args.window_minutes is not None else (args.window_hours or 2) * 60
-        date, sh, eh, stub = _compute_window_from_minutes(minutes)
-        anns = step_fetch_announcements(
-            date_yyyymmdd=date,
-            start_hhmm=sh,
-            end_hhmm=eh,
-            range_from=None,
-            range_to=None,
-            out_path=ann_out,
-        )
+        now = _now_wib()
+        last_end = _load_last_end()
+
+        if last_end is not None and args.window_minutes is None and args.window_hours is None:
+            start = last_end - timedelta(minutes=5)
+        else:
+            minutes = args.window_minutes if args.window_minutes is not None else (args.window_hours or 2) * 60
+            start = now - timedelta(minutes=minutes)
+
+        if start.date() != now.date():
+            anns = step_fetch_announcements(
+                date_yyyymmdd=None,
+                start_hhmm=None,
+                end_hhmm=None,
+                range_from=start.strftime("%Y%m%d"),
+                range_to=now.strftime("%Y%m%d"),
+                out_path=ann_out,
+            )
+        else:
+            anns = step_fetch_announcements(
+                date_yyyymmdd=start.strftime("%Y%m%d"),
+                start_hhmm=start.strftime("%H:%M"),
+                end_hhmm=now.strftime("%H:%M"),
+                range_from=None,
+                range_to=None,
+                out_path=ann_out,
+            )
+
+        _save_last_end(now)
 
     if not anns:
         LOG.info("[FETCH] No announcements found for the window; skipping downstream steps.")
@@ -926,7 +968,6 @@ def main():
         idx_parsed=idx_out,
         non_idx_parsed=non_idx_out,
         downloads_meta=Path("data/downloaded_pdfs.json"),
-        ingestion_file=ann_out, # Pass along the ingestion file
         filings_out=filings_out,
         alerts_out=suspicious_out,
     )
