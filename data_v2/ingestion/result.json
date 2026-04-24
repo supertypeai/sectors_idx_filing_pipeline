@@ -1,1 +1,137 @@
-[]
+[
+  {
+    "Id": "20260424170300-LK/24042026/0005/1_en-us",
+    "ItemID": null,
+    "AnnouncementNo": "LK/24042026/0005/1",
+    "PublishDate": "2026-04-24T17:03:00",
+    "Title": "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES",
+    "AnnouncementType": "LKS",
+    "Code": "SRTG",
+    "FormID": null,
+    "JmsxGroupId": "lk-20260424360-00",
+    "Jenis": "STOCK",
+    "Attachments": [
+      {
+        "PDFFilename": "LK-24042026-7431-00.pdf-0",
+        "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-7431-00.pdf-0.pdf",
+        "IsAttachment": 1,
+        "OriginalFilename": "LK-24042026-7431-00.pdf"
+      }
+    ],
+    "PdfPath": "[{\"PDFFilename\":\"LK-24042026-7431-00.pdf-0\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-7431-00.pdf-0.pdf\",\"IsAttachment\":1,\"OriginalFilename\":\"LK-24042026-7431-00.pdf\"}]",
+    "Perihal": null,
+    "Lang": null,
+    "KodeDivisi": null,
+    "Divisi": null,
+    "JenisEmiten": null,
+    "IsHidden": false
+  },
+  {
+    "Id": "20260424165357-LK/24042026/0004/1_en-us",
+    "ItemID": null,
+    "AnnouncementNo": "LK/24042026/0004/1",
+    "PublishDate": "2026-04-24T16:53:57",
+    "Title": "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES",
+    "AnnouncementType": "LKS",
+    "Code": "BYAN",
+    "FormID": null,
+    "JmsxGroupId": "lk-20260424583-00",
+    "Jenis": "STOCK",
+    "Attachments": [
+      {
+        "PDFFilename": "LK-24042026-9589-00.pdf-0",
+        "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9589-00.pdf-0.pdf",
+        "IsAttachment": 1,
+        "OriginalFilename": "LK-24042026-9589-00.pdf"
+      }
+    ],
+    "PdfPath": "[{\"PDFFilename\":\"LK-24042026-9589-00.pdf-0\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9589-00.pdf-0.pdf\",\"IsAttachment\":1,\"OriginalFilename\":\"LK-24042026-9589-00.pdf\"}]",
+    "Perihal": null,
+    "Lang": null,
+    "KodeDivisi": null,
+    "Divisi": null,
+    "JenisEmiten": null,
+    "IsHidden": false
+  },
+  {
+    "Id": "20260424164002-LK/24042026/0003/1_en-us",
+    "ItemID": null,
+    "AnnouncementNo": "LK/24042026/0003/1",
+    "PublishDate": "2026-04-24T16:40:02",
+    "Title": "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES",
+    "AnnouncementType": "LKS",
+    "Code": "WINR",
+    "FormID": null,
+    "JmsxGroupId": "lk-20260424311-00",
+    "Jenis": "STOCK",
+    "Attachments": [
+      {
+        "PDFFilename": "LK-24042026-9556-00.pdf-0",
+        "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9556-00.pdf-0.pdf",
+        "IsAttachment": 1,
+        "OriginalFilename": "LK-24042026-9556-00.pdf"
+      }
+    ],
+    "PdfPath": "[{\"PDFFilename\":\"LK-24042026-9556-00.pdf-0\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9556-00.pdf-0.pdf\",\"IsAttachment\":1,\"OriginalFilename\":\"LK-24042026-9556-00.pdf\"}]",
+    "Perihal": null,
+    "Lang": null,
+    "KodeDivisi": null,
+    "Divisi": null,
+    "JenisEmiten": null,
+    "IsHidden": false
+  },
+  {
+    "Id": "20260424162103-LK/24042026/0002/1_en-us",
+    "ItemID": null,
+    "AnnouncementNo": "LK/24042026/0002/1",
+    "PublishDate": "2026-04-24T16:21:03",
+    "Title": "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES",
+    "AnnouncementType": "LKS",
+    "Code": "ESSA",
+    "FormID": null,
+    "JmsxGroupId": "lk-20260424414-00",
+    "Jenis": "STOCK",
+    "Attachments": [
+      {
+        "PDFFilename": "LK-24042026-6216-00.pdf-0",
+        "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-6216-00.pdf-0.pdf",
+        "IsAttachment": 1,
+        "OriginalFilename": "LK-24042026-6216-00.pdf"
+      }
+    ],
+    "PdfPath": "[{\"PDFFilename\":\"LK-24042026-6216-00.pdf-0\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-6216-00.pdf-0.pdf\",\"IsAttachment\":1,\"OriginalFilename\":\"LK-24042026-6216-00.pdf\"}]",
+    "Perihal": null,
+    "Lang": null,
+    "KodeDivisi": null,
+    "Divisi": null,
+    "JenisEmiten": null,
+    "IsHidden": false
+  },
+  {
+    "Id": "20260424133024-LK/24042026/0001/1_en-us",
+    "ItemID": null,
+    "AnnouncementNo": "LK/24042026/0001/1",
+    "PublishDate": "2026-04-24T13:30:24",
+    "Title": "REPORT OF OWNERSHIP OR ANY CHANGES IN SHARE OWNERSHIP OF PUBLIC COMPANIES",
+    "AnnouncementType": "LKS",
+    "Code": "TRJA",
+    "FormID": null,
+    "JmsxGroupId": "lk-20260424489-00",
+    "Jenis": "STOCK",
+    "Attachments": [
+      {
+        "PDFFilename": "LK-24042026-4275-00.pdf-0",
+        "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-4275-00.pdf-0.pdf",
+        "IsAttachment": 1,
+        "OriginalFilename": "LK-24042026-4275-00.pdf"
+      }
+    ],
+    "PdfPath": "[{\"PDFFilename\":\"LK-24042026-4275-00.pdf-0\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-4275-00.pdf-0.pdf\",\"IsAttachment\":1,\"OriginalFilename\":\"LK-24042026-4275-00.pdf\"}]",
+    "Perihal": null,
+    "Lang": null,
+    "KodeDivisi": null,
+    "Divisi": null,
+    "JenisEmiten": null,
+    "IsHidden": false
+  }
+]

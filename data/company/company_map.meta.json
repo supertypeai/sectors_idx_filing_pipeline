@@ -1,9 +1,9 @@
 {
-  "generated_at": "2025-10-30T18:47:14.283090Z",
+  "generated_at": "2026-04-24T10:26:45.617652Z",
   "report_table": "idx_company_report",
-  "row_count": 954,
-  "row_count_report": 954,
-  "checksum": "sha256:644e411893c5f67ef8d86d0e7bbf9c4edbbbdcc01da564fc2221e409f5cba531",
+  "row_count": 957,
+  "row_count_report": 957,
+  "checksum": "sha256:58ccf469f8564836fc016c8c61fb2fb01021f7bfb19a6d437719adbd928277c1",
   "source": "idx_company_report",
   "columns": "symbol,company_name,sector,sub_sector,last_close_price,latest_close_date"
 }

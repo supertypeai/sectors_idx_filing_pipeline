@@ -1,532 +1,205 @@
 [
   {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1659619900,
-    "holding_after": 1644781900,
-    "share_percentage_before": 22.33,
-    "share_percentage_after": 22.13,
-    "share_percentage_transaction": 0.1999999999999993,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+    "holding_before": 4289610000,
+    "holding_after": 3369610000,
+    "share_percentage_before": 31.623,
+    "share_percentage_after": 24.841,
+    "share_percentage_transaction": 6.782,
+    "symbol": "SRTG.JK",
+    "company_name": "PT Saratoga Investama Sedaya Tbk",
+    "holder_name": "Unitras Pertama",
+    "price_transaction": [
       {
         "type": "sell",
-        "price": 55,
-        "amount": 14838000,
-        "value": 816090000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
+        "amount_transacted": 920000000,
+        "price": 1770,
+        "date": "2026-04-24"
       }
     ],
-    "amount_transacted_rows": 14838000,
-    "amount_transacted": 14838000,
-    "transaction_value": 816090000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
+    "purpose": "Divestasi",
+    "price": 1770.0,
+    "transaction_value": 1628400000000,
     "transaction_type": "sell",
-    "price": 55.0,
-    "price_transaction": {
-      "prices": [
-        55
-      ],
-      "amount_transacted": [
-        14838000
-      ]
-    },
-    "is_transfer": false,
-    "source": "cf407cd3dc_68b663c32f.pdf",
+    "net_shares_transacted": -920000000,
+    "amount_transaction": 920000000,
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-7431-00.pdf-0.pdf",
     "tags": [
-      "bearish",
       "divestment"
-    ]
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 17:03:00",
+    "split_variant": "primary"
   },
   {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 2230281900,
-    "holding_after": 1792620000,
-    "share_percentage_before": 30.01,
-    "share_percentage_after": 24.12,
-    "share_percentage_transaction": 5.890000000000001,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+    "holding_before": 84915700,
+    "holding_after": 82516700,
+    "share_percentage_before": 5.62,
+    "share_percentage_after": 5.46,
+    "share_percentage_transaction": 0.16,
+    "symbol": "TRJA.JK",
+    "company_name": "PT Transkon Jaya Tbk",
+    "holder_name": "Damai Investama Sukses",
+    "price_transaction": [
       {
         "type": "sell",
-        "price": 51,
-        "amount": 437661900,
-        "value": 22320756900,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 437661900,
-    "amount_transacted": 437661900,
-    "transaction_value": 22320756900,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 51.0,
-    "price_transaction": {
-      "prices": [
-        51
-      ],
-      "amount_transacted": [
-        437661900
-      ]
-    },
-    "is_transfer": false,
-    "source": "5774cd02a8_1b8dfda15c.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1644281900,
-    "holding_after": 1624281900,
-    "share_percentage_before": 22.13,
-    "share_percentage_after": 21.86,
-    "share_percentage_transaction": 0.2699999999999996,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 1700000,
+        "price": 138,
+        "date": "2026-04-21"
+      },
       {
         "type": "sell",
-        "price": 80,
-        "amount": 20000000,
-        "value": 1600000000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 20000000,
-    "amount_transacted": 20000000,
-    "transaction_value": 1600000000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 80.0,
-    "price_transaction": {
-      "prices": [
-        80
-      ],
-      "amount_transacted": [
-        20000000
-      ]
-    },
-    "is_transfer": false,
-    "source": "70c5ac748f_a778a1add8.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 2245619900,
-    "holding_after": 2230781900,
-    "share_percentage_before": 30.22,
-    "share_percentage_after": 30.02,
-    "share_percentage_transaction": 0.1999999999999993,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 100000,
+        "price": 140,
+        "date": "2026-04-21"
+      },
       {
         "type": "sell",
-        "price": 55,
-        "amount": 14838000,
-        "value": 816090000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 14838000,
-    "amount_transacted": 14838000,
-    "transaction_value": 816090000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 55.0,
-    "price_transaction": {
-      "prices": [
-        55
-      ],
-      "amount_transacted": [
-        14838000
-      ]
-    },
-    "is_transfer": false,
-    "source": "2b8f83f0d8_12b6e70417.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1754881900,
-    "holding_after": 1659619900,
-    "share_percentage_before": 23.61,
-    "share_percentage_after": 22.33,
-    "share_percentage_transaction": 1.2800000000000011,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 325600,
+        "price": 138,
+        "date": "2026-04-22"
+      },
       {
         "type": "sell",
-        "price": 54,
-        "amount": 95262000,
-        "value": 5144148000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 95262000,
-    "amount_transacted": 95262000,
-    "transaction_value": 5144148000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 54.0,
-    "price_transaction": {
-      "prices": [
-        54
-      ],
-      "amount_transacted": [
-        95262000
-      ]
-    },
-    "is_transfer": false,
-    "source": "0cc43b0b2d_1e39e25e80.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1792620000,
-    "holding_after": 1774881900,
-    "share_percentage_before": 24.12,
-    "share_percentage_after": 23.88,
-    "share_percentage_transaction": 0.240000000000002,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 127800,
+        "price": 139,
+        "date": "2026-04-22"
+      },
       {
         "type": "sell",
-        "price": 52,
-        "amount": 17738100,
-        "value": 922381200,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 17738100,
-    "amount_transacted": 17738100,
-    "transaction_value": 922381200,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 52.0,
-    "price_transaction": {
-      "prices": [
-        52
-      ],
-      "amount_transacted": [
-        17738100
-      ]
-    },
-    "is_transfer": false,
-    "source": "c49cd8c770_045edbbe0e.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 2230781900,
-    "holding_after": 2230281900,
-    "share_percentage_before": 30.02,
-    "share_percentage_after": 30.01,
-    "share_percentage_transaction": 0.00999999999999801,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 52000,
+        "price": 141,
+        "date": "2026-04-22"
+      },
       {
         "type": "sell",
-        "price": 56,
-        "amount": 500000,
-        "value": 28000000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
-      }
-    ],
-    "amount_transacted_rows": 500000,
-    "amount_transacted": 500000,
-    "transaction_value": 28000000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 56.0,
-    "price_transaction": {
-      "prices": [
-        56
-      ],
-      "amount_transacted": [
-        500000
-      ]
-    },
-    "is_transfer": false,
-    "source": "19c1357527_9ba9fcefc3.pdf",
-    "tags": [
-      "bearish",
-      "divestment"
-    ]
-  },
-  {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1774881900,
-    "holding_after": 1754881900,
-    "share_percentage_before": 23.88,
-    "share_percentage_after": 23.61,
-    "share_percentage_transaction": 0.2699999999999996,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+        "amount_transacted": 30500,
+        "price": 140,
+        "date": "2026-04-22"
+      },
       {
         "type": "sell",
-        "price": 53,
-        "amount": 20000000,
-        "value": 1060000000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
+        "amount_transacted": 32500,
+        "price": 137,
+        "date": "2026-04-23"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 30600,
+        "price": 138,
+        "date": "2026-04-23"
       }
     ],
-    "amount_transacted_rows": 20000000,
-    "amount_transacted": 20000000,
-    "transaction_value": 1060000000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
+    "purpose": "Divestasi",
+    "price": 138.214,
+    "transaction_value": 331574300,
     "transaction_type": "sell",
-    "price": 53.0,
-    "price_transaction": {
-      "prices": [
-        53
-      ],
-      "amount_transacted": [
-        20000000
-      ]
-    },
-    "is_transfer": false,
-    "source": "13698e98a4_1e1cefa1fc.pdf",
+    "net_shares_transacted": -2399000,
+    "amount_transaction": 2399000,
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-4275-00.pdf-0.pdf",
     "tags": [
-      "bearish",
       "divestment"
-    ]
+    ],
+    "holder_type": "institution",
+    "timestamp": "2026-04-24 13:30:24",
+    "split_variant": "primary"
   },
   {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 1644781900,
-    "holding_after": 1644281900,
-    "share_percentage_before": 22.13,
-    "share_percentage_after": 22.13,
+    "holding_before": 3319731800,
+    "holding_after": 3282389400,
+    "share_percentage_before": 63.41,
+    "share_percentage_after": 62.7,
+    "share_percentage_transaction": 0.71,
+    "symbol": "WINR.JK",
+    "company_name": "PT Winner Nusantara Jaya Tbk",
+    "holder_name": "Pemenang Nusantara Internasional",
+    "price_transaction": [
+      {
+        "type": "sell",
+        "amount_transacted": 37342400,
+        "price": 31,
+        "date": "2026-04-21"
+      }
+    ],
+    "purpose": "Divestasi",
+    "price": 31.0,
+    "transaction_value": 1157614400,
+    "transaction_type": "sell",
+    "net_shares_transacted": -37342400,
+    "amount_transaction": 37342400,
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9556-00.pdf-0.pdf",
+    "tags": [
+      "divestment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:40:02",
+    "split_variant": "primary"
+  },
+  {
+    "holding_before": 211200,
+    "holding_after": 194600,
+    "share_percentage_before": 0.0,
+    "share_percentage_after": 0.0,
     "share_percentage_transaction": 0.0,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+    "symbol": "BYAN.JK",
+    "company_name": "Bayan Resources Tbk",
+    "holder_name": "Oliver Khaw Kar Heng",
+    "price_transaction": [
       {
         "type": "sell",
-        "price": 56,
-        "amount": 500000,
-        "value": 28000000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
+        "amount_transacted": 11300,
+        "price": 12344,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 5300,
+        "price": 12044,
+        "date": "2026-04-24"
       }
     ],
-    "amount_transacted_rows": 500000,
-    "amount_transacted": 500000,
-    "transaction_value": 28000000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
+    "purpose": "Divestasi",
+    "price": 12248.217,
+    "transaction_value": 203320400,
     "transaction_type": "sell",
-    "price": 56.0,
-    "price_transaction": {
-      "prices": [
-        56
-      ],
-      "amount_transacted": [
-        500000
-      ]
-    },
-    "is_transfer": false,
-    "source": "dac91da2ef_607a350f05.pdf",
+    "net_shares_transacted": -16600,
+    "amount_transaction": 16600,
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9589-00.pdf-0.pdf",
     "tags": [
-      "bearish",
       "divestment"
-    ]
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:53:57",
+    "split_variant": "primary"
   },
   {
-    "lang": "en",
-    "issuer_code": "DADA",
-    "attachments": "1",
-    "subject": "Information Disclosure of Certain Shareholders",
-    "company_name_raw": "PT. Diamond Citra Propertindo Tbk",
-    "symbol": "DADA.JK",
-    "company_name": "PT Diamond Citra Propertindo Tbk.",
-    "holder_name_raw": "PT Karya Permata Inovasi Indonesia",
-    "holder_type": "institution",
-    "holder_name": "PT Karya Permata Inovasi Indonesia",
-    "holder_symbol": null,
-    "holding_before": 2340881900,
-    "holding_after": 2245619900,
-    "share_percentage_before": 31.5,
-    "share_percentage_after": 30.22,
-    "share_percentage_transaction": 1.2800000000000011,
-    "company_address": "Depok 16245",
-    "company_phone": "Citizenship Indonesia",
-    "purpose": "Investasi",
-    "transactions": [
+    "holding_before": 2821983677,
+    "holding_after": 3251948955,
+    "share_percentage_before": 16.38,
+    "share_percentage_after": 18.88,
+    "share_percentage_transaction": 2.5,
+    "symbol": "ESSA.JK",
+    "company_name": "ESSA Industries Indonesia Tbk",
+    "holder_name": "Chander Vinod Laroya",
+    "price_transaction": [
       {
-        "type": "sell",
-        "price": 54,
-        "amount": 95262000,
-        "value": 5144148000,
-        "date_raw": "23 October 2025",
-        "date": "20251023"
+        "type": "buy",
+        "amount_transacted": 429965278,
+        "price": 711,
+        "date": "2026-04-24"
       }
     ],
-    "amount_transacted_rows": 95262000,
-    "amount_transacted": 95262000,
-    "transaction_value": 5144148000,
-    "has_transfer": false,
-    "amount_transferred": 0,
-    "value_transferred": 0,
-    "transaction_type": "sell",
-    "price": 54.0,
-    "price_transaction": {
-      "prices": [
-        54
-      ],
-      "amount_transacted": [
-        95262000
-      ]
-    },
-    "is_transfer": false,
-    "source": "33510189d0_5fc572fb8a.pdf",
+    "purpose": "investasi",
+    "price": 711.0,
+    "transaction_value": 305705312658,
+    "transaction_type": "buy",
+    "net_shares_transacted": 429965278,
+    "amount_transaction": 429965278,
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-6216-00.pdf-0.pdf",
     "tags": [
-      "bearish",
-      "divestment"
-    ]
+      "investment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:21:03",
+    "split_variant": "primary"
   }
 ]

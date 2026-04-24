@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "timestamp": "2026-04-24 17:03:00",
+    "pdf_local": "data_v2/downloader/lk-24042026-7431-00.pdf",
+    "pdf_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-7431-00.pdf-0.pdf"
+  },
+  {
+    "timestamp": "2026-04-24 16:53:57",
+    "pdf_local": "data_v2/downloader/lk-24042026-9589-00.pdf",
+    "pdf_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9589-00.pdf-0.pdf"
+  },
+  {
+    "timestamp": "2026-04-24 16:40:02",
+    "pdf_local": "data_v2/downloader/lk-24042026-9556-00.pdf",
+    "pdf_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9556-00.pdf-0.pdf"
+  },
+  {
+    "timestamp": "2026-04-24 16:21:03",
+    "pdf_local": "data_v2/downloader/lk-24042026-6216-00.pdf",
+    "pdf_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-6216-00.pdf-0.pdf"
+  },
+  {
+    "timestamp": "2026-04-24 13:30:24",
+    "pdf_local": "data_v2/downloader/lk-24042026-4275-00.pdf",
+    "pdf_url": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-4275-00.pdf-0.pdf"
+  }
+]

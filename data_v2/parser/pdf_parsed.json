@@ -1,1 +1,215 @@
-[]
+[
+  {
+    "holding_before": 4289610000,
+    "holding_after": 3369610000,
+    "share_percentage_before": 31.623,
+    "share_percentage_after": 24.841,
+    "share_percentage_transaction": 6.782,
+    "symbol": "SRTG.JK",
+    "company_name": "PT Saratoga Investama Sedaya Tbk",
+    "holder_name": "Unitras Pertama",
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-7431-00.pdf-0.pdf",
+    "sector": "financials",
+    "sub_sector": "holding-investment-companies",
+    "price_transaction": [
+      {
+        "type": "sell",
+        "amount_transacted": 920000000,
+        "price": 1770,
+        "date": "2026-04-24"
+      }
+    ],
+    "purpose": "Divestasi",
+    "price": 1770.0,
+    "transaction_value": 1628400000000,
+    "transaction_type": "sell",
+    "net_shares_transacted": -920000000,
+    "amount_transaction": 920000000,
+    "split_variant": "primary",
+    "tags": [
+      "divestment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 17:03:00"
+  },
+  {
+    "holding_before": 211200,
+    "holding_after": 194600,
+    "share_percentage_before": 0.0,
+    "share_percentage_after": 0.0,
+    "share_percentage_transaction": 0.0,
+    "symbol": "BYAN.JK",
+    "company_name": "PT Bayan Resources Tbk",
+    "holder_name": "Oliver Khaw Kar Heng",
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9589-00.pdf-0.pdf",
+    "sector": "energy",
+    "sub_sector": "oil-gas-coal",
+    "price_transaction": [
+      {
+        "type": "sell",
+        "amount_transacted": 11300,
+        "price": 12344,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 5300,
+        "price": 12044,
+        "date": "2026-04-24"
+      }
+    ],
+    "purpose": "Divestasi",
+    "price": 12248.217,
+    "transaction_value": 203320400,
+    "transaction_type": "sell",
+    "net_shares_transacted": -16600,
+    "amount_transaction": 16600,
+    "split_variant": "primary",
+    "tags": [
+      "divestment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:53:57"
+  },
+  {
+    "holding_before": 3319731800,
+    "holding_after": 3282389400,
+    "share_percentage_before": 63.41,
+    "share_percentage_after": 62.7,
+    "share_percentage_transaction": 0.71,
+    "symbol": "WINR.JK",
+    "company_name": "PT Winner Nusantara Jaya Tbk",
+    "holder_name": "Pemenang Nusantara Internasional",
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-9556-00.pdf-0.pdf",
+    "sector": "properties-real-estate",
+    "sub_sector": "properties-real-estate",
+    "price_transaction": [
+      {
+        "type": "sell",
+        "amount_transacted": 37342400,
+        "price": 31,
+        "date": "2026-04-21"
+      }
+    ],
+    "purpose": "Divestasi",
+    "price": 31.0,
+    "transaction_value": 1157614400,
+    "transaction_type": "sell",
+    "net_shares_transacted": -37342400,
+    "amount_transaction": 37342400,
+    "split_variant": "primary",
+    "tags": [
+      "divestment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:40:02"
+  },
+  {
+    "holding_before": 2821983677,
+    "holding_after": 3251948955,
+    "share_percentage_before": 16.38,
+    "share_percentage_after": 18.88,
+    "share_percentage_transaction": 2.5,
+    "symbol": "ESSA.JK",
+    "company_name": "PT ESSA Industries Indonesia Tbk",
+    "holder_name": "Chander Vinod Laroya",
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-6216-00.pdf-0.pdf",
+    "sector": "basic-materials",
+    "sub_sector": "basic-materials",
+    "price_transaction": [
+      {
+        "type": "buy",
+        "amount_transacted": 429965278,
+        "price": 711,
+        "date": "2026-04-24"
+      }
+    ],
+    "purpose": "investasi",
+    "price": 711.0,
+    "transaction_value": 305705312658,
+    "transaction_type": "buy",
+    "net_shares_transacted": 429965278,
+    "amount_transaction": 429965278,
+    "split_variant": "primary",
+    "tags": [
+      "investment"
+    ],
+    "holder_type": "insider",
+    "timestamp": "2026-04-24 16:21:03"
+  },
+  {
+    "holding_before": 84915700,
+    "holding_after": 82516700,
+    "share_percentage_before": 5.62,
+    "share_percentage_after": 5.46,
+    "share_percentage_transaction": 0.16,
+    "symbol": "TRJA.JK",
+    "company_name": "PT Transkon Jaya Tbk",
+    "holder_name": "Damai Investama Sukses",
+    "source": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_KSEI/LK-24042026-4275-00.pdf-0.pdf",
+    "sector": "transportation-logistic",
+    "sub_sector": "transportation",
+    "price_transaction": [
+      {
+        "type": "sell",
+        "amount_transacted": 1700000,
+        "price": 138,
+        "date": "2026-04-21"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 100000,
+        "price": 140,
+        "date": "2026-04-21"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 325600,
+        "price": 138,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 127800,
+        "price": 139,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 52000,
+        "price": 141,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 30500,
+        "price": 140,
+        "date": "2026-04-22"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 32500,
+        "price": 137,
+        "date": "2026-04-23"
+      },
+      {
+        "type": "sell",
+        "amount_transacted": 30600,
+        "price": 138,
+        "date": "2026-04-23"
+      }
+    ],
+    "purpose": "Divestasi",
+    "price": 138.214,
+    "transaction_value": 331574300,
+    "transaction_type": "sell",
+    "net_shares_transacted": -2399000,
+    "amount_transaction": 2399000,
+    "split_variant": "primary",
+    "tags": [
+      "divestment"
+    ],
+    "holder_type": "institution",
+    "timestamp": "2026-04-24 13:30:24"
+  }
+]
