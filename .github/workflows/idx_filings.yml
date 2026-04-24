@@ -258,7 +258,60 @@ jobs:
           echo "uv run python -m pipeline.orchestrator ${ARGS[*]}"
           uv run python -m pipeline.orchestrator "${ARGS[@]}"
 
+      # Shadow run: new v2 pipeline (monitors new alongside old; writes to data_v2/)
+      - name: Run v2 pipeline (shadow)
+        if: always()
+        env:
+          PYTHONPATH: src_v2
+          PROXY:                 ${{ secrets.PROXY }}
+          SUPABASE_URL:          ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:          ${{ secrets.SUPABASE_KEY }}
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
+          SES_FROM_EMAIL:        ${{ secrets.SES_FROM_EMAIL }}
+          ALERT_TO_EMAIL:        ${{ secrets.ALERT_TO_EMAIL }}
+          GROQ_API_KEY_DEV:      ${{ secrets.GROQ_API_KEY_DEV }}
+          GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY_BACKUP: ${{ secrets.GEMINI_API_KEY_BACKUP }}
+        run: |
+          set -euo pipefail
+          mkdir -p data_v2/ingestion data_v2/alert data_v2/state
+          uv run python -m idx_pipeline.pipeline run
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add the folders we want to inspect
+          git add .
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Debug: Add downloads and data for ${{ inputs.date }}"
+            git push
+          fi
+      
+      - name: Persist pipeline state
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/state data_v2/state 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No state changes to commit."
+          else
+            git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            git commit -m "chore: update pipeline state [skip ci]"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
+          fi
+
       - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: filings-manual-${{ steps.ts.outputs.stamp }}-run${{ github.run_number }}
@@ -267,6 +320,7 @@ jobs:
             data/*.json
             data/*.jsonl
             data/company/*.json
+            data_v2/**/*.json
             alerts/*.json
             alerts_inserted/*.json
             alerts_not_inserted/*.json
