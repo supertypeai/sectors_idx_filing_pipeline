@@ -278,22 +278,6 @@ jobs:
           set -euo pipefail
           mkdir -p data_v2/ingestion data_v2/alert data_v2/state
           uv run python -m idx_pipeline.pipeline run
-
-      - name: Commit and Push Results
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Add the folders we want to inspect
-          git add .
-          
-          # Only commit if there are changes
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Debug: Add downloads and data for ${{ inputs.date }}"
-            git push
-          fi
       
       - name: Persist pipeline state
         if: always()
