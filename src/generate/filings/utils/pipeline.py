@@ -30,6 +30,7 @@ def run(
     downloads_file: str,
     output_file: str,
     alerts_file: Optional[str] = None,
+    ingestion_file: Optional[str] = None,
     **kwargs,
 ) -> int:
     
@@ -40,9 +41,10 @@ def run(
     
     # 2) LOAD MAPS
     downloads_meta_map = build_downloads_meta_map(downloads_file)
+    ingestion_map = build_ingestion_map(ingestion_file or downloads_file)
 
     # 3) TRANSFORM (Pass along the new ingestion_map)
-    records = transform_many(raw_rows)
+    records = transform_many(raw_rows, ingestion_map=ingestion_map)
     _stage_log("Transformed", len(records), "(Standardized to FilingRecord)")
 
     # 4) PROCESS (Audit, Price Checks)

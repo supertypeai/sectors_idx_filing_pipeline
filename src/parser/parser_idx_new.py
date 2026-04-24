@@ -535,10 +535,10 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
             net_value = total_buy_value - total_sell_value
             net_shares = total_buy_shares - total_sell_shares
 
-            if net_value > 0:
+            if net_shares > 0:
                 calculated_type = 'buy'
 
-            elif net_value < 0:
+            elif net_shares < 0:
                 calculated_type = 'sell'
 
             else:

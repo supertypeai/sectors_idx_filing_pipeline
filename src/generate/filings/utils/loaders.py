@@ -144,7 +144,12 @@ def build_ingestion_map(path: str | Path) -> Dict[str, Dict[str, Any]]:
         if not isinstance(item, dict):
             continue
 
-        url = item.get("url")
+        url = (
+            item.get("url")
+            or item.get("main_link")
+            or item.get("link")
+            or item.get("pdf_url")
+        )
         filename = item.get("filename")
 
         # normalize canonical fields

@@ -412,10 +412,12 @@ def step_generate_filings(
     downloads_meta: Path,
     filings_out: Path,
     alerts_out: Path,
+    ingestion_file: Path,
 ) -> int:
     cnt = run_generate(
         parsed_files=[str(non_idx_parsed), str(idx_parsed)],
         downloads_file=str(downloads_meta),
+        ingestion_file=str(ingestion_file),
         output_file=str(filings_out),
         alerts_file=str(alerts_out),
     )
@@ -968,6 +970,7 @@ def main():
         idx_parsed=idx_out,
         non_idx_parsed=non_idx_out,
         downloads_meta=Path("data/downloaded_pdfs.json"),
+        ingestion_file=ann_out, # Pass along the ingestion file
         filings_out=filings_out,
         alerts_out=suspicious_out,
     )
