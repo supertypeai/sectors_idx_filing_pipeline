@@ -291,7 +291,7 @@ jobs:
             echo "No state changes to commit."
           else
             git pull --rebase origin "${GITHUB_REF_NAME}" || true
-            git commit -m "chore: update pipeline state [skip ci]"
+            git commit -m "chore: update pipeline state"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
