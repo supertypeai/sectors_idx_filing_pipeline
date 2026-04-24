@@ -43,7 +43,7 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
     try: 
         response = (
             SUPABASE_CLIENT
-            .table('idx_filings')
+            .table('idx_filings_test')
             .select(columns)
             .execute()
         ) 
