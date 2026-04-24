@@ -29,7 +29,6 @@ def run(
     parsed_files: List[str],
     downloads_file: str,
     output_file: str,
-    ingestion_file: str, # This is the argument from cli.py
     alerts_file: Optional[str] = None,
     **kwargs,
 ) -> int:
@@ -41,11 +40,9 @@ def run(
     
     # 2) LOAD MAPS
     downloads_meta_map = build_downloads_meta_map(downloads_file)
-    # Load ingestion map (now contains full dict)
-    ingestion_map = build_ingestion_map(ingestion_file)
 
     # 3) TRANSFORM (Pass along the new ingestion_map)
-    records = transform_many(raw_rows, ingestion_map=ingestion_map)
+    records = transform_many(raw_rows)
     _stage_log("Transformed", len(records), "(Standardized to FilingRecord)")
 
     # 4) PROCESS (Audit, Price Checks)
