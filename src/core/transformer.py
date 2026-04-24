@@ -59,7 +59,11 @@ _GEMINI_CLIENT: Optional[Any] = None
 
 def translator(text: str) -> str:   
     try: 
-        return GoogleTranslator(source='auto', target='en').translate(text) 
+        translated = GoogleTranslator(source='auto', target='en').translate(text) 
+        time.sleep(2)
+        
+        return translated 
+    
     except Exception as error: 
         logging.error(f"GoogleTranslator failed: {error}. Returning original text.") 
         return text
