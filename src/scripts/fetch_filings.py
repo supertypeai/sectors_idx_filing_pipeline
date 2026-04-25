@@ -233,9 +233,9 @@ async def get_idx_filings_by_days(
         logger.error(f"Invalid date format in 'days': {days}")
         return []
 
-    # Format for the timestamptz column (assumed)
-    start_val = _fmt_for_ts_kind(start_dt, "timestamptz")
-    end_val = _fmt_for_ts_kind(end_dt, "timestamptz")
+    # timestamp column is naive WIB — format directly, no timezone conversion
+    start_val = start_dt.strftime("%Y-%m-%d %H:%M:%S")
+    end_val = end_dt.strftime("%Y-%m-%d %H:%M:%S")
 
     in_filter = None
     if symbols:
