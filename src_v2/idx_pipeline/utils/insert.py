@@ -7,6 +7,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 def push_db(payload: list[dict], table: str):
+    if not payload: 
+        LOGGER.info('payload is null: %s', len(payload))
+        return 
+    
     try:
         response = (
             SUPABASE_CLIENT
