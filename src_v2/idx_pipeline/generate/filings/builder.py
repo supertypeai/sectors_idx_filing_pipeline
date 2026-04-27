@@ -298,7 +298,8 @@ def route_cluster_template(
     holder_name: str,
     company_name: str,
     transaction_type: str,
-) -> str | None:
+    symbol: str
+) -> tuple[str, str] | None:
     distinct_buy_holder_count = len(set(
         transaction.get('holder_name') for transaction in buy_transactions
     ))
@@ -348,7 +349,7 @@ def route_cluster_template(
         for transaction in cluster_transactions_sorted
     ))
 
-    return generate_cluster_template(
+    body = generate_cluster_template(
         holder_name=holder_name,
         transaction_type=transaction_type,
         other_holder_names=other_holder_names,
@@ -356,6 +357,15 @@ def route_cluster_template(
         cluster_total_shares=cluster_total_shares,
         cluster_avg_price=cluster_avg_price,
     )
+
+    total_distinct_holder_count = len(set(
+        transaction.get('holder_name') for transaction in all_cluster_transactions
+    ))
+
+    transaction_verb = "bought" if is_cluster_buy else "sold"
+    context = f"{total_distinct_holder_count} insiders {transaction_verb} {symbol} in the last 6 months."
+
+    return body, context
 
 
 def route_chain_template(
@@ -366,7 +376,7 @@ def route_chain_template(
     transaction_type: str,
     start_percentage: float,
     current_percentage: float,
-) -> str | None:
+) -> tuple[str, str] | None:
     if len(repeated_holder_transactions) < 2:
         return None
 
@@ -386,7 +396,7 @@ def route_chain_template(
     )
     transaction_count = len(all_chain_transactions)
 
-    return generate_chain_template(
+    body =  generate_chain_template(
         holder_name=holder_name,
         transaction_count=transaction_count,
         transaction_type=transaction_type,
@@ -397,6 +407,11 @@ def route_chain_template(
         company_name=company_name,
     )
 
+    action_noun = "buy" if transaction_type == 'buy' else "sell"
+    context = f"{format_ordinal(transaction_count)} insider {action_noun} by {holder_name} in the last 6 months."
+
+    return body, context
+
 
 def route_cross_stock_template(
     cross_stock_transactions: list[dict],
@@ -405,10 +420,16 @@ def route_cross_stock_template(
     transaction_type: str,
     current_symbol: str,
     current_value: int,
-) -> str | None:
+) -> tuple[str, str] | None:
+    cross_stock_transactions_sorted = sorted(
+        cross_stock_transactions,
+        key=lambda transaction: transaction.get('timestamp', ''),
+        reverse=True,
+    )
+
     distinct_cross_symbols = list(set(
         transaction.get('symbol')
-        for transaction in cross_stock_transactions
+        for transaction in cross_stock_transactions_sorted
     ))
     
     if len(distinct_cross_symbols) < 1:
@@ -419,7 +440,7 @@ def route_cross_stock_template(
         for transaction in cross_stock_transactions
     ) + int(current_value)
 
-    return generate_cross_stock_template(
+    body = generate_cross_stock_template(
         holder_name=holder_name,
         holder_type=holder_type,
         transaction_type=transaction_type,
@@ -428,12 +449,28 @@ def route_cross_stock_template(
         total_transaction_value=cross_stock_total_value,
     )
 
+    all_symbols = [current_symbol] + distinct_cross_symbols
+    total_symbol_count = len(all_symbols)
+    transaction_verb = "bought" if transaction_type == 'buy' else "sold"
+
+    if total_symbol_count > 2:
+        listed_symbols = ", ".join(all_symbols[:2])
+        remaining_count = total_symbol_count - 2
+        formatted_symbols = f"{listed_symbols} and {remaining_count} other {'company' if remaining_count == 1 else 'companies'}"
+    
+    else:
+        formatted_symbols = " and ".join(all_symbols)
+
+    context = f"{holder_name} {transaction_verb} {formatted_symbols} in the last 6 months."
+
+    return body, context
+
 
 def route_body_template(
     current_filing: dict,
     filings_based_symbol: list[dict],
     filings_based_holder_name: list[dict],
-) -> tuple[str, dict]:
+) -> tuple[str, dict, str | None]:
     symbol = current_filing.get('symbol', '')
     holder_name = current_filing.get('holder_name', '')
     holder_type = current_filing.get('holder_type', '')
@@ -448,10 +485,10 @@ def route_body_template(
 
     if transaction_type not in ['buy', 'sell']:
         body = generate_base_body(
-            raw_dict=current_filing, 
+            raw_dict=current_filing,
             purpose_en=translated_purpose
         )
-        return body, {"type": "base", "transactions": []}
+        return body, {"type": "base", "transactions": []}, None
 
     buy_transactions, sell_transactions, repeated_holder_transactions, cross_stock_transactions = (
         filter_data_for_template(
@@ -468,20 +505,21 @@ def route_body_template(
     LOGGER.info(f'chain: {len(repeated_holder_transactions)} for symbol: {symbol}')
     LOGGER.info(f'cross stock: {len(cross_stock_transactions)} for symbol: {symbol}')
 
-    cluster_body = route_cluster_template(
+    cluster_result = route_cluster_template(
         current_filing=current_filing,
         buy_transactions=buy_transactions,
         sell_transactions=sell_transactions,
         holder_name=holder_name,
         company_name=company_name,
         transaction_type=transaction_type,
+        symbol=symbol,
     )
+    if cluster_result is not None:
+        cluster_body, cluster_context = cluster_result
+        used_transactions = buy_transactions if transaction_type == 'buy' else sell_transactions
+        return cluster_body, {"type": "cluster", "transactions": used_transactions}, cluster_context
 
-    if cluster_body is not None:
-        used = buy_transactions if transaction_type == 'buy' else sell_transactions
-        return cluster_body, {"type": "cluster", "transactions": used}
-
-    chain_body = route_chain_template(
+    chain_result = route_chain_template(
         current_filing=current_filing,
         repeated_holder_transactions=repeated_holder_transactions,
         holder_name=holder_name,
@@ -490,11 +528,11 @@ def route_body_template(
         start_percentage=start_percentage,
         current_percentage=current_percentage,
     )
+    if chain_result is not None:
+        chain_body, chain_context = chain_result
+        return chain_body, {"type": "chain", "transactions": repeated_holder_transactions}, chain_context
 
-    if chain_body is not None:
-        return chain_body, {"type": "chain", "transactions": repeated_holder_transactions}
-
-    cross_stock_body = route_cross_stock_template(
+    cross_stock_result = route_cross_stock_template(
         cross_stock_transactions=cross_stock_transactions,
         holder_name=holder_name,
         holder_type=holder_type,
@@ -502,12 +540,12 @@ def route_body_template(
         current_symbol=symbol,
         current_value=current_value,
     )
-
-    if cross_stock_body is not None:
-        return cross_stock_body, {"type": "cross_stock", "transactions": cross_stock_transactions}
+    if cross_stock_result is not None:
+        cross_stock_body, cross_stock_context = cross_stock_result
+        return cross_stock_body, {"type": "cross_stock", "transactions": cross_stock_transactions}, cross_stock_context
 
     body = generate_base_body(raw_dict=current_filing, purpose_en=translated_purpose)
-    return body, {"type": "base", "transactions": []}
+    return body, {"type": "base", "transactions": []}, None
 
 
 def build_title_and_body(
@@ -529,7 +567,7 @@ def build_title_and_body(
         tx_type=tx_type
     )
 
-    body, context = route_body_template(
+    body, context_data, context_str = route_body_template(
         current_filing=raw_payload, 
         filings_based_symbol=filing_based_symbol, 
         filings_based_holder_name=filing_based_holder_name
@@ -537,7 +575,8 @@ def build_title_and_body(
 
     raw_payload['title'] = title 
     raw_payload['body'] = body 
-    raw_payload['context'] = context 
+    raw_payload['context_data'] = context_data 
+    raw_payload['context'] = context_str
 
     return raw_payload
 

@@ -107,7 +107,7 @@ def generate_news_title_body(record: dict):
             llm = get_llm(model, temperature=0.4)
             LOGGER.info(f"LLM used for news: {model}")
 
-            context = record.get('context', {})
+            context = record.get('context_data', {})
 
             formatted_context = format_context_transactions(context.get('transactions', []))
             formatted_current_filing =  format_filing_for_prompt(record)

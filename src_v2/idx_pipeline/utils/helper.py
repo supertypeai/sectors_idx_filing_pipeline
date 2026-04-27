@@ -42,7 +42,7 @@ def open_json(filename: str):
 def clean_payload(payload: list[dict]) -> list[dict]:
     excluded_fields = {
         'company_name', 'purpose', 'split_variant', 
-        'context', 'net_shares_transacted'
+        'context_data', 'net_shares_transacted'
     }
     
     return [
