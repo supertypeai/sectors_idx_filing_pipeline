@@ -185,6 +185,12 @@ def fetch_announcement_window(
     )
 
     if not all_items: 
+        LOGGER.info(f"no announcements returned for {start_date}..{end_date}")
+        write_json(payload=[], filename=filename)
+        
+        if is_auto:
+            save_last_end(end_dt)
+
         return []
     
     payload =  [
@@ -201,6 +207,8 @@ def fetch_announcement_window(
 
     if is_auto: 
         save_last_end(end_dt)
+
+    return clean_payload
 
 
 if __name__ == "__main__":

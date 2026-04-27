@@ -60,8 +60,14 @@ def run_pipeline(
     end_date: Annotated[Optional[str], typer.Option(help="End date: YYYYMMDD or 'YYYY-MM-DD HH:MM'")] = None,
     is_push_db: Annotated[bool, typer.Option(help="Push records to database")] = True
 ):
-    fetch_announcement_window(start=start_date, end=end_date)
+    ingestion_payload = fetch_announcement_window(start=start_date, end=end_date)
 
+    if not ingestion_payload:
+        logging.getLogger(__name__).info(
+            "No announcements in the requested window; skipping downstream stages."
+        )
+        return
+    
     ingestion_result_path = 'data_v2/ingestion/result.json'
     downloader_ingestion = pdf_downloader(ingestion_result_path=ingestion_result_path)
 
@@ -79,7 +85,7 @@ def run_pipeline(
 
     if accumulated:
         write_json(accumulated, not_inserted_path)
-        send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
+        # send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
         write_json([], not_inserted_path)
 
     # news
