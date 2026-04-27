@@ -162,6 +162,7 @@ def fetch_announcement_window(
     end: str | None = None,
     overlap_minutes: int = DEFAULT_OVERLAP_MINUTES,
 ) -> list[dict]:
+    filename = 'data_v2/ingestion/result.json'
     is_auto = start is None and end is None  
 
     start_dt, end_dt = get_window(
@@ -202,7 +203,6 @@ def fetch_announcement_window(
 
     LOGGER.info(f"total items fetched this session: {len(clean_payload)}")
 
-    filename = 'data_v2/ingestion/result.json'
     write_json(payload=clean_payload, filename=filename)
 
     if is_auto: 
