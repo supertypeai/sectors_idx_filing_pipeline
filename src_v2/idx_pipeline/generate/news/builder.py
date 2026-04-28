@@ -53,7 +53,7 @@ def format_filing_for_prompt(filing: dict) -> str:
     return '\n'.join(lines)
 
 
-def format_context_transactions(transactions: list[dict]) -> str:
+def format_context_transactions(transactions: list[dict]) -> str | None:
     if not transactions:
         return 'none'
 
@@ -111,9 +111,6 @@ def generate_news_title_body(record: dict):
 
             formatted_context = format_context_transactions(context.get('transactions', []))
             formatted_current_filing =  format_filing_for_prompt(record)
-
-            print(f'raw formatted context: {formatted_context}')
-            print(f'raw formatted current filing: {formatted_current_filing}')
 
             input_data = {
                 'current_filing': formatted_current_filing,
