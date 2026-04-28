@@ -16,6 +16,7 @@ from .utils.helper import clean_payload
 import typer 
 import logging
 import sys 
+import json 
 
 
 def setup_logging():
@@ -60,10 +61,12 @@ def run_pipeline(
     end_date: Annotated[Optional[str], typer.Option(help="End date: YYYYMMDD or 'YYYY-MM-DD HH:MM'")] = None,
     is_push_db: Annotated[bool, typer.Option(help="Push records to database")] = True
 ):
+    logger = logging.getLogger(__name__)
+
     ingestion_payload = fetch_announcement_window(start=start_date, end=end_date)
 
     if not ingestion_payload:
-        logging.getLogger(__name__).info(
+        logger.info(
             "No announcements in the requested window; skipping downstream stages."
         )
         return
@@ -85,21 +88,21 @@ def run_pipeline(
 
     if accumulated:
         write_json(accumulated, not_inserted_path)
-        # send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
+        send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
         write_json([], not_inserted_path)
 
     # news
-    # news = generate_news(payload=payload_inserted) 
+    news = generate_news(payload=payload_inserted) 
     
     # filing
     filing = clean_payload(payload=payload_inserted)
 
-    print(f'cleaned payload filing: {filing}')
-    # print(f'\ncleaned payload news: {news}')
+    logger.info(f'cleaned payload filing: {json.dumps(filing, indent=2)}')
+    logger.info(f'cleaned payload news: {json.dumps(news, indent=2)}')
     
     if is_push_db:
-        push_db(filing, 'idx_filings_test')
-    #     push_db(news, 'idx_news')
+        push_db(filing, 'idx_filings')
+        push_db(news, 'idx_news')
 
 
 if __name__ == "__main__":

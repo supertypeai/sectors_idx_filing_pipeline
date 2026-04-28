@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from collections import defaultdict 
 from typing import Optional
+from pathlib import Path
 
 from idx_pipeline.config.settings import SUPABASE_CLIENT
 from .utils.translator import translator
@@ -262,30 +263,43 @@ def filter_data_for_template(
     filings_based_holder_name: list[dict], 
     holder_name: str, 
     symbol: str, 
-    transaction_type: str
-): 
+    transaction_type: str,
+    current_timestamp: str
+):
+    six_months_before_current = (
+        datetime.fromisoformat(current_timestamp) - timedelta(days=180)
+    ).isoformat()
+
     buy_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') != holder_name
         and transaction.get('transaction_type') == 'buy'
+        and transaction.get('timestamp', '') < current_timestamp
+        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     sell_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') != holder_name
         and transaction.get('transaction_type') == 'sell'
+        and transaction.get('timestamp', '') < current_timestamp
+        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     repeated_holder_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') == holder_name
         and transaction.get('transaction_type') == transaction_type
+        and transaction.get('timestamp', '') < current_timestamp
+        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     cross_stock_transactions = [
         transaction for transaction in filings_based_holder_name
         if transaction.get('symbol') != symbol
         and transaction.get('transaction_type') == transaction_type
+        and transaction.get('timestamp', '') < current_timestamp
+        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     return buy_transactions, sell_transactions, repeated_holder_transactions, cross_stock_transactions
@@ -344,10 +358,15 @@ def route_cluster_template(
         cluster_transactions,
         key=lambda transaction: transaction.get('timestamp', ''),
     )
+
     other_holder_names = list(dict.fromkeys(
         transaction.get('holder_name')
         for transaction in cluster_transactions_sorted
     ))
+
+    LOGGER.info(f"cluster current holder names: {holder_name}")
+    LOGGER.info(f"cluster other holder names: {other_holder_names}")
+    LOGGER.info(f"distinct buy holder count: {distinct_buy_holder_count}")
 
     body = generate_cluster_template(
         holder_name=holder_name,
@@ -363,7 +382,8 @@ def route_cluster_template(
     ))
 
     transaction_verb = "bought" if is_cluster_buy else "sold"
-    context = f"{total_distinct_holder_count} insiders {transaction_verb} {symbol} in the last 6 months."
+    cleaned_symbol = symbol.strip().removesuffix('.JK')
+    context = f"{total_distinct_holder_count} insiders {transaction_verb} {cleaned_symbol} in the last 6 months."
 
     return body, context
 
@@ -450,16 +470,17 @@ def route_cross_stock_template(
     )
 
     all_symbols = [current_symbol] + distinct_cross_symbols
-    total_symbol_count = len(all_symbols)
+    cleaned_symbols = [ticker.strip().removesuffix('.JK') for ticker in all_symbols]
+    total_symbol_count = len(cleaned_symbols)
     transaction_verb = "bought" if transaction_type == 'buy' else "sold"
 
     if total_symbol_count > 2:
-        listed_symbols = ", ".join(all_symbols[:2])
+        listed_symbols = ", ".join(cleaned_symbols[:2])
         remaining_count = total_symbol_count - 2
         formatted_symbols = f"{listed_symbols} and {remaining_count} other {'company' if remaining_count == 1 else 'companies'}"
     
     else:
-        formatted_symbols = " and ".join(all_symbols)
+        formatted_symbols = " and ".join(cleaned_symbols)
 
     context = f"{holder_name} {transaction_verb} {formatted_symbols} in the last 6 months."
 
@@ -475,21 +496,22 @@ def route_body_template(
     holder_name = current_filing.get('holder_name', '')
     holder_type = current_filing.get('holder_type', '')
     company_name = current_filing.get('company_name', '')
-    purpose = current_filing.get('purpose', '')
-    translated_purpose = translator(purpose)
 
     transaction_type = current_filing.get('transaction_type', '')
     current_value = current_filing.get('transaction_value', 0)
     start_percentage = current_filing.get('share_percentage_before', 0.0)
     current_percentage = current_filing.get('share_percentage_after', 0.0)
+    purpose = current_filing.get('purpose', '')
 
     if transaction_type not in ['buy', 'sell']:
+        translated_purpose = translator(purpose)
         body = generate_base_body(
             raw_dict=current_filing,
             purpose_en=translated_purpose
         )
         return body, {"type": "base", "transactions": []}, None
 
+    current_timestamp = current_filing.get('timestamp', '')
     buy_transactions, sell_transactions, repeated_holder_transactions, cross_stock_transactions = (
         filter_data_for_template(
             filings_based_symbol=filings_based_symbol,
@@ -497,9 +519,10 @@ def route_body_template(
             holder_name=holder_name,
             symbol=symbol,
             transaction_type=transaction_type,
+            current_timestamp=current_timestamp
         )
     )
-
+    LOGGER.info(f'data curent holder: {holder_name}, current symbol: {symbol}, current transaction type: {transaction_type}')
     LOGGER.info(f'data buy cluster: {len(buy_transactions)} for symbol: {symbol}')
     LOGGER.info(f'data sell cluster: {len(sell_transactions)} for symbol: {symbol}')
     LOGGER.info(f'chain: {len(repeated_holder_transactions)} for symbol: {symbol}')
@@ -544,6 +567,7 @@ def route_body_template(
         cross_stock_body, cross_stock_context = cross_stock_result
         return cross_stock_body, {"type": "cross_stock", "transactions": cross_stock_transactions}, cross_stock_context
 
+    translated_purpose = translator(purpose)
     body = generate_base_body(raw_dict=current_filing, purpose_en=translated_purpose)
     return body, {"type": "base", "transactions": []}, None
 
