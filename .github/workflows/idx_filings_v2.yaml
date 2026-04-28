@@ -16,6 +16,11 @@ on:
         type: boolean
         required: true
         default: true
+      is_send_alert:
+        description: "Send alert email for not-inserted filings"
+        type: boolean
+        required: true
+        default: false
 
 concurrency:
   group: idx-filings-v2
@@ -80,6 +85,12 @@ jobs:
             ARGS+=("--is-push-db")
           else
             ARGS+=("--no-is-push-db")
+          fi
+
+          if [[ "${{ github.event_name }}" == "schedule" || "${{ inputs.is_send_alert }}" == "true" ]]; then
+            ARGS+=("--is-send-alert")
+          else
+            ARGS+=("--no-is-send-alert")
           fi
 
           echo "Running: uv run python -m idx_pipeline.pipeline run ${ARGS[*]}"

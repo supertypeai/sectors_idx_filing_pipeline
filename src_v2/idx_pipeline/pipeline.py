@@ -59,7 +59,8 @@ def main():
 def run_pipeline(
     start_date: Annotated[Optional[str], typer.Option(help="Start date: YYYYMMDD or 'YYYY-MM-DD HH:MM'")] = None,
     end_date: Annotated[Optional[str], typer.Option(help="End date: YYYYMMDD or 'YYYY-MM-DD HH:MM'")] = None,
-    is_push_db: Annotated[bool, typer.Option(help="Push records to database")] = True
+    is_push_db: Annotated[bool, typer.Option(help="Push records to database")] = True,
+    is_send_alert: Annotated[bool, typer.Option(help="Send alert email")] = True
 ):
     logger = logging.getLogger(__name__)
 
@@ -88,7 +89,10 @@ def run_pipeline(
 
     if accumulated:
         write_json(accumulated, not_inserted_path)
-        send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
+        
+        if is_send_alert:
+            send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
+        
         write_json([], not_inserted_path)
 
     # news
