@@ -62,12 +62,12 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
     
     start_date, end_date_exclusive = get_payload_date_bounds(payload)
 
-    print(start_date, end_date_exclusive)
-
     if not start_date:
         LOGGER.info("dedup skipped: payload has no timestamp")
         return payload
     
+    LOGGER.info(f'date bounds dedup start: {start_date} end: {end_date_exclusive}')
+
     columns = (
         'symbol, timestamp, holder_name, '
         'transaction_type, holding_before, holding_after, '
@@ -83,7 +83,7 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
             .lt("timestamp", f"{end_date_exclusive} 00:00:00")
             .execute()
         ) 
-        print(f'response data: {response.data}\n')
+        LOGGER.info(f'response data db for dedup: {response.data}')
 
         existing_keys_set = existing_keys(response.data)
     
