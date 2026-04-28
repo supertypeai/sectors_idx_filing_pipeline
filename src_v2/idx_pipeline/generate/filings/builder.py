@@ -263,43 +263,30 @@ def filter_data_for_template(
     filings_based_holder_name: list[dict], 
     holder_name: str, 
     symbol: str, 
-    transaction_type: str,
-    current_timestamp: str
-):
-    six_months_before_current = (
-        datetime.fromisoformat(current_timestamp) - timedelta(days=180)
-    ).isoformat()
-
+    transaction_type: str
+): 
     buy_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') != holder_name
         and transaction.get('transaction_type') == 'buy'
-        and transaction.get('timestamp', '') < current_timestamp
-        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     sell_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') != holder_name
         and transaction.get('transaction_type') == 'sell'
-        and transaction.get('timestamp', '') < current_timestamp
-        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     repeated_holder_transactions = [
         transaction for transaction in filings_based_symbol
         if transaction.get('holder_name') == holder_name
         and transaction.get('transaction_type') == transaction_type
-        and transaction.get('timestamp', '') < current_timestamp
-        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     cross_stock_transactions = [
         transaction for transaction in filings_based_holder_name
         if transaction.get('symbol') != symbol
         and transaction.get('transaction_type') == transaction_type
-        and transaction.get('timestamp', '') < current_timestamp
-        and transaction.get('timestamp', '') >= six_months_before_current
     ]
 
     return buy_transactions, sell_transactions, repeated_holder_transactions, cross_stock_transactions
@@ -511,7 +498,6 @@ def route_body_template(
         )
         return body, {"type": "base", "transactions": []}, None
 
-    current_timestamp = current_filing.get('timestamp', '')
     buy_transactions, sell_transactions, repeated_holder_transactions, cross_stock_transactions = (
         filter_data_for_template(
             filings_based_symbol=filings_based_symbol,
@@ -519,9 +505,9 @@ def route_body_template(
             holder_name=holder_name,
             symbol=symbol,
             transaction_type=transaction_type,
-            current_timestamp=current_timestamp
         )
     )
+
     LOGGER.info(f'data curent holder: {holder_name}, current symbol: {symbol}, current transaction type: {transaction_type}')
     LOGGER.info(f'data buy cluster: {len(buy_transactions)} for symbol: {symbol}')
     LOGGER.info(f'data sell cluster: {len(sell_transactions)} for symbol: {symbol}')
