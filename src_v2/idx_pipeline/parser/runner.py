@@ -17,45 +17,45 @@ def detect_tags(
     share_percentage_after: Optional[float],
     transaction_type: str,
 ) -> list[str]: 
-        purpose = (purpose or '').lower()
+    purpose = (purpose or '').lower()
 
-        detect_tag = {
-            "mesop": contains_any_keyword(purpose, KEYWORD_MESOP),
-            "free_float_compliance": contains_any_keyword(purpose, KEYWORD_FREEFLOAT),
-            "inheritance": contains_any_keyword(purpose, KEYWORD_INHERIT),
-            "share-transfer": contains_any_keyword(purpose, KEYWORD_TRANSFER),
-            'capital-restructuring': contains_any_keyword(purpose, KEYWORD_RESTRUCTURING),
-            'investment': contains_any_keyword(purpose, KEYWORD_BUY),
-            'divestment': contains_any_keyword(purpose, KEYWORD_SELL),
-            'repurchase-agreement': contains_any_keyword(purpose, KEYWORD_REPURCHASE),
-            'placement': contains_any_keyword(purpose, KEYWORD_PLACEMENT)
-        }
-        
-        tags = set()
+    detect_tag = {
+        "mesop": contains_any_keyword(purpose, KEYWORD_MESOP),
+        "free_float_compliance": contains_any_keyword(purpose, KEYWORD_FREEFLOAT),
+        "inheritance": contains_any_keyword(purpose, KEYWORD_INHERIT),
+        "share-transfer": contains_any_keyword(purpose, KEYWORD_TRANSFER),
+        'capital-restructuring': contains_any_keyword(purpose, KEYWORD_RESTRUCTURING),
+        'investment': contains_any_keyword(purpose, KEYWORD_BUY),
+        'divestment': contains_any_keyword(purpose, KEYWORD_SELL),
+        'repurchase-agreement': contains_any_keyword(purpose, KEYWORD_REPURCHASE),
+        'placement': contains_any_keyword(purpose, KEYWORD_PLACEMENT)
+    }
+    
+    tags = set()
 
-        for tag, found in detect_tag.items(): 
-            if found: 
-                tags.add(tag)
-        
-        if not tags: 
-            if transaction_type == 'buy':
-                tags.add('investment')
+    for tag, found in detect_tag.items(): 
+        if found: 
+            tags.add(tag)
+    
+    if not tags: 
+        if transaction_type == 'buy':
+            tags.add('investment')
 
-            elif transaction_type == 'sell':
-                tags.add('divestment')
+        elif transaction_type == 'sell':
+            tags.add('divestment')
 
-        if 'investment' in tags and 'divestment' in tags: 
-            if transaction_type == 'buy':
-                tags.remove('divestment')
+    if 'investment' in tags and 'divestment' in tags: 
+        if transaction_type == 'buy':
+            tags.remove('divestment')
 
-            elif transaction_type == 'sell':
-                tags.remove('investment')
+        elif transaction_type == 'sell':
+            tags.remove('investment')
 
-        if crosses_50_percent_threshold(share_percentage_before, share_percentage_after):
-            tags.add("takeover")
+    if crosses_50_percent_threshold(share_percentage_before, share_percentage_after):
+        tags.add("takeover")
 
-        tags = list(tags)
-        return sorted(tags)
+    tags = list(tags)
+    return sorted(tags)
 
 
 def detect_holder_type(holder_name: str) -> str:
@@ -108,6 +108,9 @@ def run_parser(downloader_ingestion: list[dict]):
             share_percentage_after = result.get('share_percentage_after')
             transaction_type = result.get('transaction_type')
             holder_name = result.get('holder_name')
+            date = result.get('timestamp')
+            source = result.get('source')
+            symbol = result.get('symbol')
 
             tags = detect_tags(
                 purpose=purpose,
@@ -118,6 +121,19 @@ def run_parser(downloader_ingestion: list[dict]):
 
             holder_type = detect_holder_type(holder_name=holder_name)
             
+            is_share_transfer = 'share-transfer' in tags
+
+            if is_share_transfer: 
+                existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
+                existing_alerts.append({
+                    'date': date, 
+                    'reasons': ['need to check manually if the document need UID generation'],
+                    'source': source,
+                    'symbol': symbol
+                })
+                write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
+                continue
+
             result['tags'] = tags
             result['holder_type'] = holder_type
             result['timestamp'] = timestamp 
