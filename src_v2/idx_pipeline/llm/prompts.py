@@ -47,17 +47,20 @@ class PomptCollections:
                 -(Company name) Insider (Holder name) Reports Shareholding Change
 
             Body instructions:
-            - Maximum One ow two paragraph.
+            - Maximum One paragraph.
             - Written from the perspective of a financial journalist covering IDX insider transactions.
             - Lead with the most significant aspect of the transaction: size, price, ownership impact, or pattern.
+            - If context_type is null or context_transactions is empty, focus solely on the current filing facts. Do not reference any historical pattern.
             - If the historical context reveals a meaningful pattern such as repeated accumulation, 
                 coordinated insider buying, or broad portfolio repositioning, incorporate it naturally 
                 into the narrative without using technical template labels like cluster, chain, or cross stock.
             - Quantify where possible: share count, transaction value, ownership percentage before and after, 
-                average price per share.
+                average price per share. Do not enumerate individual transaction blocks
             - Currency: IDR. Comma as thousands separator. Dot for decimals.
             - If transaction type is others, identify and describe the specific corporate action 
                 (e.g. share award, transfer, inheritance) rather than labeling it as others.
+            - Purpose field may be in Indonesian, translate it naturally into English financial terminology. 
+                Do not quote the Indonesian text directly.
             - Do not speculate. Do not editorialize. Do not use filler phrases like 
                 "it is worth noting" or "this is significant because".
 
