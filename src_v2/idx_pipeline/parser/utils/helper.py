@@ -22,7 +22,7 @@ KEYWORD_INHERIT = ["waris", "inheritance", "hibah", "grant", "bequest"]
 KEYWORD_MESOP = ["mesop", "msop", "esop", "program opsi saham", "employee stock option"]
 KEYWORD_FREEFLOAT = ["free float", "free-float", "freefloat", "pemenuhan porsi publik"]
 KEYWORD_RESTRUCTURING = ["restrukturisasi", "restructuring", "reorganisasi", "penyelesaian penurunan modal"]
-KEYWORD_REPURCHASE = ['repo', 'transaksi repurchase', 'transaksi repo']
+KEYWORD_REPURCHASE = ['repo', 'transaksi repurchase', 'transaksi repo', 'repurchase agreement']
 KEYWORD_PLACEMENT = ['penempatan saham revo', 'penempatan']
 
 ORG_TOKENS = {
@@ -34,9 +34,28 @@ ORG_TOKENS = {
     "YAYASAN", "FOUNDATION", "KOPERASI", "UNIVERSITAS", "PERSERO"
 }
 
+SLUG_PATTERN = re.compile(r"[^A-Za-z0-9]+")
+
 
 def contains_any_keyword(text_lower: str, keywords: list[str]) -> bool:
     return any(keyword in text_lower for keyword in keywords)
+
+
+def pop_purpose(transactions: list[dict[str, any]]):
+    try:
+        for transaction in transactions:
+            transaction.pop('purpose', None)
+
+    except Exception as error:
+        LOGGER.error(f'Error pop_purpose: {error}')
+        return []
+
+
+def to_kebab(value: str | None) -> str:
+    if not value:
+        return "unknown"
+    
+    return SLUG_PATTERN.sub("-", value.strip()).strip("-").lower()
 
 
 def crosses_50_percent_threshold(

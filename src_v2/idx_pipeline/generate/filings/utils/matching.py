@@ -61,7 +61,7 @@ def find_investor(
 def find_conglomerate_slug(
     group_name: str,
     conglomerate_name_lookup: dict[str, str],
-    threshold: int = 85,
+    threshold: int = 90,
 ) -> str | None:
     candidates = list(conglomerate_name_lookup.keys())
     result = process.extractOne(
