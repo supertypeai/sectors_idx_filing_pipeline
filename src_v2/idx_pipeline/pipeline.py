@@ -5,8 +5,7 @@ from idx_pipeline.downloader.pdf import pdf_downloader
 from idx_pipeline.parser.runner import run_parser
 from idx_pipeline.generate.filings.builder import enrich
 from idx_pipeline.generate.news.builder import generate_news
-from idx_pipeline.alerts.filter import get_data_alert
-from idx_pipeline.utils.helper import write_json, open_json
+from idx_pipeline.utils.helper import open_json
 from idx_pipeline.alerts.mailer import send_alert
 
 from .utils.dedup import dedup_with_existing_db
@@ -81,25 +80,20 @@ def run_pipeline(
 
     payload_enriched = enrich(payload=payload)
 
-    payload_inserted, payload_not_inserted = get_data_alert(payload=payload_enriched)
-
-    not_inserted_path = 'data_v2/alert/not_inserted.json'
-    existing_not_inserted = open_json(not_inserted_path)
-    accumulated = existing_not_inserted + payload_not_inserted
-
-    if accumulated:
-        write_json(accumulated, not_inserted_path)
+    if is_send_alert:
+        not_inserted_path = 'data_v2/alert/not_inserted.json'
+        existing_not_inserted = open_json(not_inserted_path) or []
         
-        if is_send_alert:
-            send_alert(payload_alert=accumulated, attachments_path=[not_inserted_path])
+        if not existing_not_inserted: 
+            logger.info('Not inserted empty, not sending email alert')
         
-        write_json([], not_inserted_path)
+        send_alert(payload_alert=existing_not_inserted, attachments_path=[not_inserted_path])
 
     # news
-    news = generate_news(payload=payload_inserted) 
+    news = generate_news(payload=payload_enriched) 
     
     # filing
-    filing = clean_payload(payload=payload_inserted)
+    filing = clean_payload(payload=payload_enriched)
 
     logger.info(f'cleaned payload filing: {json.dumps(filing, indent=2)}')
     logger.info(f'cleaned payload news: {json.dumps(news, indent=2)}')
@@ -113,4 +107,4 @@ if __name__ == "__main__":
     app()
 
 
-# uv run python -m idx_pipeline.pipeline run
+# uv run python -m idx_pipeline.pipeline run --is-send-alert, --no-is-push-db, --no-is-send-alert
