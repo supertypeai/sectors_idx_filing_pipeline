@@ -107,7 +107,7 @@ jobs:
             echo "No state changes to commit."
           else
             git pull --rebase origin "${GITHUB_REF_NAME}" || true
-            git commit -m "chore: update pipeline state [v2]"
+            git commit -m "chore: update pipeline state"
             git push origin HEAD:"${GITHUB_REF_NAME}"
           fi
 
@@ -118,4 +118,4 @@ jobs:
           name: filings-v2-${{ steps.ts.outputs.stamp }}-run${{ github.run_number }}
           path: data_v2/**/*.json
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 90
