@@ -618,4 +618,3 @@ def enrich(payload: list[dict]):
             return []
         
     return payload_results 
-

@@ -84,9 +84,6 @@ def run_pipeline(
         not_inserted_path = 'data_v2/alert/not_inserted.json'
         existing_not_inserted = open_json(not_inserted_path) or []
         
-        if not existing_not_inserted: 
-            logger.info('Not inserted empty, not sending email alert')
-        
         send_alert(payload_alert=existing_not_inserted, attachments_path=[not_inserted_path])
 
     # news

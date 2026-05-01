@@ -88,13 +88,13 @@ def pdf_downloader(ingestion_result_path: str) -> list[dict]:
             downloader_ingestion.append(ingestion_record)
     
     except Exception as error: 
-        LOGGER.error('pdf downlaoder error %s', error)
+        LOGGER.error('pdf downlaoder error %s', error, exc_info=True)
         return []
 
     download_ingestion_path = output_dir / 'downlod_ingestion.json'
     write_json(downloader_ingestion, str(download_ingestion_path))
 
-    print(f'saved total pdf: {len(downloader_ingestion)}')
+    LOGGER.info(f'saved total pdf: {len(downloader_ingestion)}')
 
     return downloader_ingestion 
 
