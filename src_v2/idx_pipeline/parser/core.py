@@ -1,28 +1,24 @@
+from collections import defaultdict
+
 from idx_pipeline.parser.utils.helper import (
     classify_transaction_type, 
     clean_number, 
     clean_percentage,
     standardize_date,
-    clean_company_name
+    clean_company_name,
+    to_kebab, 
+    pop_purpose
 )
+from idx_pipeline.utils.helper import write_json, open_json
+from idx_pipeline.alerts.filter import filter_idx_filings
 
 import fitz
 import re
-import copy 
 import logging 
 
 
 LOGGER = logging.getLogger(__name__)
     
-SLUG_PATTERN = re.compile(r"[^A-Za-z0-9]+")
-
-
-def to_kebab(value: str | None) -> str:
-    if not value:
-        return "unknown"
-    
-    return SLUG_PATTERN.sub("-", value.strip()).strip("-").lower()
-
 
 def extract_holder_name(text: str) -> str:
     try: 
@@ -337,68 +333,33 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                     "purpose": purpose
                 }
                 transactions.append(transaction)
+
             else:
                 index += 1
 
         if not transactions:
             return None
 
-        # LOGGER.info(f'raw transaction: {transactions}')
-        
-        result_others, result_no_others = split_price_transaction(transactions)
-        
-        return result_others, result_no_others 
+        return transactions 
     
     except Exception as error:
         LOGGER.error(f'extract price transaction error: {error}')
         return None
+    
 
-
-def pop_purpose(transactions: list[dict[str, any]]):
-    try:
-        for transaction in transactions:
-            transaction.pop('purpose', None)
-
-    except Exception as error:
-        LOGGER.error(f'Error pop_purpose: {error}')
-        return []
-
-
-def split_price_transaction(transactions: list[dict[str, any]]) -> tuple[dict[str, any] | None, dict[str, any]]:
+def build_lookup_price_transaction(transactions: list[dict[str, any]]):
     try: 
-        result_no_others_list = []
-        result_others_list = []
+        transaction_lookup = defaultdict(list)
 
-        result_no_others_dict = {}
-        result_others_dict = {}
+        for transaction in transactions:
+            transaction_type = transaction.get('type')
+            transaction_lookup[transaction_type].append(transaction)
 
-        for transaction in transactions: 
-            type = transaction.get('type')
-
-            if type == 'others':
-                result_others_list.append(transaction)
-            elif type in ('sell', 'buy'):
-                result_no_others_list.append(transaction)
-
-        if result_no_others_list:
-            result_no_others_dict.update({
-                'price_transaction': result_no_others_list,
-                'purpose': result_no_others_list[-1].get('purpose')
-            })
-            pop_purpose(result_no_others_list)
-
-        if result_others_list:
-            result_others_dict.update({
-                'price_transaction': result_others_list,
-                'purpose': result_others_list[-1].get('purpose')
-            })
-            pop_purpose(result_others_list)
-
-        return result_others_dict if result_others_dict else None, result_no_others_dict if result_no_others_dict else None
+        return transaction_lookup
 
     except Exception as error:
         LOGGER.error(f'Error split_price_transaction: {error}')
-        return {}, {} 
+        return {}
 
 
 def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, any]:
@@ -483,10 +444,11 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
         return {}
 
 
-def enrich_transaction(extracted_data: dict[str, any]):
+def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split'):
     try:
         # Compute top level transaction type, transaction value, price
-        transaction_computed = compute_transactions(extracted_data.get('price_transaction'))
+        price_transaction = extracted_data.get('price_transaction', [])
+        transaction_computed = compute_transactions(price_transaction)
 
         extracted_data['price'] = transaction_computed.get('price')
         extracted_data['transaction_value'] = transaction_computed.get('transaction_value')
@@ -494,10 +456,17 @@ def enrich_transaction(extracted_data: dict[str, any]):
         extracted_data['net_shares_transacted'] = transaction_computed.get('net_shares_transacted')
 
         # Calculate amount transaction
-        holding_before = extracted_data.get('holding_before', 0)
-        holding_after = extracted_data.get('holding_after', 0)
-        
-        extracted_data['amount_transaction'] = abs(holding_before - holding_after)
+        if filing_type == 'split': 
+            extracted_data['amount_transaction'] = sum(
+                transaction.get('amount_transacted', 0)
+                for transaction in price_transaction
+            ) 
+
+        elif filing_type == 'combine':
+            holding_before = extracted_data.get('holding_before', 0)
+            holding_after = extracted_data.get('holding_after', 0)
+            
+            extracted_data['amount_transaction'] = abs(holding_before - holding_after)
     
     except Exception as error:
         LOGGER.error(f'Error run_compute_transaction: {error}')
@@ -583,7 +552,7 @@ def enrich_payload(
     extracted_data['sub_sector'] = to_kebab(sub_sector)
 
 
-def extract_prices(doc: fitz.Document) -> tuple[dict | None, dict | None]:
+def extract_prices(doc: fitz.Document):
     detected_pages = detect_transaction_tables(doc=doc)
     pages_index = detected_pages.get('pages')
 
@@ -593,16 +562,16 @@ def extract_prices(doc: fitz.Document) -> tuple[dict | None, dict | None]:
     ]
     combined_text = "\n".join(full_text_lines)
 
-    return extract_price_transaction(combined_text)
+    price_transactions =  extract_price_transaction(combined_text)
+
+    return price_transactions
 
 
 def parse_document(
     doc: fitz.Document,
     pdf_url: str,
     company_lookup: dict,
-) -> tuple[dict | None, dict | None]:
-    results = []
-
+) -> list[dict]:
     extracted_data = collect_extract_shares(doc, pdf_url)
 
     if extracted_data is None:
@@ -615,22 +584,29 @@ def parse_document(
         pdf_url
     )
 
-    price_data_others, price_data_no_others = extract_prices(doc)
+    price_transactions = extract_prices(doc)
 
-    if price_data_others is not None:
-        extracted_data_others = copy.deepcopy(extracted_data)
-        extracted_data_others.update(price_data_others)
-        enrich_transaction(extracted_data_others)
+    combined_filing = {**extracted_data, 'price_transaction': price_transactions}
+    enrich_transaction(combined_filing, 'combine')
 
-        extracted_data_others['split_variant'] = 'others'
-        results.append(extracted_data_others)
+    if filter_idx_filings(combined_filing):
+        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
+        existing_alerts.append(combined_filing)
 
-    if price_data_no_others is not None:
-        extracted_data.update(price_data_no_others)
-        enrich_transaction(extracted_data)
+        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
+        return []
 
-        extracted_data['split_variant'] = 'primary'
-        results.append(extracted_data)
+    price_data_list = build_lookup_price_transaction(price_transactions)
+
+    results = []
+    for _, transactions in price_data_list.items():
+        purpose = transactions[0].get('purpose') if transactions else None
+        pop_purpose(transactions)
+
+        filing = {**extracted_data, 'price_transaction': transactions, 'purpose': purpose}
+        enrich_transaction(filing, 'split')
+
+        results.append(filing)
 
     return results
 
@@ -657,7 +633,7 @@ def parser_new_document(
 
 if __name__ == '__main__': 
     result = parser_new_document('test_pdf.pdf')
-    print(result)
+    # print(result)
 
 
-# uv run -m idx_pipeline.parser.parser_idx_new_copy
+# uv run -m idx_pipeline.parser.core

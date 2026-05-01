@@ -98,8 +98,8 @@ def run_parser(downloader_ingestion: list[dict]):
             company_lookup=company_lookup
         )
 
-        if results is None:
-            print(f"parser_new_document returned None for: {pdf_local_path}")
+        if results is None or not results:
+            LOGGER.info(f"parser_new_document returned None for: {pdf_local_path}")
             continue
         
         for result in results: 
@@ -108,7 +108,6 @@ def run_parser(downloader_ingestion: list[dict]):
             share_percentage_after = result.get('share_percentage_after')
             transaction_type = result.get('transaction_type')
             holder_name = result.get('holder_name')
-            date = result.get('timestamp')
             source = result.get('source')
             symbol = result.get('symbol')
 
@@ -126,7 +125,7 @@ def run_parser(downloader_ingestion: list[dict]):
             if is_share_transfer: 
                 existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
                 existing_alerts.append({
-                    'date': date, 
+                    'date': timestamp or '-', 
                     'reasons': ['need to check manually if the document need UID generation'],
                     'source': source,
                     'symbol': symbol
@@ -153,4 +152,4 @@ if __name__ == '__main__':
     payload = run_parser(downloader_ingestion=downloader_ingestion)
     print(payload)
 
-# uv run -m idx_pipeline.parser.run_parser 
+# uv run -m idx_pipeline.parser.runner
