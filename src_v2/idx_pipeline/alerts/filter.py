@@ -5,13 +5,26 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-def filter_idx_filings(payload: dict[str, any]) -> bool:
+def check_transaction_mismatch(payload: dict) -> list[str]:
     holding_before = payload.get('holding_before', 0)
     holding_after = payload.get('holding_after', 0)
     net_shares = payload.get('net_shares_transacted', 0)
+   
+    if holding_before is None or holding_after is None or not net_shares:
+        return []
 
-    reasons = []
+    expected_after = holding_before + net_shares
 
+    if expected_after != holding_after:
+        return [
+            f"transaction value mismatch: holding_before={holding_before} + net_shares={net_shares} "
+            f"= {expected_after}, but holding_after={holding_after}"
+        ]
+
+    return []
+
+
+def check_missing_fields(payload: dict) -> list[str]:
     required_fields = (
         'symbol', 'holder_name', 'transaction_type', 'price_transaction',
         'holding_before', 'holding_after', 'transaction_value')
@@ -19,21 +32,18 @@ def filter_idx_filings(payload: dict[str, any]) -> bool:
     missing_fields = [field for field in required_fields if payload.get(field) is None]
 
     if missing_fields:
-        reasons.append(f"missing required fields: {', '.join(missing_fields)}")
+        return [f"missing required fields: {', '.join(missing_fields)}"]
 
-    if holding_after and holding_before and net_shares:
-        expected_after = holding_before + net_shares
+    return []
 
-        if expected_after != holding_after:
-            reasons.append(
-                f"transaction value mismatch: holding_before={holding_before} + net_shares={net_shares} "
-                f"= {expected_after}, but holding_after={holding_after}"
-            )
+
+def filter_idx_filings(payload: dict) -> bool:
+    reasons = check_missing_fields(payload) + check_transaction_mismatch(payload)
 
     if reasons:
-        payload['reasons'] = reasons 
-        return True 
-    
+        payload['reasons'] = reasons
+        return True
+
     return False
     
 
