@@ -77,7 +77,7 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
     try: 
         response = (
             SUPABASE_CLIENT
-            .table('idx_filings_test')
+            .table('idx_filings')
             .select(columns)
             .gte("timestamp", f"{start_date} 00:00:00")
             .lt("timestamp", f"{end_date_exclusive} 00:00:00")
