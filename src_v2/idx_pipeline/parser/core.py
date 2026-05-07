@@ -1,7 +1,9 @@
 from collections import defaultdict
+from itertools import permutations
 
 from idx_pipeline.parser.utils.helper import (
     classify_transaction_type, 
+    map_transaction_type,
     clean_number, 
     clean_percentage,
     standardize_date,
@@ -343,7 +345,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
         return transactions 
     
     except Exception as error:
-        LOGGER.error(f'extract price transaction error: {error}')
+        LOGGER.error(f'extract price transaction error: {error}', exc_info=True)
         return None
     
 
@@ -567,6 +569,135 @@ def extract_prices(doc: fitz.Document):
     return price_transactions
 
 
+def compute_intermediate_share_percentage(
+    intermediate_holding: int,
+    pdf_holding_before: int,
+    pdf_share_percentage_before: float
+) -> float:
+    if pdf_share_percentage_before == 0 or pdf_holding_before == 0:
+        return 0.0
+    
+    total_shares = pdf_holding_before / (pdf_share_percentage_before / 100)
+    return round(intermediate_holding / total_shares * 100, 3)
+
+
+def find_valid_ordering(
+    type_signed_amounts: dict[str, int],
+    holding_before: int,
+    holding_after: int
+) -> list[str] | None:
+    transaction_types = list(type_signed_amounts.keys())
+
+    for ordering in permutations(transaction_types):
+        current_holding = holding_before
+        valid = True
+
+        for transaction_type in ordering:
+            current_holding += type_signed_amounts[transaction_type]
+
+            if current_holding < 0:
+                valid = False
+                break
+
+        if valid and current_holding == holding_after:
+            return list(ordering)
+
+    return None
+
+
+def build_chained_filings(
+    price_data_list: dict[str, list[dict]],
+    extracted_data: dict
+) -> list[dict]:
+    pdf_holding_before = extracted_data.get('holding_before', 0)
+    pdf_holding_after = extracted_data.get('holding_after', 0)
+    pdf_share_percentage_before = extracted_data.get('share_percentage_before', 0.0)
+    pdf_share_percentage_after = extracted_data.get('share_percentage_after', 0.0)
+
+    type_amounts = {
+        transaction_type: sum(
+            transaction.get('amount_transacted', 0)
+            for transaction in transactions
+        )
+        for transaction_type, transactions in price_data_list.items()
+    }
+
+    # Derive signed amounts - others direction is computed from net
+    buy_total = type_amounts.get('buy', 0)
+    sell_total = type_amounts.get('sell', 0)
+    net_holding_change = pdf_holding_after - pdf_holding_before
+    others_effect = net_holding_change - buy_total + sell_total
+
+    type_signed_amounts = {}
+    if 'buy' in type_amounts:
+        type_signed_amounts['buy'] = buy_total
+
+    if 'sell' in type_amounts:
+        type_signed_amounts['sell'] = -sell_total
+
+    if 'others' in type_amounts:
+        type_signed_amounts['others'] = others_effect
+
+    valid_ordering = find_valid_ordering(
+        type_signed_amounts,
+        pdf_holding_before,
+        pdf_holding_after
+    )
+
+    if valid_ordering is None:
+        LOGGER.error(f"No valid transaction ordering found for source: {extracted_data.get('source')}")
+        return []
+
+    results = []
+    current_holding = pdf_holding_before
+    current_share_percentage = pdf_share_percentage_before
+
+    for index, transaction_type in enumerate(valid_ordering):
+        is_last_filing = index == len(valid_ordering) - 1
+        transactions = price_data_list[transaction_type]
+
+        purpose = transactions[0].get('purpose') if transactions else None
+        pop_purpose(transactions)
+
+        filing_holding_before = current_holding
+        filing_share_percentage_before = current_share_percentage
+
+        next_holding = current_holding + type_signed_amounts[transaction_type]
+
+        if is_last_filing:
+            filing_holding_after = pdf_holding_after
+            filing_share_percentage_after = pdf_share_percentage_after
+
+        else:
+            filing_holding_after = next_holding
+            filing_share_percentage_after = compute_intermediate_share_percentage(
+                next_holding,
+                pdf_holding_before,
+                pdf_share_percentage_before
+            )
+
+        filing = {
+            **extracted_data,
+            'price_transaction': transactions,
+            'purpose': purpose,
+            'holding_before': filing_holding_before,
+            'holding_after': filing_holding_after,
+            'share_percentage_before': filing_share_percentage_before,
+            'share_percentage_after': filing_share_percentage_after,
+            'share_percentage_transaction': round(
+                abs(filing_share_percentage_after - filing_share_percentage_before), 3
+            )
+        }
+
+        enrich_transaction(filing, 'split')
+        results.append(filing)
+
+        current_holding = next_holding
+        current_share_percentage = filing_share_percentage_after
+
+    return results
+
+
 def parse_document(
     doc: fitz.Document,
     pdf_url: str,
@@ -597,15 +728,23 @@ def parse_document(
         return []
 
     price_data_list = build_lookup_price_transaction(price_transactions)
-
-    results = []
-    for _, transactions in price_data_list.items():
+    
+    if len(price_data_list) > 1:
+        results = build_chained_filings(price_data_list, extracted_data)
+    
+    else:
+        results = [] 
+        _, transactions = next(iter(price_data_list.items()))
         purpose = transactions[0].get('purpose') if transactions else None
         pop_purpose(transactions)
 
-        filing = {**extracted_data, 'price_transaction': transactions, 'purpose': purpose}
-        enrich_transaction(filing, 'split')
+        filing = {
+            **extracted_data, 
+            'price_transaction': transactions, 
+            'purpose': purpose
+        }
 
+        enrich_transaction(filing, 'split')
         results.append(filing)
 
     return results
