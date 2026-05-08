@@ -172,14 +172,15 @@ def classify_transaction_type(type_raw: str, purpose: str) -> str | None:
     return map_transaction_type(type_raw)
 
 
-def clean_company_name(company_name: str) -> str:
-    cleaned = company_name.strip()
+def remove_pt_and_tbk(input_str: str) -> str:
+    result = re.sub(r'\bPTE\.?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
 
-    cleaned = re.sub(r'\bTbk\b(\s+\bTbk\b)+', 'Tbk', cleaned)
+    result = re.sub(
+        r'\b(?:PT\.?|Pt\.?)\s*|\s*\(?(?:Tbk|tbk)\.?\)?[\s,]*|\s*\(Persero\)',
+        '',
+        result
+    )
 
-    cleaned = re.sub(r'\bTbk\.', 'Tbk', cleaned)
-    
-    if not cleaned.upper().startswith('PT'):
-        cleaned = 'PT ' + cleaned
+    result = re.sub(r'[.,\s]+$', '', result)
 
-    return cleaned
+    return result.strip()

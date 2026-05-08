@@ -7,7 +7,7 @@ from idx_pipeline.parser.utils.helper import (
     clean_number, 
     clean_percentage,
     standardize_date,
-    clean_company_name,
+    remove_pt_and_tbk,
     to_kebab, 
     pop_purpose
 )
@@ -547,7 +547,7 @@ def enrich_payload(
         sub_sector = company_entry.get('sub_sector')
 
     extracted_data['symbol'] = symbol.upper()
-    extracted_data['company_name'] = clean_company_name(company_name)
+    extracted_data['company_name'] = remove_pt_and_tbk(company_name)
     extracted_data['holder_name'] = holder_name
     extracted_data['source'] = pdf_url
     extracted_data['sector'] = to_kebab(sector)
