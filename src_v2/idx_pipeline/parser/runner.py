@@ -1,7 +1,7 @@
 from typing import Optional 
 
 from .core import parser_new_document 
-from idx_pipeline.utils.helper import open_json, write_json, parse_wib_datetime
+from idx_pipeline.utils.helper import open_json, write_json
 from .utils.helper import *
 
 import logging 
@@ -83,7 +83,7 @@ def detect_holder_type(holder_name: str) -> str:
 
 def run_parser(downloader_ingestion: list[dict]):
     # downloader_ingestion = open_json(downloader_path)
-    company_lookup = open_json('data/company/company_map.json')
+    company_lookup = open_json('data_v2/idx_companies/company_map.json')
 
     payload_combined = []
 
@@ -152,4 +152,5 @@ if __name__ == '__main__':
     payload = run_parser(downloader_ingestion=downloader_ingestion)
     print(payload)
 
+# $env:PYTHONPATH = 'src_v2'
 # uv run -m idx_pipeline.parser.runner
