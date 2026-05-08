@@ -173,14 +173,12 @@ def classify_transaction_type(type_raw: str, purpose: str) -> str | None:
 
 
 def remove_pt_and_tbk(input_str: str) -> str:
-    result = re.sub(r'\bPTE\.?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
-
+    result = re.sub(r'\bPTE\.?,?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
+    
     result = re.sub(
         r'\b(?:PT\.?|Pt\.?)\s*|\s*\(?(?:Tbk|tbk)\.?\)?[\s,]*|\s*\(Persero\)',
         '',
         result
     )
-
-    result = re.sub(r'[.,\s]+$', '', result)
 
     return result.strip()

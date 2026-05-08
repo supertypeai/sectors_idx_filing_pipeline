@@ -548,7 +548,7 @@ def enrich_payload(
 
     extracted_data['symbol'] = symbol.upper()
     extracted_data['company_name'] = remove_pt_and_tbk(company_name)
-    extracted_data['holder_name'] = holder_name
+    extracted_data['holder_name'] = remove_pt_and_tbk(holder_name)
     extracted_data['source'] = pdf_url
     extracted_data['sector'] = to_kebab(sector)
     extracted_data['sub_sector'] = to_kebab(sub_sector)

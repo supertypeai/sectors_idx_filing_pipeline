@@ -9,7 +9,7 @@ def check_transaction_mismatch(payload: dict) -> list[str]:
     holding_before = payload.get('holding_before', 0)
     holding_after = payload.get('holding_after', 0)
     net_shares = payload.get('net_shares_transacted', 0)
-   
+                    
     if holding_before is None or holding_after is None or not net_shares:
         return []
 
