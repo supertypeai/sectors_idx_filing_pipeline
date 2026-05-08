@@ -157,7 +157,6 @@ def clean_news_payload(
         'sub_sector': [record.get('sub_sector', '')],
         'tags': ['Insider Trading'],
         'tickers': [symbol],
-        'symbols': [symbol],
         'dimension': None,
         'votes': None,
         'score': None,
