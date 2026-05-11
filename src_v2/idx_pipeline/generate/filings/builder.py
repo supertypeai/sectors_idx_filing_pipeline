@@ -246,6 +246,9 @@ def generate_cross_stock_template(
         remaining_count = len(other_symbols) - 4
         formatted_symbols = f"{listed_symbols} and {remaining_count} other companies"
 
+    elif len(other_symbols) == 1:
+        formatted_symbols = other_symbols[0]
+    
     else:
         formatted_symbols = ", ".join(other_symbols[:-1]) + f" and {other_symbols[-1]}"
 
