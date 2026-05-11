@@ -172,13 +172,47 @@ def classify_transaction_type(type_raw: str, purpose: str) -> str | None:
     return map_transaction_type(type_raw)
 
 
-def remove_pt_and_tbk(input_str: str) -> str:
-    result = re.sub(r'\bPTE\.?,?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
-    
+def normalize_company_name(input_str: str) -> str:
+    # Singaporean
+    result = re.sub(r'\(?PTE\.?\)?,?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
+
+    # International: Company Ltd / Co., Ltd / standalone Ltd / Limited
+    result = re.sub(r'\bCOMPANY\s+LTD\.?|\bCO\.?,?\s*LTD\.?|\bLIMITED\b|\bLTD\.?', '', result, flags=re.IGNORECASE)
+
+    # Malaysian
+    result = re.sub(r'\bSDN\.?\s*BHD\.?|\bBHD\.?', '', result, flags=re.IGNORECASE)
+
+    # Indonesian
     result = re.sub(
         r'\b(?:PT\.?|Pt\.?)\s*|\s*\(?(?:Tbk|tbk)\.?\)?[\s,]*|\s*\(Persero\)',
         '',
         result
     )
 
-    return result.strip()
+    result = re.sub(r'[\s,\.]+$', '', result)
+    return re.sub(r'\s+', ' ', result).strip()
+
+
+def normalize_holder_name(input_str: str) -> str:
+    # Singaporean
+    result = re.sub(r'\(?PTE\.?\)?,?\s*LTD\.?', '', input_str, flags=re.IGNORECASE)
+
+    # International: Company Ltd / Co., Ltd / standalone Ltd / Limited
+    result = re.sub(r'\bCOMPANY\s+LTD\.?|\bCO\.?,?\s*LTD\.?|\bLIMITED\b|\bLTD\.?', '', result, flags=re.IGNORECASE)
+
+    # Malaysian
+    result = re.sub(r'\bSDN\.?\s*BHD\.?|\bBHD\.?', '', result, flags=re.IGNORECASE)
+
+    # Indonesian
+    result = re.sub(
+        r'\b(?:PT\.?|Pt\.?)\s*|\s*\(?(?:Tbk|tbk)\.?\)?[\s,]*|\s*\(Persero\)',
+        '',
+        result
+    )
+
+    # Academic and professional titles
+    result = re.sub(r'\bDr\.?\s+', '', result, flags=re.IGNORECASE)
+    result = re.sub(r'\s+S\.?\s*Kom\.?', '', result, flags=re.IGNORECASE)
+    
+    result = re.sub(r'[\s,\.]+$', '', result)
+    return re.sub(r'\s+', ' ', result).strip()
