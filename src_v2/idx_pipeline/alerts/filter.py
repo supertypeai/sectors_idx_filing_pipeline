@@ -42,8 +42,26 @@ def check_missing_fields(payload: dict) -> list[str]:
     return []
 
 
+def check_classification_shares(payload: dict) -> list[str]:
+    price_transactions = payload.get('price_transaction')
+
+    unique_classification = set()
+
+    for record in price_transactions: 
+        classification = record.get('classification')
+        unique_classification.add(classification)
+
+    if len(unique_classification) > 1: 
+        return [f"Mixed share classifications detected: {", ".join(unique_classification)}, where it should only be 'common shares'"]
+    
+    if 'Saham Biasa' not in unique_classification:
+        return [f"All transactions have classification shares that is not 'common shares':  {", ".join(unique_classification)}"]
+
+    return []
+
+
 def filter_idx_filings(payload: dict) -> bool:
-    reasons = check_missing_fields(payload) + check_transaction_mismatch(payload)
+    reasons = check_classification_shares(payload) + check_missing_fields(payload) + check_transaction_mismatch(payload)
 
     if reasons:
         payload['reasons'] = reasons

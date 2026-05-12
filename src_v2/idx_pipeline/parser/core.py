@@ -10,7 +10,8 @@ from idx_pipeline.parser.utils.helper import (
     normalize_company_name,
     normalize_holder_name,
     to_kebab, 
-    pop_purpose
+    pop_purpose,
+    pop_classification
 )
 from idx_pipeline.utils.helper import write_json, open_json
 from idx_pipeline.alerts.filter import filter_idx_filings
@@ -235,6 +236,34 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 if index < len(lines) and lines[index] == "Saham": 
                     index += 1
                 
+                # Collect Klasifikasi Saham.
+                # "Saham" was consumed by the amount anchor above, so prepend it back
+                # Collect all lines until the first price-shaped line (comma + digit)
+                classification_parts = ["Saham"]
+                klasifikasi_scan_limit = min(index + 10, len(lines))
+
+                for klasifikasi_idx in range(index, klasifikasi_scan_limit):
+                    current_line = lines[klasifikasi_idx]
+
+                    if "," in current_line and any(char.isdigit() for char in current_line):
+                        index = klasifikasi_idx
+                        break
+
+                    if any(current_line.startswith(footer_keyword) for footer_keyword in footer_keywords):
+                        index = klasifikasi_idx
+                        break
+
+                    if current_line in transaction_keywords:
+                        index = klasifikasi_idx
+                        break
+
+                    classification_parts.append(current_line)
+
+                else:
+                    index = klasifikasi_scan_limit
+
+                classification_saham = " ".join(classification_parts)
+
                 # Find Price
                 # The item immediately before the date is the Price.
                 scan_limit_price = min(index + 10, len(lines))
@@ -333,8 +362,10 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                     "amount_transacted": amount_clean,
                     "price": price_clean,
                     "date": date_clean,
-                    "purpose": purpose
+                    "purpose": purpose,
+                    "classification": classification_saham
                 }
+
                 transactions.append(transaction)
 
             else:
@@ -717,7 +748,6 @@ def parse_document(
     )
 
     price_transactions = extract_prices(doc)
-
     combined_filing = {**extracted_data, 'price_transaction': price_transactions}
     enrich_transaction(combined_filing, 'combine')
 
@@ -738,6 +768,7 @@ def parse_document(
         _, transactions = next(iter(price_data_list.items()))
         purpose = transactions[0].get('purpose') if transactions else None
         pop_purpose(transactions)
+        pop_classification(transactions)
 
         filing = {
             **extracted_data, 

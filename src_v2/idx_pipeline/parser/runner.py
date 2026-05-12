@@ -82,7 +82,6 @@ def detect_holder_type(holder_name: str) -> str:
 
 
 def run_parser(downloader_ingestion: list[dict]):
-    # downloader_ingestion = open_json(downloader_path)
     company_lookup = open_json('data_v2/idx_companies/company_map.json')
 
     payload_combined = []
