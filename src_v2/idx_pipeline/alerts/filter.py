@@ -32,7 +32,8 @@ def check_missing_fields(payload: dict) -> list[str]:
 
     missing_fields = [
         field for field in required_fields
-        if payload.get(field) is None or (isinstance(payload.get(field), str) and payload.get(field).strip().lower() in ('null', 'none', ''))
+        if payload.get(field) is None or (isinstance(payload.get(field), str) 
+        and payload.get(field).strip().lower() in ('null', 'none', ''))
     ]
 
     if missing_fields:
