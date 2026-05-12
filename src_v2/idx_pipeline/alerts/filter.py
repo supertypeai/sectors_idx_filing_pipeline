@@ -27,9 +27,13 @@ def check_transaction_mismatch(payload: dict) -> list[str]:
 def check_missing_fields(payload: dict) -> list[str]:
     required_fields = (
         'symbol', 'holder_name', 'transaction_type', 'price_transaction',
-        'holding_before', 'holding_after', 'transaction_value')
+        'holding_before', 'holding_after', 'transaction_value'
+    )
 
-    missing_fields = [field for field in required_fields if payload.get(field) is None]
+    missing_fields = [
+        field for field in required_fields
+        if payload.get(field) is None or (isinstance(payload.get(field), str) and payload.get(field).strip().lower() in ('null', 'none', ''))
+    ]
 
     if missing_fields:
         return [f"missing required fields: {', '.join(missing_fields)}"]
