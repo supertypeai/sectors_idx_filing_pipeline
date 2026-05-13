@@ -51,6 +51,16 @@ def pop_purpose(transactions: list[dict[str, any]]):
         return []
 
 
+def pop_classification(transactions: list[dict[str, any]]):
+    try:
+        for transaction in transactions:
+            transaction.pop('classification', None)
+
+    except Exception as error:
+        LOGGER.error(f'Error pop_purpose: {error}')
+        return []
+
+
 def to_kebab(value: str | None) -> str:
     if not value:
         return "unknown"
