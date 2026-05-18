@@ -469,6 +469,9 @@ def route_cross_stock_template(
         for transaction in cross_stock_transactions
     ) + int(current_value)
 
+    current_symbol = current_symbol.strip().removesuffix('.JK')
+    distinct_cross_symbols = [symbol.strip().removesuffix('.JK') for symbol in distinct_cross_symbols]
+
     body = generate_cross_stock_template(
         holder_name=holder_name,
         holder_type=holder_type,
@@ -479,17 +482,16 @@ def route_cross_stock_template(
     )
 
     all_symbols = [current_symbol] + distinct_cross_symbols
-    cleaned_symbols = [ticker.strip().removesuffix('.JK') for ticker in all_symbols]
-    total_symbol_count = len(cleaned_symbols)
+    total_symbol_count = len(all_symbols)
     transaction_verb = "bought" if transaction_type == 'buy' else "sold"
 
     if total_symbol_count > 2:
-        listed_symbols = ", ".join(cleaned_symbols[:2])
+        listed_symbols = ", ".join(all_symbols[:2])
         remaining_count = total_symbol_count - 2
         formatted_symbols = f"{listed_symbols} and {remaining_count} other {'company' if remaining_count == 1 else 'companies'}"
     
     else:
-        formatted_symbols = " and ".join(cleaned_symbols)
+        formatted_symbols = " and ".join(all_symbols)
 
     context = f"{holder_name} {transaction_verb} {formatted_symbols} in the last 6 months."
 
