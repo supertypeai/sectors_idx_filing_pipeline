@@ -25,6 +25,8 @@ def check_transaction_mismatch(payload: dict) -> list[str]:
 
 
 def check_missing_fields(payload: dict) -> list[str]:
+    reasons = []
+
     required_fields = (
         'symbol', 'holder_name', 'transaction_type', 'price_transaction',
         'holding_before', 'holding_after', 'transaction_value'
@@ -37,9 +39,15 @@ def check_missing_fields(payload: dict) -> list[str]:
     ]
 
     if missing_fields:
-        return [f"missing required fields: {', '.join(missing_fields)}"]
+        reasons.append(f"missing required fields: {', '.join(missing_fields)}")
 
-    return []
+    price_transaction = payload.get('price_transaction')
+
+    for record in price_transaction: 
+        if record.get('date') is None: 
+            reasons.append('missing date in price_transaction')
+    
+    return reasons 
 
 
 def check_classification_shares(payload: dict) -> list[str]:
