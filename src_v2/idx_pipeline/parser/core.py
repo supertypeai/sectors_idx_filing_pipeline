@@ -211,34 +211,27 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 scan_limit = min(index + 100, len(lines))
                 saham_found = False
 
-                for i in range(index, scan_limit):
-                    if lines[i] == "Saham":
-                        # Verify line before "Saham" is a valid amount, 
-                        # to handle page splitted
-                        if i > 0:
-                            prev_line = lines[i - 1]
-                            # Amount must have comma and digits
-                            if ',' in prev_line and any(c.isdigit() for c in prev_line):
-                                # Valid Saham, amount is line before it
-                                index = i - 1
+                for saham_idx in range(index, scan_limit):
+                    if lines[saham_idx] == "Saham":
+                        if saham_idx > 0:
+                            prev_line = lines[saham_idx - 1]
+                            
+                            if "," in prev_line and any(char.isdigit() for char in prev_line):
+                                index = saham_idx - 1
                                 saham_found = True
                                 break
-                        # Otherwise, this is orphaned "Saham", keep searching
 
                 if not saham_found:
-                    # Fallback: skip to next transaction
                     index += 1
                     continue
 
-                amount = lines[index] if index < len(lines) else None  # Extract amount
-                index += 1  # Move to "Saham"
+                amount = lines[index] if index < len(lines) else None
+                index += 1
 
-                if index < len(lines) and lines[index] == "Saham": 
+                if index < len(lines) and lines[index] == "Saham":
                     index += 1
-                
-                # Collect Klasifikasi Saham.
-                # "Saham" was consumed by the amount anchor above, so prepend it back
-                # Collect all lines until the first price-shaped line (comma + digit)
+
+                # Collect Klasifikasi Saham
                 classification_parts = ["Saham"]
                 klasifikasi_scan_limit = min(index + 10, len(lines))
 
@@ -257,28 +250,38 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                         index = klasifikasi_idx
                         break
 
-                    classification_parts.append(current_line)
+                    # A bare dash is the null placeholder for Harga, never part of Klasifikasi Saham
+                    if current_line == "-":
+                        index = klasifikasi_idx
+                        break
 
+                    classification_parts.append(current_line)
                 else:
                     index = klasifikasi_scan_limit
 
                 classification_saham = " ".join(classification_parts)
 
                 # Find Price
-                # The item immediately before the date is the Price.
                 scan_limit_price = min(index + 10, len(lines))
                 price = None
+                price_found = False
 
-                for i in range(index, scan_limit_price):
-                    line = lines[i]
-                    # Price pattern: contains comma and has digits (e.g., "29,00", "121,00")
-                    if ',' in line and any(c.isdigit() for c in line):
-                        price = line
-                        index = i + 1
+                for price_idx in range(index, scan_limit_price):
+                    candidate = lines[price_idx]
+
+                    if candidate == "-":
+                        price = None
+                        price_found = True
+                        index = price_idx + 1
                         break
 
-                if price is None:
-                    # Fallback
+                    if "," in candidate and any(char.isdigit() for char in candidate):
+                        price = candidate
+                        price_found = True
+                        index = price_idx + 1
+                        break
+
+                if not price_found:
                     price = lines[index] if index < len(lines) else None
                     index += 1
                 
@@ -347,7 +350,9 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
 
                 purpose = ' '.join(purpose_parts)
 
-                # LOGGER.info(f"DEBUG: transaction_type='{transaction_type}', amount={amount}, price={price}, date={date}")
+                LOGGER.info(
+                    f"DEBUG: transaction_type='{transaction_type}', amount={amount}, price={price}, date={date}"
+                )
 
                 # Build Object
                 # print(f'raw tx type: {transaction_type} | purpose: {purpose}')
