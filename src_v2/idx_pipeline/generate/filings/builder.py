@@ -625,7 +625,12 @@ def enrich(payload: list[dict]):
     filing_symbol_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'symbol')
     filing_holder_name_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'holder_name')
 
-    for record in payload: 
+    payload_sorted = sorted(
+        payload,
+        key=lambda record: record.get('timestamp', '')
+    )
+    
+    for record in payload_sorted: 
         if not isinstance(record, dict):
             continue
 
