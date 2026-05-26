@@ -357,7 +357,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                 # Build Object
                 # print(f'raw tx type: {transaction_type} | purpose: {purpose}')
 
-                type_mapped = classify_transaction_type(transaction_type, purpose)
+                type_mapped = map_transaction_type(transaction_type)
                 amount_clean = clean_number(amount) 
                 price_clean = clean_number(price) 
                 date_clean = standardize_date(date) 
