@@ -79,8 +79,8 @@ def find_conglomerate_slug(
 
 def matching_investor_and_conglomerates(filing: dict) -> dict:
     try:
-        idx_investor = get_db(SUPABASE_CLIENT, 'idx_investor')
-        idx_conglomerates = get_db(SUPABASE_CLIENT, 'idx_conglomerates_group')
+        idx_investor = get_db(SUPABASE_CLIENT, 'people')
+        idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
 
         investor_lookup = build_investor_lookup(idx_investor, 'investor_name')
         conglomerate_name_lookup = build_conglomerate_name_lookup(idx_conglomerates)
