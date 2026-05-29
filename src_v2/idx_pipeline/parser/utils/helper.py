@@ -144,16 +144,15 @@ def map_transaction_type(type_raw: str) -> str:
     
     if 'koreksi atas laporan' in type_lower: 
         return type_lower
-    elif 'pelaksanaan' in type_lower:
-        return 'others'
+    
     elif 'penjualan' in type_lower:
         return 'sell'
+    
     elif 'pembelian' in type_lower: 
         return 'buy'
-    elif 'lainnya' in type_lower: 
-        return 'others'
+    
     else:
-        return None 
+        return 'others' 
 
 
 def classify_transaction_type(type_raw: str, purpose: str) -> str | None: 

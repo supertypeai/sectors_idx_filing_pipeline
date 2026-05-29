@@ -104,10 +104,10 @@ def extract_shares(text: str) -> dict[str, any]:
         return {} 
 
 
-def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[str, any]]:
+def extract_price_transaction(text: str) -> list[dict] | None:
     try:
         lines = [line.strip() for line in text.split('\n') if line.strip()]
-        
+      
         # Header Detection
         header_start_idx = None
         for index, line in enumerate(lines):
@@ -144,8 +144,9 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
         
         transaction_keywords = [
             "Penjualan", "Pembelian", "Lainnya", 
-            "Koreksi", 'Pelaksanaan', '(exercise)'
+            "Koreksi", 'Pelaksanaan', '(exercise)', 'Hibah'
         ]
+        
         footer_keywords = [
             "Pemberi", "Keterangan", "Jika", 
             "Nama pemegang", "Informasi", "Saya bertanggung", "Hak Suara"
@@ -311,7 +312,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
                         break
 
                 date = ' '.join(date_parts) if date_parts else None
-
+                
                 # Find Purpose (always exactly one line after date)
                 purpose_parts = []
                 while index < len(lines):
@@ -375,7 +376,7 @@ def extract_price_transaction(text: str) -> tuple[dict[str, any] | None, dict[st
 
             else:
                 index += 1
-
+      
         if not transactions:
             return None
 
@@ -600,7 +601,7 @@ def extract_prices(doc: fitz.Document):
         for page_index in range(pages_index[0], pages_index[-1] + 1)
     ]
     combined_text = "\n".join(full_text_lines)
-
+   
     price_transactions =  extract_price_transaction(combined_text)
 
     return price_transactions
