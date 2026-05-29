@@ -43,9 +43,16 @@ def check_missing_fields(payload: dict) -> list[str]:
 
     price_transaction = payload.get('price_transaction')
 
+    if not price_transaction: 
+        reasons.append('no price transaction extarcted, parser is failed')
+        return reasons
+
     for record in price_transaction: 
-        if record.get('date') is None: 
-            reasons.append('missing date in price_transaction')
+        if record.get('date') is None:
+            reasons.append('price transaction is missing a date, either the parser failed to extract it or the document does not contain one')
+        
+        if record.get('type') is None: 
+            reasons.append('price transaction is missing a type, either the parser failed to extract it or the document does not contain one')
     
     return reasons 
 
