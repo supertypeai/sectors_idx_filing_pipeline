@@ -146,7 +146,7 @@ def extract_price_transaction(text: str) -> list[dict] | None:
             "Penjualan", "Pembelian", "Lainnya", 
             "Koreksi", 'Pelaksanaan', '(exercise)', 'Hibah'
         ]
-        
+
         footer_keywords = [
             "Pemberi", "Keterangan", "Jika", 
             "Nama pemegang", "Informasi", "Saya bertanggung", "Hak Suara"
@@ -402,7 +402,11 @@ def build_lookup_price_transaction(transactions: list[dict[str, any]]):
         return {}
 
 
-def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, any]:
+def compute_transactions(
+    price_transactions: list[dict[str, any]],
+    holding_before: int | None = None,
+    holding_after: int | None = None
+) -> dict[str, any]:
     if not price_transactions:
         return {}
     
@@ -466,29 +470,45 @@ def compute_transactions(price_transactions: list[dict[str, any]]) -> dict[str, 
             }
         
         else:
-            if total_others_shares > 0:
-                weighted_average_price = total_others_value / total_others_shares
+            weighted_average_price = (
+                total_others_value / total_others_shares
+                if total_others_shares > 0
+                else 0.0
+            )
 
-            else:
-                weighted_average_price = 0.0
+            signed_others_shares = total_others_shares
+
+            if (
+                holding_before is not None
+                and holding_after is not None
+            ):
+                if holding_after < holding_before:
+                    signed_others_shares = -total_others_shares
             
             return {
                 "price": round(weighted_average_price, 3),
                 "transaction_value": abs(int(total_others_value)),
                 "transaction_type": "others",
-                "net_shares_transacted": total_others_shares
+                "net_shares_transacted": signed_others_shares
             }
 
     except Exception as error:
-        LOGGER.error(f"Compute transaction error: {error}")
+        LOGGER.error("Compute transaction error: %s", error, exc_info=True)
         return {}
 
 
 def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split'):
     try:
+        holding_before = extracted_data.get('holding_before', 0)
+        holding_after = extracted_data.get('holding_after', 0)
+         
         # Compute top level transaction type, transaction value, price
         price_transaction = extracted_data.get('price_transaction', [])
-        transaction_computed = compute_transactions(price_transaction)
+        transaction_computed = compute_transactions(
+            price_transaction,
+            holding_before,
+            holding_after
+        )
 
         extracted_data['price'] = transaction_computed.get('price')
         extracted_data['transaction_value'] = transaction_computed.get('transaction_value')
@@ -503,9 +523,6 @@ def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split
             ) 
 
         elif filing_type == 'combine':
-            holding_before = extracted_data.get('holding_before', 0)
-            holding_after = extracted_data.get('holding_after', 0)
-            
             extracted_data['amount_transaction'] = abs(holding_before - holding_after)
     
     except Exception as error:
