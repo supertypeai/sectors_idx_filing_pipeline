@@ -1,7 +1,5 @@
 from rapidfuzz import process, fuzz
 
-from idx_pipeline.config.settings import SUPABASE_CLIENT 
-
 import logging
 import re 
 
@@ -20,10 +18,32 @@ def get_db(client, table: str):
 
 
 def clean_name_titles(name: str) -> str:
-    name = re.sub(r'^(Ir|Drs?|Dr)\.?\s+', '', name, flags=re.IGNORECASE)
+    # Remove prefix titles
+    name = re.sub(
+        r'^(Ir|Drs?|Dra)\.?\s*',
+        '',
+        name,
+        flags=re.IGNORECASE
+    )
+
+    # Remove suffix titles
+    name = re.sub(
+        r',?\s*(Ir|Drs?|Dra)\.?$',
+        '',
+        name,
+        flags=re.IGNORECASE
+    )
+
+    # Convert "A.B" -> "A B"
     name = re.sub(r'\.([a-zA-Z])(?=\s|$)', r' \1', name)
+
+    # Convert " A." -> " A"
     name = re.sub(r'(?<=\s)([a-zA-Z])\.', r'\1', name)
-    return ' '.join(name.split())
+
+    # Replace punctuation with spaces
+    name = re.sub(r'[-.,/()]', ' ', name)
+
+    return ' '.join(name.lower().split())
 
 
 def build_investor_lookup(rows: list[dict], name_key: str) -> dict[str, dict]:
@@ -48,15 +68,18 @@ def build_conglomerate_name_lookup(rows: list[dict]) -> dict[str, str]:
 def find_investor(
     holder_name: str,
     investor_lookup: dict[str, dict],
-    threshold: int = 90,
+    threshold: int = 96,
 ) -> dict | None:
-    candidates = list(investor_lookup.keys())
+    cleaned_lookup = {
+        clean_name_titles(investor_name): investor_name
+        for investor_name in investor_lookup
+    }
 
-    clean_holder_name = clean_name_titles(holder_name.strip())
+    clean_holder_name = clean_name_titles(holder_name.lower().strip())
 
     result = process.extractOne(
         clean_holder_name,
-        candidates,
+        cleaned_lookup.keys(),
         scorer=fuzz.WRatio,
     )
 
@@ -64,36 +87,46 @@ def find_investor(
         return None
     
     matched_name, score, _ = result
+    
     if score >= threshold:
-        return investor_lookup[matched_name]
+        original_name = cleaned_lookup[matched_name]
+
+        LOGGER.info('raw matching: %s | holder name filing: %s', result, clean_holder_name)
+        return investor_lookup[original_name]
+    
     return None
 
 
 def find_conglomerate_slug(
     group_name: str,
     conglomerate_name_lookup: dict[str, str],
-    threshold: int = 90,
+    threshold: int = 96,
 ) -> str | None:
     candidates = list(conglomerate_name_lookup.keys())
     
     result = process.extractOne(
-        group_name.strip(),
+        group_name.lower().strip(),
         candidates,
         scorer=fuzz.WRatio,
     )
+
     if result is None:
         return None
+    
     matched_name, score, _ = result
+
     if score >= threshold:
         return conglomerate_name_lookup[matched_name]
+    
     return None
 
 
-def matching_investor_and_conglomerates(filing: dict) -> dict:
+def matching_investor_and_conglomerates(
+    filing: dict, 
+    idx_investor: list, 
+    idx_conglomerates: list
+) -> dict:
     try:
-        idx_investor = get_db(SUPABASE_CLIENT, 'people')
-        idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
-
         investor_lookup = build_investor_lookup(idx_investor, 'investor_name')
         conglomerate_name_lookup = build_conglomerate_name_lookup(idx_conglomerates)
 
@@ -126,3 +159,15 @@ def matching_investor_and_conglomerates(filing: dict) -> dict:
             exc_info=True,
         )
         return filing
+    
+
+if __name__ == '__main__':
+    result = find_investor(
+        holder_name='Drs Lo Kheng Hong', 
+        investor_lookup={
+            'Lo Kheng Hong': {
+                'slug': 'test'
+            }
+        }
+    )
+    print(result)

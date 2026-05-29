@@ -5,7 +5,7 @@ from pathlib import Path
 
 from idx_pipeline.config.settings import SUPABASE_CLIENT
 from .utils.translator import translator
-from .utils.matching import matching_investor_and_conglomerates
+from .utils.matching import matching_investor_and_conglomerates, get_db
 
 import logging 
 
@@ -625,6 +625,9 @@ def enrich(payload: list[dict]):
     filing_symbol_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'symbol')
     filing_holder_name_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'holder_name')
 
+    idx_investor = get_db(SUPABASE_CLIENT, 'people')
+    idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
+    
     payload_sorted = sorted(
         payload,
         key=lambda record: record.get('timestamp', '')
@@ -641,7 +644,11 @@ def enrich(payload: list[dict]):
                 filing_holder_name_map=filing_holder_name_lookup
             )
 
-            result = matching_investor_and_conglomerates(result)
+            result = matching_investor_and_conglomerates(
+                filing=result,
+                idx_investor=idx_investor, 
+                idx_conglomerates=idx_conglomerates
+            )
 
             result['source_is_manual'] = False
 
