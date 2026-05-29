@@ -3,6 +3,7 @@ from rapidfuzz import process, fuzz
 from idx_pipeline.config.settings import SUPABASE_CLIENT 
 
 import logging
+import re 
 
 
 LOGGER = logging.getLogger(__name__)
@@ -16,6 +17,13 @@ def get_db(client, table: str):
         .execute()
     )
     return response.data or []
+
+
+def clean_name_titles(name: str) -> str:
+    name = re.sub(r'^(Ir|Drs?|Dr)\.?\s+', '', name, flags=re.IGNORECASE)
+    name = re.sub(r'\.([a-zA-Z])(?=\s|$)', r' \1', name)
+    name = re.sub(r'(?<=\s)([a-zA-Z])\.', r'\1', name)
+    return ' '.join(name.split())
 
 
 def build_investor_lookup(rows: list[dict], name_key: str) -> dict[str, dict]:
@@ -43,10 +51,13 @@ def find_investor(
     threshold: int = 90,
 ) -> dict | None:
     candidates = list(investor_lookup.keys())
+
+    clean_holder_name = clean_name_titles(holder_name.strip())
+
     result = process.extractOne(
-        holder_name.strip().lower(),
+        clean_holder_name,
         candidates,
-        scorer=fuzz.token_sort_ratio,
+        scorer=fuzz.WRatio,
     )
 
     if result is None:
@@ -64,10 +75,11 @@ def find_conglomerate_slug(
     threshold: int = 90,
 ) -> str | None:
     candidates = list(conglomerate_name_lookup.keys())
+    
     result = process.extractOne(
-        group_name.strip().lower(),
+        group_name.strip(),
         candidates,
-        scorer=fuzz.token_sort_ratio,
+        scorer=fuzz.WRatio,
     )
     if result is None:
         return None
