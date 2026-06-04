@@ -6,6 +6,7 @@ from pathlib import Path
 from idx_pipeline.config.settings import SUPABASE_CLIENT
 from .utils.translator import translator
 from .utils.matching import matching_investor_and_conglomerates, get_db
+from .highlight import build_highlights
 
 import logging 
 
@@ -627,7 +628,8 @@ def enrich(payload: list[dict]):
 
     idx_investor = get_db(SUPABASE_CLIENT, 'people')
     idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
-    
+    idx_filings = get_db(SUPABASE_CLIENT, 'idx_filings')
+
     payload_sorted = sorted(
         payload,
         key=lambda record: record.get('timestamp', '')
@@ -660,6 +662,16 @@ def enrich(payload: list[dict]):
 
             if holder_name:
                 filing_holder_name_lookup[holder_name].append(record)
+
+            idx_filings.append(record)
+            
+            highlights = build_highlights(
+                client=SUPABASE_CLIENT, 
+                db_filings=idx_filings, 
+                current_filing=record
+            )
+
+            record['highlights'] = highlights
 
             payload_results.append(result)
 

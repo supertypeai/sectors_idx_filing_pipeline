@@ -7,13 +7,18 @@ import re
 LOGGER = logging.getLogger(__name__)
 
 
-def get_db(client, table: str): 
-    response = (
+def get_db(client, table: str, query_modifier = None): 
+    query = (
         client
         .table(table)
         .select('*')
-        .execute()
     )
+
+    if query_modifier is not None: 
+        query = query_modifier(query)
+
+    response = query.execute()
+    
     return response.data or []
 
 
