@@ -9,6 +9,16 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
+def format_rupiah(value: float) -> str:
+    if value >= 1_000_000_000_000:
+        return f"Rp {value / 1_000_000_000_000:.1f}T"
+    
+    if value >= 1_000_000_000:
+        return f"Rp {value / 1_000_000_000:.1f}B"
+    
+    return f"Rp {value / 1_000_000:.1f}M"
+
+
 def compute_mad_score(
     historical_filings: list[dict],
     current_trade: float,
@@ -47,11 +57,15 @@ def compute_historical_price_movement(
         for record in db_filings
         if record.get('symbol') == current_symbol
         and record.get('transaction_type') == current_transaction_type
-        and record.get('timestamp') != current_timestamp
+        and record.get('timestamp') < current_timestamp
         and (datetime.fromisoformat(record.get('timestamp')).date() + timedelta(days=60)) <= datetime.today().date()
     ]
 
     if len(historical_filings) < 10:
+        LOGGER.info(
+            'Not enough historical data to compute price movement: %s',
+            len(historical_filings)
+        )
         return None 
 
     dates_needed = set()
@@ -100,7 +114,7 @@ def compute_historical_price_movement(
     move_label = 'gained' if average_return > 0 else 'declined'
     cleaned_symbol = current_symbol.removesuffix('.JK')
 
-    return f"Insider {transaction_label} in {cleaned_symbol} historically {move_label} {abs(average_return):.1f}% within 60 days."
+    return f"Insider {transaction_label} in {cleaned_symbol} historically {move_label} ~{abs(average_return):.1f}% within 60 days."
 
 
 def compute_filing_density(
@@ -116,7 +130,7 @@ def compute_filing_density(
         for record in db_filings
         if record.get("symbol") == current_symbol
         and record.get("holder_name")
-        and record.get("timestamp") != current_timestamp
+        and record.get("timestamp") < current_timestamp
         and window_start <= datetime.strptime(record.get("timestamp", "")[:10], "%Y-%m-%d").date() <= current_date
     )
 
@@ -130,35 +144,37 @@ def compute_filing_density(
 
 
 def compute_size_trades(
-    db_filings: list[dict], 
-    current_holder_name: str, 
-    current_timestamp: str, 
-    current_transaction_value: int, 
+    db_filings: list[dict],
+    current_holder_name: str,
+    current_timestamp: str,
+    current_transaction_value: int,
     current_transaction_type: str
-) -> str:
+) -> str | None:
     historical_filings = [
-        record 
+        record
         for record in db_filings
         if record.get('holder_name')
         and record.get('holder_name').strip().lower() == current_holder_name.strip().lower()
         and record.get("timestamp") < current_timestamp
-    ]  
+    ]
 
     score, central_value, history_count = compute_mad_score(
         historical_filings=historical_filings,
         current_trade=current_transaction_value
     )
 
+    LOGGER.info('score: %s, central_value: %s, ratio: %s', score, central_value, current_transaction_value / central_value if central_value > 0 else 0)
+
     ratio = current_transaction_value / central_value if central_value > 0 else 0
 
     if score < 3 or current_transaction_value < 500_000_000 or ratio < 3:
-        return 
+        return None
     
     signal_size_trade = (
         f"{ratio:.1f}x typical {current_transaction_type} size "
         f"(based on {history_count} prior trades, "
-        f"median Rp {central_value:,.0f}), "
-        f"at Rp {current_transaction_value:,.0f}"
+        f"median {format_rupiah(central_value)}), "
+        f"at {format_rupiah(current_transaction_value)}"
     )
 
     return signal_size_trade
