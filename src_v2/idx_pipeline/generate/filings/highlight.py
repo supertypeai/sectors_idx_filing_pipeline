@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from .utils.matching import get_db 
 
 import logging 
+import bisect 
 
 
 LOGGER = logging.getLogger(__name__)
@@ -45,6 +46,24 @@ def compute_mad_score(
     return score, central_value, len(non_zero_values)
 
 
+def get_nearest_price(
+    target_date,
+    price_lookup: dict,
+    available_dates: list[str]
+) -> float | None:
+    target_str = str(target_date)
+    
+    if target_str in price_lookup:
+        return price_lookup[target_str]
+    
+    index = bisect.bisect_left(available_dates, target_str)
+    
+    if index < len(available_dates):
+        return price_lookup[available_dates[index]]
+    
+    return None
+
+
 def compute_historical_price_movement(
     client,
     current_symbol: str, 
@@ -68,53 +87,80 @@ def compute_historical_price_movement(
         )
         return None 
 
-    dates_needed = set()
+    filing_dates = [
+        datetime.fromisoformat(record.get('timestamp')).date()
+        for record in historical_filings
+    ]
 
-    for record in historical_filings:
-        filing_date = datetime.fromisoformat(record.get('timestamp')).date()
-        dates_needed.add(str(filing_date))
-        dates_needed.add(str(filing_date + timedelta(days=60)))
-
-    dates_list = list(dates_needed)
+    min_date = min(filing_dates)
+    max_date = max(filing_dates) + timedelta(days=90)
 
     daily_data = get_db(
         client=client,
         table='idx_daily_data',
         query_modifier=lambda query: query
             .eq('symbol', current_symbol)
-            .in_('date', dates_list),
+            .gte('date', str(min_date))
+            .lte('date', str(max_date)),
     )
 
     price_lookup = {
         record.get('date'): record.get('close')
         for record in daily_data
+        if record.get('close') is not None 
     }
 
-    returns = []
+    available_dates = sorted(price_lookup.keys())
+
+    returns_by_date = {}
     
     for record in historical_filings:
         filing_date = datetime.fromisoformat(record.get('timestamp')).date()
-        price_at_filing = price_lookup.get(str(filing_date))
-        price_60_days_later = price_lookup.get(str(filing_date + timedelta(days=60)))
+
+        if filing_date in returns_by_date:
+            continue
+
+        price_at_filing = get_nearest_price(
+            filing_date,
+            price_lookup, 
+            available_dates
+        )
+
+        price_60_days_later = get_nearest_price(
+            filing_date + timedelta(days=60), 
+            price_lookup, 
+            available_dates
+        )
 
         if price_at_filing is None or price_60_days_later is None:
+            LOGGER.info(
+                'Price is missing for filing: %s and price + 60 days: %s', 
+                price_at_filing, price_60_days_later
+            )
             continue
 
         if price_at_filing == 0:
             continue
 
         return_pct = (price_60_days_later - price_at_filing) / price_at_filing * 100
-        returns.append(return_pct)
+        returns_by_date[filing_date] = return_pct
+
+    returns = list(returns_by_date.values())
 
     if len(returns) < 8:
         return None
 
     average_return = sum(returns) / len(returns)
-    transaction_label = 'buys' if current_transaction_type == 'buy' else 'sells'
+    median_return = median(returns)
+
     move_label = 'gained' if average_return > 0 else 'declined'
     cleaned_symbol = current_symbol.removesuffix('.JK')
 
-    return f"Insider {transaction_label} in {cleaned_symbol} historically {move_label} ~{abs(average_return):.1f}% within 60 days."
+    return (
+        f"Insider {current_transaction_type} in {cleaned_symbol} historically "
+        f"{move_label} {abs(average_return):.1f}% on average "
+        f"(median: {median_return:.1f}%) within 60 days."
+    )
 
 
 def compute_filing_density(

@@ -664,14 +664,14 @@ def enrich(payload: list[dict]):
                 filing_holder_name_lookup[holder_name].append(record)
 
             idx_filings.append(record)
-            
+
             highlights = build_highlights(
                 client=SUPABASE_CLIENT, 
                 db_filings=idx_filings, 
                 current_filing=record
             )
 
-            record['highlights'] = highlights
+            record['highlights'] = highlights if highlights else None 
 
             payload_results.append(result)
 
