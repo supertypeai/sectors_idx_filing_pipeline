@@ -592,14 +592,26 @@ def enrich_payload(
     holder_name = extract_holder_name(text)
     symbol, company_name = extract_symbol_and_company_name(text)
 
-    if company_lookup and symbol:
-        company_entry = company_lookup.get(symbol)
+    if not symbol:
+        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
+        existing_alerts.append({
+            'date': '-',
+            'reasons': ['failed to extract symbol from PDF text'],
+            'source': pdf_url,
+            'symbol': '-'
+        })
 
-        if company_entry:
-            company_name = company_entry.get('company_name')
+        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
+        LOGGER.error(f"failed to extract symbol for PDF: {pdf_url}")
+        return False
 
-        sector = company_entry.get('sector')
-        sub_sector = company_entry.get('sub_sector')
+    company_entry = company_lookup.get(symbol)
+
+    if company_entry:
+        company_name = company_entry.get('company_name')
+
+    sector = company_entry.get('sector')
+    sub_sector = company_entry.get('sub_sector')
 
     extracted_data['symbol'] = symbol.upper()
     extracted_data['company_name'] = normalize_company_name(company_name)

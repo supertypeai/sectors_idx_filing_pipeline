@@ -91,6 +91,8 @@ def run_parser(downloader_ingestion: list[dict]):
         pdf_url = record.get('pdf_url')
         timestamp = record.get('timestamp') 
 
+        LOGGER.info(f"parsing pdf_local={pdf_local_path} pdf_url={pdf_url}")
+        
         results = parser_new_document(
             pdf_local_path=pdf_local_path, 
             pdf_url=pdf_url,
