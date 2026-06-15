@@ -319,6 +319,7 @@ def route_cluster_template(
     current_filing: dict,
     buy_transactions: list[dict],
     sell_transactions: list[dict],
+    repeated_holder_transactions: list[dict],
     holder_name: str,
     company_name: str,
     transaction_type: str,
@@ -349,7 +350,7 @@ def route_cluster_template(
         return None
 
     cluster_transactions = buy_transactions if is_cluster_buy else sell_transactions
-    all_cluster_transactions = cluster_transactions + [current_filing]
+    all_cluster_transactions = cluster_transactions + repeated_holder_transactions + [current_filing]
 
     cluster_total_shares = sum(
         transaction.get('amount_transaction', 0)
@@ -544,6 +545,7 @@ def route_body_template(
         current_filing=current_filing,
         buy_transactions=buy_transactions,
         sell_transactions=sell_transactions,
+        repeated_holder_transactions=repeated_holder_transactions,
         holder_name=holder_name,
         company_name=company_name,
         transaction_type=transaction_type,
