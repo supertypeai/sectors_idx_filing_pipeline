@@ -603,7 +603,7 @@ def enrich_payload(
 
         write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
         LOGGER.error(f"failed to extract symbol for PDF: {pdf_url}")
-        return False
+        return None
 
     company_entry = company_lookup.get(symbol)
 
@@ -775,12 +775,8 @@ def parse_document(
     if extracted_data is None:
         return []
 
-    enrich_payload(
-        doc, 
-        extracted_data, 
-        company_lookup,
-        pdf_url
-    )
+    if enrich_payload(doc, extracted_data, company_lookup, pdf_url) is None:
+        return []
 
     price_transactions = extract_prices(doc)
     combined_filing = {**extracted_data, 'price_transaction': price_transactions}
