@@ -7,7 +7,10 @@ from .utils.helper import *
 import logging 
 import re 
 
-
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+)
 LOGGER = logging.getLogger(__name__)
 
 
@@ -128,6 +131,8 @@ def run_parser(downloader_ingestion: list[dict]):
                 existing_alerts.append({
                     'date': timestamp or '-', 
                     'reasons': ['need to check manually if the document need UID generation'],
+                    'tags': tags,
+                    'holder_name': result['holder_name'],
                     'source': source,
                     'symbol': symbol
                 })
@@ -136,9 +141,9 @@ def run_parser(downloader_ingestion: list[dict]):
 
             result['tags'] = tags
             result['holder_type'] = holder_type
-            result['timestamp'] = timestamp 
+            result['timestamp'] = timestamp
 
-        payload_combined.extend(results)
+            payload_combined.append(result)
 
     filename = 'data_v2/parser/pdf_parsed.json'
     write_json(payload_combined, filename)

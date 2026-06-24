@@ -586,7 +586,7 @@ def enrich_payload(
     extracted_data: dict,
     company_lookup: dict,
     pdf_url: str
-) -> None:
+) -> bool:
     text = doc[0].get_text()
 
     holder_name = extract_holder_name(text)
@@ -603,7 +603,7 @@ def enrich_payload(
 
         write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
         LOGGER.error(f"failed to extract symbol for PDF: {pdf_url}")
-        return None
+        return False
 
     company_entry = company_lookup.get(symbol)
 
@@ -619,6 +619,8 @@ def enrich_payload(
     extracted_data['source'] = pdf_url
     extracted_data['sector'] = to_kebab(sector)
     extracted_data['sub_sector'] = to_kebab(sub_sector)
+
+    return True
 
 
 def extract_prices(doc: fitz.Document):
@@ -775,7 +777,7 @@ def parse_document(
     if extracted_data is None:
         return []
 
-    if enrich_payload(doc, extracted_data, company_lookup, pdf_url) is None:
+    if not enrich_payload(doc, extracted_data, company_lookup, pdf_url):
         return []
 
     price_transactions = extract_prices(doc)
