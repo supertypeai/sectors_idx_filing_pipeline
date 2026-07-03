@@ -654,7 +654,7 @@ def find_valid_ordering(
     type_signed_amounts: dict[str, int],
     holding_before: int,
     holding_after: int
-) -> list[str] | None:
+) -> list[str]:
     transaction_types = list(type_signed_amounts.keys())
 
     for ordering in permutations(transaction_types):
@@ -671,7 +671,10 @@ def find_valid_ordering(
         if valid and current_holding == holding_after:
             return list(ordering)
 
-    return None
+    # No ordering reconciles holding_before -> holding_after, Fall back to the
+    # natural order so the filing still gets split then filter_idx_filings will
+    # catch the mismatch on whichever leg absorbs the discrepancy.
+    return transaction_types
 
 
 def build_chained_filings(
@@ -698,6 +701,7 @@ def build_chained_filings(
     others_effect = net_holding_change - buy_total + sell_total
 
     type_signed_amounts = {}
+
     if 'buy' in type_amounts:
         type_signed_amounts['buy'] = buy_total
 
@@ -712,10 +716,6 @@ def build_chained_filings(
         pdf_holding_before,
         pdf_holding_after
     )
-
-    if valid_ordering is None:
-        LOGGER.error(f"No valid transaction ordering found for source: {extracted_data.get('source')}")
-        return []
 
     results = []
     current_holding = pdf_holding_before
@@ -781,38 +781,54 @@ def parse_document(
         return []
 
     price_transactions = extract_prices(doc)
-    combined_filing = {**extracted_data, 'price_transaction': price_transactions}
-    enrich_transaction(combined_filing, 'combine')
-
-    if filter_idx_filings(combined_filing):
-        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
-        existing_alerts.append(combined_filing)
-
-        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
-        return []
-
     price_data_list = build_lookup_price_transaction(price_transactions)
-    
+
     if len(price_data_list) > 1:
-        results = build_chained_filings(price_data_list, extracted_data)
-    
+        results = build_chained_filings(
+            price_data_list,
+            extracted_data
+        )
+
     else:
-        results = [] 
+        results = []
         _, transactions = next(iter(price_data_list.items()))
         purpose = transactions[0].get('purpose') if transactions else None
         pop_purpose(transactions)
-        pop_classification(transactions)
 
         filing = {
-            **extracted_data, 
-            'price_transaction': transactions, 
+            **extracted_data,
+            'price_transaction': transactions,
             'purpose': purpose
         }
 
         enrich_transaction(filing, 'split')
         results.append(filing)
 
-    return results
+    valid_results = []
+    existing_alerts = None
+
+    for filing in results:
+        type = filing['transaction_type']
+
+        if type == 'sell':
+            filing['holding_after'] *= 100
+
+        # filter_idx_filings validates classification, so strip it only after
+        # the filing passes (it stays in the alert payload for review)
+        if filter_idx_filings(filing):
+            if existing_alerts is None:
+                existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
+
+            existing_alerts.append(filing)
+
+        else:
+            pop_classification(filing['price_transaction'])
+            valid_results.append(filing)
+
+    if existing_alerts is not None:
+        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
+
+    return valid_results
 
 
 def parser_new_document(
