@@ -103,7 +103,7 @@ def run_parser(downloader_ingestion: list[dict]):
         )
 
         if results is None or not results:
-            LOGGER.info(f"parser_new_document returned None for: {pdf_local_path}")
+            LOGGER.info(f"parse_document produced no insertable results for: {pdf_url}")
             continue
         
         for result in results: 
@@ -157,6 +157,7 @@ if __name__ == '__main__':
 
     payload = run_parser(downloader_ingestion=downloader_ingestion)
     print(payload)
+
 
 # $env:PYTHONPATH = 'src_v2'
 # uv run -m idx_pipeline.parser.runner

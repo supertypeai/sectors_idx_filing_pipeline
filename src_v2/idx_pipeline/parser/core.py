@@ -671,10 +671,7 @@ def find_valid_ordering(
         if valid and current_holding == holding_after:
             return list(ordering)
 
-    # No ordering reconciles holding_before -> holding_after, Fall back to the
-    # natural order so the filing still gets split then filter_idx_filings will
-    # catch the mismatch on whichever leg absorbs the discrepancy.
-    return transaction_types
+    return None 
 
 
 def build_chained_filings(
@@ -717,6 +714,10 @@ def build_chained_filings(
         pdf_holding_after
     )
 
+    if valid_ordering is None:
+        LOGGER.error(f"No valid transaction ordering found for source: {extracted_data.get('source')}")
+        return []
+
     results = []
     current_holding = pdf_holding_before
     current_share_percentage = pdf_share_percentage_before
@@ -727,6 +728,7 @@ def build_chained_filings(
 
         purpose = transactions[0].get('purpose') if transactions else None
         pop_purpose(transactions)
+        pop_classification(transactions)
 
         filing_holding_before = current_holding
         filing_share_percentage_before = current_share_percentage
@@ -781,19 +783,27 @@ def parse_document(
         return []
 
     price_transactions = extract_prices(doc)
+    combined_filing = {**extracted_data, 'price_transaction': price_transactions}
+    enrich_transaction(combined_filing, 'combine')
+
+    if filter_idx_filings(combined_filing):
+        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
+        existing_alerts.append(combined_filing)
+
+        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
+        return []
+
     price_data_list = build_lookup_price_transaction(price_transactions)
 
     if len(price_data_list) > 1:
-        results = build_chained_filings(
-            price_data_list,
-            extracted_data
-        )
+        results = build_chained_filings(price_data_list, extracted_data)
 
     else:
         results = []
         _, transactions = next(iter(price_data_list.items()))
         purpose = transactions[0].get('purpose') if transactions else None
         pop_purpose(transactions)
+        pop_classification(transactions)
 
         filing = {
             **extracted_data,
@@ -804,26 +814,7 @@ def parse_document(
         enrich_transaction(filing, 'split')
         results.append(filing)
 
-    valid_results = []
-    existing_alerts = None
-
-    for filing in results:
-        # filter_idx_filings validates classification, so strip it only after
-        # the filing passes (it stays in the alert payload for review)
-        if filter_idx_filings(filing):
-            if existing_alerts is None:
-                existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
-
-            existing_alerts.append(filing)
-
-        else:
-            pop_classification(filing['price_transaction'])
-            valid_results.append(filing)
-
-    if existing_alerts is not None:
-        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
-
-    return valid_results
+    return results
 
 
 def parser_new_document(
