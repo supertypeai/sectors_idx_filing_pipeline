@@ -808,11 +808,6 @@ def parse_document(
     existing_alerts = None
 
     for filing in results:
-        type = filing['transaction_type']
-
-        if type == 'sell':
-            filing['holding_after'] *= 100
-
         # filter_idx_filings validates classification, so strip it only after
         # the filing passes (it stays in the alert payload for review)
         if filter_idx_filings(filing):
