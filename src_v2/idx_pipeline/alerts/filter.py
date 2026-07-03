@@ -6,10 +6,24 @@ LOGGER = logging.getLogger(__name__)
 
 
 def check_transaction_mismatch(payload: dict) -> list[str]:
+    price_transaction = payload.get('price_transaction') or []
+    transaction_types = {
+        record.get('type') 
+        for record in price_transaction
+    }
+
+    # When 'others' is mixed with buy/sell, its amount is a derived residual
+    # (whatever reconciles the totals), not an independently disclosed number -
+    # so checking it here would either drop it (false mismatch) or compare it
+    # against itself (no signal either way). Only standalone others (or plain
+    # buy/sell) compares real disclosed data against real reported holdings.
+    if len(transaction_types) > 1 and 'others' in transaction_types:
+        return []
+
     holding_before = payload.get('holding_before', 0)
     holding_after = payload.get('holding_after', 0)
     net_shares = payload.get('net_shares_transacted', 0)
-                    
+
     if holding_before is None or holding_after is None or not net_shares:
         return []
 
