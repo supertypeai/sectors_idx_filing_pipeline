@@ -67,16 +67,20 @@ def detect_tags(
         if found: 
             tags.add(tag)
     
-    # transaction_type decides this pair, because
-    # if matches KEYWORD_BUY and would tag a sell as investment
-    if transaction_type in ('buy', 'sell'):
-        tags.discard('investment')
+    if transaction_type == 'buy' and 'divestment' in tags:
         tags.discard('divestment')
+        tags.add('investment')
 
-        tags.add(
-            'investment' if transaction_type == 'buy' 
-            else 'divestment'
-        )
+    elif transaction_type == 'sell' and 'investment' in tags:
+        tags.discard('investment')
+        tags.add('divestment')
+
+    if not tags:
+        if transaction_type == 'buy':
+            tags.add('investment')
+
+        elif transaction_type == 'sell':
+            tags.add('divestment')
 
     if crosses_50_percent_threshold(share_percentage_before, share_percentage_after):
         tags.add("takeover")

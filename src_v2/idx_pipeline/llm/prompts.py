@@ -209,7 +209,7 @@ class PromptCollections:
                 - price: price per share for that row. Null if the row has no price
                     (e.g. inheritance, grant, or other non-market transaction).
                 - date: the row's transaction date, normalized to YYYY-MM-DD.
-                - purpose: the stated purpose/reason for that row, translate it into english financial terms.
+                - purpose: the stated purpose/reason for that row.
                 - classification: the share classification exactly as written in the document
                     (e.g. 'Saham Biasa'). Do not translate or normalize this value.
 
