@@ -14,8 +14,13 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-def fetch_six_month_history_map(supabase_client, key_lookup: str) -> dict: 
-    six_months_ago = datetime.now() - timedelta(days=180)
+def fetch_six_month_history_map(
+    supabase_client,
+    key_lookup: str,
+    reference_date: Optional[datetime] = None,
+) -> dict:
+    reference_date = reference_date or datetime.now()
+    six_months_ago = reference_date - timedelta(days=180)
     six_months_ago_str = six_months_ago.isoformat()
 
     columns_to_fetch = (
@@ -622,21 +627,35 @@ def build_title_and_body(
     return raw_payload
 
 
-def enrich(payload: list[dict]): 
+def enrich(payload: list[dict]) -> list[dict]:
     payload_results = []
-
-    filing_symbol_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'symbol')
-    filing_holder_name_lookup = fetch_six_month_history_map(SUPABASE_CLIENT, 'holder_name')
-
-    idx_investor = get_db(SUPABASE_CLIENT, 'people')
-    idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
-    idx_filings = get_db(SUPABASE_CLIENT, 'idx_filings')
 
     payload_sorted = sorted(
         payload,
         key=lambda record: record.get('timestamp', '')
     )
-    
+
+    earliest_timestamp = (
+        parse_timestamp(payload_sorted[0].get('timestamp'))
+        if payload_sorted else None
+    )
+
+    filing_symbol_lookup = fetch_six_month_history_map(
+        SUPABASE_CLIENT, 
+        'symbol', 
+        reference_date=earliest_timestamp
+    )
+
+    filing_holder_name_lookup = fetch_six_month_history_map(
+        SUPABASE_CLIENT, 
+        'holder_name', 
+        reference_date=earliest_timestamp
+    )
+
+    idx_investor = get_db(SUPABASE_CLIENT, 'people')
+    idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
+    idx_filings = get_db(SUPABASE_CLIENT, 'idx_filings')
+
     for record in payload_sorted: 
         if not isinstance(record, dict):
             continue
