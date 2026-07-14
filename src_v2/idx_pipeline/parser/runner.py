@@ -1,17 +1,44 @@
 from typing import Optional 
 
 from .core import parser_new_document 
+from .llm_parser import parser_with_llm
 from idx_pipeline.utils.helper import open_json, write_json
 from .utils.helper import *
 
 import logging 
 import re 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
-)
+
 LOGGER = logging.getLogger(__name__)
+
+ALERT_PATH = 'data_v2/alert/not_inserted.json'
+
+# The LLM re-reads the document, so it can only help where the document holds the
+# answer and our extraction fell short. A stale company_map and a filing that is
+# genuinely about a non-common instrument are not extraction problems - re-parsing
+# either one just burns a call and fails the same way.
+NOT_RETRYABLE = (
+    'company_map.json',
+    'classification shares',
+)
+
+
+def push_alert(alert: dict):
+    existing_alerts = open_json(ALERT_PATH) or []
+
+    existing_alerts.append(alert)
+    write_json(existing_alerts, ALERT_PATH)
+
+
+def is_retryable(reasons: list[str]) -> bool:
+    if not reasons:
+        return False
+
+    return not any(
+        marker in reason
+        for reason in reasons
+        for marker in NOT_RETRYABLE
+    )
 
 
 def detect_tags(
@@ -40,19 +67,16 @@ def detect_tags(
         if found: 
             tags.add(tag)
     
-    if not tags: 
-        if transaction_type == 'buy':
-            tags.add('investment')
+    # transaction_type decides this pair, because
+    # if matches KEYWORD_BUY and would tag a sell as investment
+    if transaction_type in ('buy', 'sell'):
+        tags.discard('investment')
+        tags.discard('divestment')
 
-        elif transaction_type == 'sell':
-            tags.add('divestment')
-
-    if 'investment' in tags and 'divestment' in tags: 
-        if transaction_type == 'buy':
-            tags.remove('divestment')
-
-        elif transaction_type == 'sell':
-            tags.remove('investment')
+        tags.add(
+            'investment' if transaction_type == 'buy' 
+            else 'divestment'
+        )
 
     if crosses_50_percent_threshold(share_percentage_before, share_percentage_after):
         tags.add("takeover")
@@ -93,19 +117,56 @@ def run_parser(downloader_ingestion: list[dict]):
         pdf_local_path = record.get('pdf_local')
         pdf_url = record.get('pdf_url')
         timestamp = record.get('timestamp') 
+        type_document = record.get('type')  # return only idx or non_idx
 
-        LOGGER.info(f"parsing pdf_local={pdf_local_path} pdf_url={pdf_url}")
+        LOGGER.info("parsing pdf_url: %s", pdf_url)
         
-        results = parser_new_document(
-            pdf_local_path=pdf_local_path, 
-            pdf_url=pdf_url,
-            company_lookup=company_lookup
-        )
+        if type_document == 'idx':
+            results, reasons = parser_new_document(
+                pdf_local_path=pdf_local_path,
+                pdf_url=pdf_url,
+                company_lookup=company_lookup,
+                timestamp=timestamp
+            )
 
-        if results is None or not results:
-            LOGGER.info(f"parse_document produced no insertable results for: {pdf_url}")
+            # The regex parser reads a fixed layout. When it comes up short the data
+            # is still on the page, so hand the same PDF to the LLM before giving up
+            if not results and is_retryable(reasons):
+                LOGGER.info('regex parser failed, retrying with the llm: %s', pdf_url)
+
+                results, reasons = parser_with_llm(
+                    pdf_local_path=pdf_local_path,
+                    pdf_url=pdf_url,
+                    company_lookup=company_lookup,
+                    timestamp=timestamp
+                )
+
+        elif type_document == 'non_idx':
+            results, reasons = parser_with_llm(
+                pdf_local_path=pdf_local_path,
+                pdf_url=pdf_url,
+                company_lookup=company_lookup,
+                timestamp=timestamp
+            )
+
+        else:
+            LOGGER.warning(f"unknown document type '{type_document}' for: {pdf_url}")
             continue
-        
+
+        if not results:
+            # No reasons means nothing went wrong the holdings were unchanged, so
+            # there was never a filing to insert
+            if reasons:
+                push_alert({
+                    'date': timestamp or '-',
+                    'reasons': reasons,
+                    'source': pdf_url,
+                    'symbol': '-'
+                })
+
+            LOGGER.info('no insertable results for %s: %s', pdf_url, reasons or 'holdings unchanged')
+            continue
+
         for result in results: 
             purpose = result.get('purpose')
             share_percentage_before = result.get('share_percentage_before')
@@ -126,17 +187,15 @@ def run_parser(downloader_ingestion: list[dict]):
             
             is_share_transfer = 'share-transfer' in tags
 
-            if is_share_transfer: 
-                existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
-                existing_alerts.append({
-                    'date': timestamp or '-', 
+            if is_share_transfer:
+                push_alert({
+                    'date': timestamp or '-',
                     'reasons': ['need to check manually if the document need UID generation'],
                     'tags': tags,
                     'holder_name': result['holder_name'],
                     'source': source,
                     'symbol': symbol
                 })
-                write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
                 continue
 
             result['tags'] = tags
@@ -152,6 +211,11 @@ def run_parser(downloader_ingestion: list[dict]):
 
 
 if __name__ == '__main__': 
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+    
     downloader_path = 'data_v2/downloader/downlod_ingestion.json'
     downloader_ingestion = open_json(downloader_path)
 
@@ -159,5 +223,4 @@ if __name__ == '__main__':
     print(payload)
 
 
-# $env:PYTHONPATH = 'src_v2'
 # uv run -m idx_pipeline.parser.runner

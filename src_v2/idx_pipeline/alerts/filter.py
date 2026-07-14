@@ -1,4 +1,3 @@
-
 import logging
 
 
@@ -74,16 +73,20 @@ def check_missing_fields(payload: dict) -> list[str]:
 def check_classification_shares(payload: dict) -> list[str]:
     price_transactions = payload.get('price_transaction')
 
+    # Nothing to classify check_missing_fields reports the real reason
+    if not price_transactions:
+        return []
+
     unique_classification = set()
 
-    for record in price_transactions: 
-        classification = record.get('classification')
+    for record in price_transactions:
+        classification = (record.get('classification') or '').lower()
         unique_classification.add(classification)
 
     if len(unique_classification) > 1: 
         return [f"Mixed share classifications detected: {", ".join(unique_classification)}, where it should only be 'common shares'"]
     
-    if 'Saham Biasa' not in unique_classification:
+    if 'saham biasa' not in unique_classification:
         return [f"All transactions have classification shares that is not 'common shares':  {", ".join(unique_classification)}"]
 
     return []

@@ -142,10 +142,7 @@ def map_transaction_type(type_raw: str) -> str:
     
     type_lower = type_raw.lower()
     
-    if 'koreksi atas laporan' in type_lower: 
-        return type_lower
-    
-    elif 'penjualan' in type_lower:
+    if 'penjualan' in type_lower:
         return 'sell'
     
     elif 'pembelian' in type_lower: 
@@ -222,6 +219,135 @@ def normalize_holder_name(input_str: str) -> str:
     # Academic and professional titles
     result = re.sub(r'\bDr\.?\s+', '', result, flags=re.IGNORECASE)
     result = re.sub(r'\s+S\.?\s*Kom\.?', '', result, flags=re.IGNORECASE)
-    
+
     result = re.sub(r'[\s,\.]+$', '', result)
     return re.sub(r'\s+', ' ', result).strip()
+
+
+def compute_transactions(
+    price_transactions: list[dict[str, any]],
+    holding_before: int | None = None,
+    holding_after: int | None = None
+) -> dict[str, any]:
+    if not price_transactions:
+        return {}
+
+    total_buy_shares = 0
+    total_buy_value = 0.0
+
+    total_sell_shares = 0
+    total_sell_value = 0.0
+
+    total_others_shares = 0
+    total_others_value = 0.0
+
+    try:
+        has_buy_sell = False
+
+        for price_transaction in price_transactions:
+            amount = int(price_transaction.get('amount_transacted') or 0)
+            price = float(price_transaction.get('price') or 0.0)
+            value = amount * price
+
+            transaction_type = str(price_transaction.get('type')).lower()
+
+            if transaction_type == 'buy':
+                total_buy_shares += amount
+                total_buy_value += value
+                has_buy_sell = True
+
+            elif transaction_type == 'sell':
+                total_sell_shares += amount
+                total_sell_value += value
+                has_buy_sell = True
+
+            else:
+                total_others_shares += amount
+                total_others_value += value
+
+        if has_buy_sell:
+            net_value = total_buy_value - total_sell_value
+            net_shares = total_buy_shares - total_sell_shares
+
+            if net_shares > 0:
+                calculated_type = 'buy'
+
+            elif net_shares < 0:
+                calculated_type = 'sell'
+
+            else:
+                calculated_type = 'others'
+
+            if net_shares != 0:
+                weighted_average_price = abs(net_value / net_shares)
+
+            else:
+                weighted_average_price = 0.0
+
+            return {
+                "price": round(weighted_average_price, 3),
+                "transaction_value": abs(int(net_value)),
+                "transaction_type": calculated_type,
+                "net_shares_transacted": net_shares
+            }
+
+        else:
+            weighted_average_price = (
+                total_others_value / total_others_shares
+                if total_others_shares > 0
+                else 0.0
+            )
+
+            signed_others_shares = total_others_shares
+
+            if (
+                holding_before is not None
+                and holding_after is not None
+            ):
+                if holding_after < holding_before:
+                    signed_others_shares = -total_others_shares
+
+            return {
+                "price": round(weighted_average_price, 3),
+                "transaction_value": abs(int(total_others_value)),
+                "transaction_type": "others",
+                "net_shares_transacted": signed_others_shares
+            }
+
+    except Exception as error:
+        LOGGER.error("Compute transaction error: %s", error, exc_info=True)
+        return {}
+
+
+def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split'):
+    try:
+        holding_before = extracted_data.get('holding_before', 0)
+        holding_after = extracted_data.get('holding_after', 0)
+
+        # Compute top level transaction type, transaction value, price
+        price_transaction = extracted_data.get('price_transaction', [])
+        
+        transaction_computed = compute_transactions(
+            price_transaction,
+            holding_before,
+            holding_after
+        )
+
+        extracted_data['price'] = transaction_computed.get('price')
+        extracted_data['transaction_value'] = transaction_computed.get('transaction_value')
+        extracted_data['transaction_type'] = transaction_computed.get('transaction_type')
+        extracted_data['net_shares_transacted'] = transaction_computed.get('net_shares_transacted')
+
+        # Calculate amount transaction
+        if filing_type == 'split':
+            extracted_data['amount_transaction'] = sum(
+                transaction.get('amount_transacted', 0)
+                for transaction in price_transaction
+            )
+
+        elif filing_type == 'combine':
+            extracted_data['amount_transaction'] = abs(holding_before - holding_after)
+
+    except Exception as error:
+        LOGGER.error(f'Error run_compute_transaction: {error}')
+        return {}

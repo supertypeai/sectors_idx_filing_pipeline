@@ -2,19 +2,24 @@ from collections import defaultdict
 from itertools import permutations
 
 from idx_pipeline.parser.utils.helper import (
-    classify_transaction_type, 
     map_transaction_type,
-    clean_number, 
+    clean_number,
     clean_percentage,
     standardize_date,
     normalize_company_name,
     normalize_holder_name,
-    to_kebab, 
+    to_kebab,
     pop_purpose,
-    pop_classification
+    pop_classification,
+    enrich_transaction
 )
 from idx_pipeline.utils.helper import write_json, open_json
-from idx_pipeline.alerts.filter import filter_idx_filings
+from idx_pipeline.alerts.filter import (
+    check_classification_shares,
+    check_missing_fields,
+    check_transaction_mismatch
+)
+from .amend import run_ammend
 
 import fitz
 import re
@@ -22,7 +27,16 @@ import logging
 
 
 LOGGER = logging.getLogger(__name__)
-    
+
+TRANSACTION_TYPES = (
+    'penjualan', 
+    'pembelian', 
+    'lainnya', 
+    'hibah', 
+    'koreksi', 
+    'pelaksanaan'
+)
+
 
 def extract_holder_name(text: str) -> str:
     try: 
@@ -104,19 +118,42 @@ def extract_shares(text: str) -> dict[str, any]:
         return {} 
 
 
-def extract_price_transaction(text: str) -> list[dict] | None:
+def validate_transaction_type(transaction_type: str) -> str | None:
+    """
+    The type cell holds exactly one value. Two means the parser ran columns
+    together, the purpose text carries these same words, so a purpose like
+    'Investasi Lainnya' sitting above a 'Penjualan' row gets swallowed into it.
+    map_transaction_type would still substring-match its way to an answer, which
+    is worse than failing: the type is right by luck and the purpose is gone.
+    """
+    found = [
+        keyword 
+        for keyword in TRANSACTION_TYPES
+        if keyword in transaction_type.lower()
+    ]
+
+    if len(found) > 1:
+        return (
+            f"ambiguous transaction type '{transaction_type}', the parser ran two "
+            'columns together, the transaction rows cannot be trusted'
+        )
+
+    return None
+
+
+def extract_price_transaction(text: str) -> tuple[list[dict] | None, list[str]]:
     try:
         lines = [line.strip() for line in text.split('\n') if line.strip()]
-      
+
         # Header Detection
         header_start_idx = None
         for index, line in enumerate(lines):
             if line == "Jenis" and index + 1 < len(lines) and lines[index + 1] == "Transaksi":
                 header_start_idx = index
                 break
-        
+
         if header_start_idx is None:
-            return None
+            return None, ['could not find the transaction table header']
         
         # Find Start of Data (After "Tujuan Transaksi")
         data_start_idx = None
@@ -136,7 +173,7 @@ def extract_price_transaction(text: str) -> list[dict] | None:
                      break
 
         if data_start_idx is None:
-            return None
+            return None, ['could not find the start of the transaction rows']
 
         # Parse Transactions
         transactions = []
@@ -201,8 +238,14 @@ def extract_price_transaction(text: str) -> list[dict] | None:
                     index += 1
                 
                 transaction_type = ' '.join(type_parts)
-                
-                if index < len(lines) and lines[index] in ["Tidak", "Ya"]: 
+
+                reason = validate_transaction_type(transaction_type)
+
+                if reason:
+                    LOGGER.error('extract price transaction: %s', reason)
+                    return None, [reason]
+
+                if index < len(lines) and lines[index] in ["Tidak", "Ya"]:
                     index += 1
 
                 if index < len(lines) and lines[index] == "Langsung": 
@@ -378,13 +421,13 @@ def extract_price_transaction(text: str) -> list[dict] | None:
                 index += 1
       
         if not transactions:
-            return None
+            return None, ['no transaction rows found in the table']
 
-        return transactions 
-    
+        return transactions, []
+
     except Exception as error:
         LOGGER.error(f'extract price transaction error: {error}', exc_info=True)
-        return None
+        return None, [f'extract price transaction error: {error}']
     
 
 def build_lookup_price_transaction(transactions: list[dict[str, any]]):
@@ -401,134 +444,6 @@ def build_lookup_price_transaction(transactions: list[dict[str, any]]):
         LOGGER.error(f'Error split_price_transaction: {error}')
         return {}
 
-
-def compute_transactions(
-    price_transactions: list[dict[str, any]],
-    holding_before: int | None = None,
-    holding_after: int | None = None
-) -> dict[str, any]:
-    if not price_transactions:
-        return {}
-    
-    total_buy_shares = 0
-    total_buy_value = 0.0
-    
-    total_sell_shares = 0
-    total_sell_value = 0.0
-
-    total_others_shares = 0
-    total_others_value = 0.0
-
-    try:
-        has_buy_sell = False 
-
-        for price_transaction in price_transactions: 
-            amount = int(price_transaction.get('amount_transacted') or 0)
-            price = float(price_transaction.get('price') or 0.0)
-            value = amount * price
-            
-            transaction_type = str(price_transaction.get('type')).lower()
-
-            if transaction_type == 'buy': 
-                total_buy_shares += amount
-                total_buy_value += value
-                has_buy_sell = True 
-                
-            elif transaction_type == 'sell':
-                total_sell_shares += amount
-                total_sell_value += value
-                has_buy_sell = True 
-
-            else:
-                total_others_shares += amount
-                total_others_value += value
-
-        if has_buy_sell:
-            net_value = total_buy_value - total_sell_value
-            net_shares = total_buy_shares - total_sell_shares
-
-            if net_shares > 0:
-                calculated_type = 'buy'
-
-            elif net_shares < 0:
-                calculated_type = 'sell'
-
-            else:
-                calculated_type = 'others'
-
-            if net_shares != 0:
-                weighted_average_price = abs(net_value / net_shares)
-
-            else:
-                weighted_average_price = 0.0
-
-            return {
-                "price": round(weighted_average_price, 3),
-                "transaction_value": abs(int(net_value)),
-                "transaction_type": calculated_type,
-                "net_shares_transacted": net_shares 
-            }
-        
-        else:
-            weighted_average_price = (
-                total_others_value / total_others_shares
-                if total_others_shares > 0
-                else 0.0
-            )
-
-            signed_others_shares = total_others_shares
-
-            if (
-                holding_before is not None
-                and holding_after is not None
-            ):
-                if holding_after < holding_before:
-                    signed_others_shares = -total_others_shares
-            
-            return {
-                "price": round(weighted_average_price, 3),
-                "transaction_value": abs(int(total_others_value)),
-                "transaction_type": "others",
-                "net_shares_transacted": signed_others_shares
-            }
-
-    except Exception as error:
-        LOGGER.error("Compute transaction error: %s", error, exc_info=True)
-        return {}
-
-
-def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split'):
-    try:
-        holding_before = extracted_data.get('holding_before', 0)
-        holding_after = extracted_data.get('holding_after', 0)
-         
-        # Compute top level transaction type, transaction value, price
-        price_transaction = extracted_data.get('price_transaction', [])
-        transaction_computed = compute_transactions(
-            price_transaction,
-            holding_before,
-            holding_after
-        )
-
-        extracted_data['price'] = transaction_computed.get('price')
-        extracted_data['transaction_value'] = transaction_computed.get('transaction_value')
-        extracted_data['transaction_type'] = transaction_computed.get('transaction_type')
-        extracted_data['net_shares_transacted'] = transaction_computed.get('net_shares_transacted')
-
-        # Calculate amount transaction
-        if filing_type == 'split': 
-            extracted_data['amount_transaction'] = sum(
-                transaction.get('amount_transacted', 0)
-                for transaction in price_transaction
-            ) 
-
-        elif filing_type == 'combine':
-            extracted_data['amount_transaction'] = abs(holding_before - holding_after)
-    
-    except Exception as error:
-        LOGGER.error(f'Error run_compute_transaction: {error}')
-        return {}
-    
 
 def detect_transaction_tables(doc) -> dict:
     keys = ['jenis transaksi', 'klasifikasi saham']
@@ -586,30 +501,27 @@ def enrich_payload(
     extracted_data: dict,
     company_lookup: dict,
     pdf_url: str
-) -> bool:
+) -> list[str]:
+    """
+    Returns the reasons this payload could not be enriched, empty on success.
+    Alerting is the caller's job the LLM parser may still recover the filing.
+    """
     text = doc[0].get_text()
 
     holder_name = extract_holder_name(text)
     symbol, company_name = extract_symbol_and_company_name(text)
 
     if not symbol:
-        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
-        existing_alerts.append({
-            'date': '-',
-            'reasons': ['failed to extract symbol from PDF text'],
-            'source': pdf_url,
-            'symbol': '-'
-        })
-
-        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
-        LOGGER.error(f"failed to extract symbol for PDF: {pdf_url}")
-        return False
+        LOGGER.error('failed to extract symbol for PDF: %s', pdf_url)
+        return ['failed to extract symbol from PDF text']
 
     company_entry = company_lookup.get(symbol)
 
-    if company_entry:
-        company_name = company_entry.get('company_name')
+    if not company_entry:
+        LOGGER.error('symbol %s not found in company_map for PDF: %s', symbol, pdf_url)
+        return [f'{symbol} might not in company_map.json']
 
+    company_name = company_entry.get('company_name')
     sector = company_entry.get('sector')
     sub_sector = company_entry.get('sub_sector')
 
@@ -620,22 +532,23 @@ def enrich_payload(
     extracted_data['sector'] = to_kebab(sector)
     extracted_data['sub_sector'] = to_kebab(sub_sector)
 
-    return True
+    return []
 
 
-def extract_prices(doc: fitz.Document):
+def extract_prices(doc: fitz.Document) -> tuple[list[dict] | None, list[str]]:
     detected_pages = detect_transaction_tables(doc=doc)
     pages_index = detected_pages.get('pages')
+
+    if not pages_index:
+        return None, ['no transaction table found in the document']
 
     full_text_lines = [
         doc[page_index].get_text()
         for page_index in range(pages_index[0], pages_index[-1] + 1)
     ]
     combined_text = "\n".join(full_text_lines)
-   
-    price_transactions =  extract_price_transaction(combined_text)
 
-    return price_transactions
+    return extract_price_transaction(combined_text)
 
 
 def compute_intermediate_share_percentage(
@@ -769,39 +682,96 @@ def build_chained_filings(
     return results
 
 
+def check_filing(filing_record: dict, pdf_url: str) -> list[str]:
+    """
+    The three checks mean different things, so they get different outcomes.
+
+    Classification and missing fields are dead ends for this parser (at the moment): 
+    the filing is about a non-common instrument, or the extraction fell short. 
+    Either way we hand the reasons back and the caller decides whether to retry or alert.
+
+    A mismatch is not a dead end, the data is there, it just does not reconcile.
+    run_ammend repairs it where it can, and where it cannot, the document itself is
+    inconsistent and nobody can fix it, so the filing goes in as filed.
+
+    Returns the reasons the filing cannot be used, empty if it can.
+    """
+    reasons = check_classification_shares(filing_record) + check_missing_fields(filing_record)
+
+    if reasons:
+        return reasons
+
+    mismatch_reasons = check_transaction_mismatch(filing_record)
+
+    if mismatch_reasons and not run_ammend(filing_record):
+        LOGGER.warning(
+            'could not amend, inserting as filed: %s | %s',
+            pdf_url, mismatch_reasons
+        )
+
+    return []
+
+
 def parse_document(
     doc: fitz.Document,
     pdf_url: str,
     company_lookup: dict,
-) -> list[dict]:
+    timestamp: str | None = None,
+) -> tuple[list[dict], list[str]]:
+    """
+    Returns (filings, reasons). Reasons are empty on success. The caller decides
+    what to do with them retry with the LLM parser, or alert.
+    """
     extracted_data = collect_extract_shares(doc, pdf_url)
 
+    # Holdings unchanged - a non-event, not a failure. Nothing to retry or alert.
     if extracted_data is None:
-        return []
+        return [], []
 
-    if not enrich_payload(doc, extracted_data, company_lookup, pdf_url):
-        return []
+    reasons = enrich_payload(
+        doc,
+        extracted_data,
+        company_lookup,
+        pdf_url
+    )
 
-    price_transactions = extract_prices(doc)
-    combined_filing = {**extracted_data, 'price_transaction': price_transactions}
-    enrich_transaction(combined_filing, 'combine')
+    if reasons:
+        return [], reasons
 
-    if filter_idx_filings(combined_filing):
-        existing_alerts = open_json('data_v2/alert/not_inserted.json') or []
-        existing_alerts.append(combined_filing)
+    # run_ammend looks up the holder's previous filing by timestamp
+    extracted_data['timestamp'] = timestamp
 
-        write_json(existing_alerts, 'data_v2/alert/not_inserted.json')
-        return []
+    price_transactions, reasons = extract_prices(doc)
+
+    if reasons:
+        return [], reasons
+
+    # The filter has to see every row at once - holding_before + net(all rows) ==
+    # holding_after only reconciles across the whole document. Each filing below
+    # then overrides price_transaction with its own rows and re-runs
+    # enrich_transaction in 'split' mode, so nothing from 'combine' survives
+    extracted_data['price_transaction'] = price_transactions
+    enrich_transaction(extracted_data, 'combine')
+
+    reasons = check_filing(extracted_data, pdf_url)
+
+    if reasons:
+        return [], reasons
 
     price_data_list = build_lookup_price_transaction(price_transactions)
 
     if len(price_data_list) > 1:
         results = build_chained_filings(price_data_list, extracted_data)
 
+        if not results:
+            return [], ['no valid transaction ordering reconciles the holdings']
+
     else:
         results = []
+
         _, transactions = next(iter(price_data_list.items()))
         purpose = transactions[0].get('purpose') if transactions else None
+
         pop_purpose(transactions)
         pop_classification(transactions)
 
@@ -814,21 +784,23 @@ def parse_document(
         enrich_transaction(filing, 'split')
         results.append(filing)
 
-    return results
+    return results, []
 
 
 def parser_new_document(
     pdf_local_path: str,
     pdf_url: str,
     company_lookup: dict,
-) -> list[dict]:
+    timestamp: str | None = None,
+) -> tuple[list[dict], list[str]]:
     doc = fitz.open(pdf_local_path)
 
     try:
         result = parse_document(
-            doc, 
-            pdf_url, 
-            company_lookup
+            doc,
+            pdf_url,
+            company_lookup,
+            timestamp
         )
 
     finally:
