@@ -18,7 +18,7 @@ def llm_transalator(text: str) -> str:
     generation_parser = JsonOutputParser(pydantic_object=PurposeTranslator)
     format_instructions = generation_parser.get_format_instructions()
 
-    prompt_collections = PomptCollections()
+    prompt_collections = PromptCollections()
     system_prompt = prompt_collections.get_system_purpose_prompt()
     user_prompt = prompt_collections.get_user_purpose_prompt()
 

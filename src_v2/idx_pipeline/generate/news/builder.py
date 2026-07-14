@@ -93,7 +93,7 @@ def generate_news_title_body(record: dict):
     generation_parser = JsonOutputParser(pydantic_object=TitleBodyGeneration)
     format_instructions = generation_parser.get_format_instructions()
 
-    prompt_collections = PomptCollections()
+    prompt_collections = PromptCollections()
     system_prompt = prompt_collections.get_system_title_body_prompt()
     user_prompt = prompt_collections.get_user_title_body_prompt()
 
