@@ -1,84 +1,134 @@
 # Sectors IDX Filing Pipeline
 
-Pipeline for harvesting IDX ownership announcements, downloading source PDFs, parsing filings, enriching/normalizing them, uploading to Supabase, and routing alerts/notifications. Paths are workspace-relative (`downloads/`, `data/`, `alerts/`, `artifacts/`) and all stages can be run independently or chained.
+Harvests IDX insider ownership announcements, parses the filings out of their PDFs, repairs what it can, and writes the result to Supabase as filings and news.
 
-## Architecture
-- **Ingestion (`src/ingestion`)** – fetch IDX “Ownership Report” announcements into normalized JSON.
-- **Downloader (`src/downloader`)** – classify IDX vs Non-IDX, download PDFs, emit download metadata and low-similarity/download-fail alerts.
-- **Parser (`src/parser`)** – extract structured fields and transaction rows from PDFs (IDX + Non-IDX variants) with parser-stage alerts.
-- **Core/Transformer (`src/core`)** – map parsed dicts to canonical `FilingRecord`, enrich sector/sub-sector, translate purposes, tag directionality.
-- **Generation/Upload (`src/generate/filings`)** – consolidate parsed outputs, run price/percent sanity checks, deduplicate, upload to Supabase, produce alert files/artifacts, optionally email.
-- **Workflow (`src/workflow`)** – read workflow defs + MV rows from Supabase, build events, and dispatch to Slack/Email/Sheets/WhatsApp channels.
-- **Orchestrator (`src/pipeline/orchestrator.py`)** – optional glue to chain the above for scheduled runs (clean outputs, ensure company map, generate artifacts/emails).
-- **Services (`src/services`)** – shared alert schema, upload helpers, email/WhatsApp/Sheets senders, artifacts.
+It runs unattended every two hours. The design goal is to minimize manual intervention, requiring it only when genuinely necessary. Anything the pipeline can determine on its own, it handles automatically.
 
-## Quick Start
-Prereqs: Python 3.10+, `pip install -r requirements.txt`. Set `.env` for proxies and Supabase/SES as needed.
+## How a filing moves through it
 
-1. Fetch announcements (WIB-aware):
-   ```bash
-   python -m src.ingestion.cli --date 20250115 --out data/ingestion.json
-   ```
-2. Download PDFs + metadata/alerts:
-   ```bash
-   python -m src.downloader.cli --input data/ingestion.json \
-     --out-idx downloads/idx-format --out-non-idx downloads/non-idx-format \
-     --meta-out data/downloaded_pdfs.json
-   ```
-3. Parse PDFs (both formats):
-   ```bash
-   python -m src.parser.cli --parser both --announcements data/ingestion.json \
-     --idx-folder downloads/idx-format --non-idx-folder downloads/non-idx-format
-   ```
-4. Transform + upload filings (alerts/artifacts/email):
-   ```bash
-   python -m src.generate.filings.cli \
-     --parsed-idx data/parsed_idx_output.json \
-     --parsed-non-idx data/parsed_non_idx_output.json \
-     --ingestion data/ingestion.json
-   ```
-5. Workflow notifications (optional):
-   ```bash
-   python -m src.workflow.runner
-   ```
-The orchestrator (`src/pipeline/orchestrator.py`) can script these into a single run.
+```
+ingestion   →  fetch announcements in a time window from the IDX API
+downloader  →  download each attachment, classify it idx / non_idx
+parser      →  extract the filing, repair it, or hand back a reason
+dedup       →  drop anything already in idx_filings
+generate    →  build title, body, context and highlights from 6 months of history
+insert      →  push to idx_filings + idx_news
+```
 
-## Environment Knobs (common)
-- Networking: `PROXY`, `HTTP_PROXY`, `HTTPS_PROXY`.
-- Supabase: `SUPABASE_URL`, `SUPABASE_KEY`.
-- Email: `AWS_REGION`/`AWS_DEFAULT_REGION`, `SES_FROM_EMAIL`, `ALERT_TO_EMAIL`/`ALERT_CC_EMAIL`/`ALERT_BCC_EMAIL`.
-- Parser/company map: `COMPANY_MAP_FILE` (default `data/company/company_map.json`).
-- Translation (optional): `GEMINI_API_KEY`, `GEMINI_PURPOSE_ENABLED` (0/1), `GOOGLETRANS_ENABLED`.
-- Alert thresholds and price sanity: see `src/config/config.py` (overridable via env).
+```bash
+uv run python -m idx_pipeline.pipeline run
+```
 
-## Outputs (by stage)
-- Ingestion: `data/ingestion.json` (normalized announcements).
-- Downloader: PDFs in `downloads/idx-format` / `downloads/non-idx-format`; `data/downloaded_pdfs.json`; alerts in `alerts/alerts_not_inserted_downloader.json`.
-- Parser: `data/parsed_idx_output.json`, `data/parsed_non_idx_output.json`; parser alerts in `alerts/`.
-- Generation: uploaded filings to Supabase; alert JSON/JSONL in `alerts/`; artifact zips in `artifacts/`; optional alert emails.
-- Workflow: channel messages based on user workflows + MV rows.
+## The two parsers
 
-## Alert Policy
-Full table lives in `docs/ALERT.md`. Core meanings:
-- `category=not_inserted`: download/parse failed → no records.
-- `category=inserted`: records uploaded but flagged for review.
-- `stage`: `downloader` | `parser` | `filings`; severities `fatal/hard/warning/soft`.
+IDX serves its standard ownership form as `LK-DDMMYYYY-NNNN-NN.pdf`. The downloader keys on that filename, not the announcement title — one announcement can carry both a standard form and a differently shaped lampiran, so the title cannot tell them apart.
 
-## Module Map (detail)
-- `src/common`: logging (`log.py`), proxy/env (`env.py`), safe file I/O (`files.py`), WIB time helpers (`datetime.py`), string/number parsers, minimal HTTP (`http.py`), Supabase REST helper (`sb.py`).
-- `src/config/config.py`: thresholds for price sanity, alert gating, default paths/filenames, email defaults.
-- `src/ingestion`: `runner.py` (range/window fetch + dedupe), `client.py` (IDX API with proxies), `utils/filters.py` (WIB windows), `utils/normalizer.py` (announcement schema), `cli.py` (modes: day/range/month/span).
-- `src/downloader`: `runner.py` (classify, download with retries, alerts, metadata), `client.py` (requests UA + referer), `utils/classifier.py` (fuzzy matching), `cli.py`.
-- `src/parser`: `base_parser.py` (pdfminer control, alert helpers, mapping PDFs → announcements); `parser_idx.py` (IDX English form, symbol resolution, transaction rows, tags); `parser_non_idx.py` (tabular attachments); `cli.py`.
-- `src/core`: `types.py` (`FilingRecord`, DB-safe serialization); `transformer.py` (transform parsed dicts to records, enrich sector, translate purpose, infer tx type, build title/body/tags).
-- `src/generate/filings`: `cli.py` (main entry), `utils/pipeline.py` (orchestration), `utils/provider.py` (company info), `utils/processors.py` (price/percent checks), `utils/consolidators.py` (merge IDX + Non-IDX), uploads via `services/upload`.
-- `src/services`: alerts schema/context, upload (Supabase/dedup/artifacts), email (SES/sendgrid), WhatsApp (Twilio), Sheets (gspread).
-- `src/workflow`: `engine.py` (load workflows + MV, build events), `runner.py` (dispatch to channels), `rules.py` (matching), `config.py`/`models.py`.
-- `src/pipeline/orchestrator.py`: helper tasks (clean outputs, compute WIB windows, ensure company map, bucketize alerts, send consolidated emails, zip artifacts).
-- `src/scripts`: ad-hoc helpers (`fetch_filings.py`, `company_report.py`, `company_map_hybrid.py`, etc.).
+| document | parser |
+|---|---|
+| `idx` — the standard layout | `parser/core.py`, regex over PyMuPDF text |
+| `non_idx` — anything else | `parser/llm_parser.py`, structured extraction into `FilingPayload` |
+
+**The regex parser is the default and the LLM is the fallback**, not the other way round. The regex parser is deterministic and free; the LLM is neither, and it will happily produce a plausible wrong number. So when `core` fails, `runner` looks at *why* before spending a call:
+
+- *the data is on the page and we misread it* → retry with the LLM
+- *a stale `company_map`, or a filing about warrants* → no retry, the LLM cannot help either
+
+## Repairing a filing instead of emailing about it
+
+A filing is rejected when `holding_before + net_shares != holding_after`. Often the document itself is inconsistent, and `parser/amend.py` can work out which number is wrong.
+
+It needs two questions answered.
+
+**Is `holding_before` real?** Everything else is computed from it, so it needs backing from outside the document — the holder's previous filing in Supabase, or failing that their position in the monthly securities report (`parser/securities_report.py`, the LBRE that issuers publish around the 10th of each month).
+
+**Is `holding_after` wrong, or did we miss a transaction row?** These call for opposite fixes, and the share percentage is the only thing that can tell them apart — because it is the only number in the filing not derived from the transaction rows:
+
+```
+shares_outstanding = holding_before / (share_percentage_before / 100)
+implied_after      = shares_outstanding * (share_percentage_after / 100)
+expected_after     = holding_before + net_shares
+```
+
+If `expected_after` lands on `implied_after`, the rows are complete and `holding_after` is the liar — rewrite it. If it does not, a row went missing — add it back without a price.
+
+The percentage carries two decimals, so on a company with 55 billion shares outstanding one tick is ~5.5 million shares. A discrepancy smaller than that is invisible to it, and `amend` will not guess: the filing goes in as filed.
+
+## What still reaches email
+
+Everything below genuinely needs manual review. Everything else is repaired, retried, or skipped in silence.
+
+| | |
+|---|---|
+| non-common share classification | the filing is about warrants or preferred shares — not a parse error |
+| share transfer | needs a manual call on UID generation |
+| symbol missing from `company_map` | a new IDX listing — run the refresh workflow |
+| the LLM also failed | last resort exhausted |
+
+Alerts collect in `data_v2/alert/not_inserted.json` and go out by SES.
+
+Parsers never alert on their own. They hand `(filings, reasons)` back and `runner` decides — a filing the LLM later recovers must not have already emailed you about itself.
+
+## Layout
+
+```
+src_v2/idx_pipeline/
+  pipeline.py              typer cli, chains every stage
+  ingestion/               idx announcement api, time windows, run state
+  downloader/              pdf download, idx vs non_idx classification
+  parser/
+    core.py                regex parser for the standard idx layout
+    llm_parser.py          llm fallback for everything else
+    amend.py               repairs holding mismatches
+    securities_report.py   monthly LBRE, the anchor of last resort
+    runner.py              routing, retry, tagging, alerting
+  alerts/                  the three validity checks, email template, SES
+  generate/                title, body, context, highlights, news
+  llm/                     provider client with key rotation, prompts
+  utils/                   dedup, insert, shared helpers
+```
+
+## Running it
+
+Needs Python 3.12 and [uv](https://docs.astral.sh/uv/).
+
+```bash
+uv sync
+```
+
+```bash
+# a window (WIB). omit both dates to resume from the last run
+uv run python -m idx_pipeline.pipeline run \
+  --start-date "2026-07-14 08:50" --end-date "2026-07-14 11:45"
+
+# dry run - parse everything, write nothing
+uv run python -m idx_pipeline.pipeline run --no-is-push-db --no-is-send-alert
+```
+
+Each stage writes its output to `data_v2/` as it goes (`ingestion/result.json`, `downloader/downlod_ingestion.json`, `parser/pdf_parsed.json`), so any stage can be inspected after a run.
+
+## Configuration
+
+`.env`:
+
+```
+PROXY
+SUPABASE_URL / SUPABASE_KEY
+AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_REGION
+SES_FROM_EMAIL / ALERT_TO_EMAIL
+GROQ_API_KEY_DEV
+GEMINI_API_KEY / GEMINI_API_KEY_BACKUP
+```
+
+Models live in `MODEL_CONFIG` (`utils/constant.py`) — Groq and Gemini are wired. `llm/client.py` rotates API keys on rate limits, and gives up on request-level errors instead of burning the rest of the pool.
+
+## Scheduled workflows
+
+| | |
+|---|---|
+| `idx_filings_v2.yaml` | every 2 hours. Commits run state and the securities report cache back to the repo, so a fresh runner does not re-scrape a month of announcements to anchor a single filing. |
+| `refresh_company_map.yaml` | monthly. Pulls the company list from Supabase. Dispatch it by hand when a new listing alerts. |
 
 ## Conventions
-- Timezone: WIB (UTC+7) for ingestion windows/timestamps.
-- Filings schema: see `src/core/types.py` for allowed columns and serialization rules.
-- Atomic writes for alerts/JSON outputs; avoid editing generated alert files by hand.
 
+- Times are WIB (UTC+7) throughout — ingestion windows, filing timestamps, cron.
+- `data_v2/state/last_run.json` carries the watermark between runs; a run with no explicit dates resumes from it.
