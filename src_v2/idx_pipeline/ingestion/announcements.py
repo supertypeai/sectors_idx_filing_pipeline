@@ -108,9 +108,10 @@ def fetch_announcement(
     page: int,
     page_size: int,
     session: requests.Session,
+    keyword: str
 ) -> dict:
     params = {
-        "keywords": "ownership",
+        "keywords": keyword,
         "pageNumber": page,
         "pageSize": page_size,
         "dateFrom": start_date,
@@ -127,6 +128,7 @@ def fetch_all_pages(
     end_date: str,
     page_size: int,
     session: requests.Session,
+    keyword: str
 ) -> list[dict]:
     all_items = []
     page = 1
@@ -135,6 +137,7 @@ def fetch_all_pages(
         payload = fetch_announcement(
             start_date=start_date,
             end_date=end_date,
+            keyword=keyword,
             page=page,
             page_size=page_size,
             session=session,
@@ -160,6 +163,7 @@ def fetch_all_pages(
 def fetch_announcement_window(
     start: str | None = None,
     end: str | None = None,
+    keyword: str = 'ownership',
     overlap_minutes: int = DEFAULT_OVERLAP_MINUTES,
 ) -> list[dict]:
     filename = 'data_v2/ingestion/result.json'
@@ -170,7 +174,7 @@ def fetch_announcement_window(
         end=end,
         overlap_minutes=overlap_minutes,
     )
-
+    
     LOGGER.info(f"start window: {start_dt} end window: {end_dt}")
 
     start_date = start_dt.strftime("%Y%m%d")
@@ -181,6 +185,7 @@ def fetch_announcement_window(
     all_items = fetch_all_pages(
         start_date=start_date,
         end_date=end_date,
+        keyword=keyword,
         page_size=DEFAULT_PAGE_SIZE,
         session=session,
     )
