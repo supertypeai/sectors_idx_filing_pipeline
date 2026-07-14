@@ -25,6 +25,7 @@ def refresh_master_company_data():
     datas = get_idx_companies()
 
     idx_lookup = {}
+    
     for data in datas: 
         symbol = data.get('symbol') 
         idx_lookup[symbol] = data

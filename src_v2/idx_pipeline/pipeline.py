@@ -27,8 +27,8 @@ def setup_logging():
         format='%(asctime)s [%(levelname)s] %(name)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
         handlers=[
-            logging.StreamHandler(sys.stdout)
-            # logging.FileHandler("scraper.log") 
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler("pipeline.log") 
         ]
     )
 
@@ -73,10 +73,14 @@ def run_pipeline(
     
     ingestion_result_path = 'data_v2/ingestion/result.json'
     downloader_ingestion = pdf_downloader(ingestion_result_path=ingestion_result_path)
-
+    
     pdf_parsed_payload = run_parser(downloader_ingestion=downloader_ingestion)
     
+    logger.info('length before dedup %d', len(pdf_parsed_payload))
+
     payload = dedup_with_existing_db(payload=pdf_parsed_payload)
+    
+    logger.info('length after dedup %d', len(payload))
 
     payload_enriched = enrich(payload=payload)
 
@@ -92,8 +96,17 @@ def run_pipeline(
     # filing
     filing = clean_payload(payload=payload_enriched)
 
-    logger.info(f'cleaned payload filing: {json.dumps(filing, indent=2)}')
-    logger.info(f'cleaned payload news: {json.dumps(news, indent=2)}')
+    logger.info(
+        'total: %s | cleaned payload filing: %s', 
+        len(filing), 
+        json.dumps(filing, indent=2)
+    )
+
+    logger.info(
+        'total: %s | cleaned payload news: %s', 
+        len(news), 
+        json.dumps(news, indent=2)
+    )
     
     if is_push_db:
         push_db(filing, 'idx_filings')
@@ -104,4 +117,4 @@ if __name__ == "__main__":
     app()
 
 
-# uv run python -m idx_pipeline.pipeline run --is-send-alert, --no-is-push-db, --no-is-send-alert
+# uv run python -m idx_pipeline.pipeline run --no-is-send-alert --no-is-push-db --start-date 20260713 --end-date 20260713 
