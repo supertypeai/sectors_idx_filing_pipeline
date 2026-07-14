@@ -10,9 +10,33 @@ from idx_pipeline.utils.helper import (
 from idx_pipeline.utils.constant import IDX_FORMAT_TITLE
 
 import logging 
+import re 
+import requests 
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def is_idx_standard_layout(original_filename: str) -> bool:
+    return bool(re.match(r'^lk-\d{8}-\d+-\d+', original_filename.strip().lower()))
+
+
+def download_doc(
+    session: requests.Session,        
+    pdf_url: str, 
+    output_dir: str, 
+    original_filename: str, 
+): 
+    response = session.get(pdf_url, stream=True)
+    response.raise_for_status()
+
+    output_path = output_dir / f'{original_filename}.pdf'
+
+    with open(output_path, 'wb') as pdf_file:
+        for chunk in response.iter_content(chunk_size=8192):
+            pdf_file.write(chunk)
+
+    return output_path 
 
 
 def pdf_downloader(ingestion_result_path: str) -> list[dict]:
@@ -30,33 +54,10 @@ def pdf_downloader(ingestion_result_path: str) -> list[dict]:
 
     try:
         for record in raw_api_result: 
-            title = record.get('Title') or ''
             attachments = record.get('Attachments') or []
             publish_date = record.get('PublishDate')
             clean_publish_date = parse_wib_datetime(publish_date)
             clean_publish_date = clean_publish_date.strftime('%Y-%m-%d %H:%M:%S')
-            
-            # later push this into alert/
-            if title.strip() != IDX_FORMAT_TITLE:
-                LOGGER.info('Non idx found, pushed it to alert/not_inserted.json')
-                
-                if len(attachments) == 0:
-                    source = '-'
-
-                elif len(attachments) == 1:
-                    source = attachments[0].get('FullSavePath')
-
-                else:
-                    source = ', '.join(attachment.get('FullSavePath', '') for attachment in attachments)
-                                
-                not_inserted_payload = {
-                    'date': clean_publish_date, 
-                    'reasons': ['need to process manually, because pipeline do not process non-idx format document'],
-                    'source': source,
-                    'symbol': '-'
-                }
-                write_json([not_inserted_payload], 'data_v2/alert/not_inserted.json')
-                continue 
 
             if not attachments:
                 continue 
@@ -68,24 +69,23 @@ def pdf_downloader(ingestion_result_path: str) -> list[dict]:
                 if not pdf_url: 
                     continue 
 
-                response = session.get(pdf_url, stream=True)
-                response.raise_for_status()
-
-                output_path = output_dir / f'{original_filename}.pdf'
-
-                with open(output_path, 'wb') as pdf_file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        pdf_file.write(chunk)
+                output_path = download_doc(
+                    session=session, 
+                    pdf_url=pdf_url, 
+                    output_dir=output_dir, 
+                    original_filename=original_filename
+                )
 
                 random_sleep(1, 3)
 
-            ingestion_record = {
-                'timestamp': clean_publish_date,
-                'pdf_local': str(output_path),
-                'pdf_url': pdf_url
-            }
+                ingestion_record = {
+                    'timestamp': clean_publish_date,
+                    'pdf_local': str(output_path),
+                    'pdf_url': pdf_url,
+                    'type': 'idx' if is_idx_standard_layout(original_filename) else 'non_idx'
+                }
 
-            downloader_ingestion.append(ingestion_record)
+                downloader_ingestion.append(ingestion_record)
     
     except Exception as error: 
         LOGGER.error('pdf downlaoder error %s', error, exc_info=True)
