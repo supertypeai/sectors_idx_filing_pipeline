@@ -9,28 +9,23 @@ dependencies = [
   "typer>=0.12.3",
   "python-dotenv>=1.0.1",
   "pydantic>=2.7",
-
   # pdf parsing - fitz for the idx layout, pdfplumber for the securities report tables
   "PyMuPDF>=1.24.0",
   "pdfplumber>=0.11.0",
-
   # http
   "requests>=2.32.3",
   "urllib3>=2.5.0",
-
   # matching holder names against the securities report
   "rapidfuzz>=3.9.6",
-
   # storage and alerting
   "supabase>=2.4.0",
   "boto3>=1.28.0",
-
-  # llm - groq and gemini 
+  # llm - groq and gemini
   "langchain>=0.2",
   "langchain-groq>=0.1.10",
   "langchain-google-genai>=1.0.10",
-
   "deep-translator>=1.11.4",
+  "tavily>=1.1.0",
 ]
 
 [build-system]
