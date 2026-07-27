@@ -1,3 +1,5 @@
+from src_v2.idx_pipeline.config.settings import SUPABASE_CLIENT 
+
 import logging 
 import re
 
@@ -26,12 +28,29 @@ KEYWORD_REPURCHASE = ['repo', 'transaksi repurchase', 'transaksi repo', 'repurch
 KEYWORD_PLACEMENT = ['penempatan saham revo', 'penempatan']
 
 ORG_TOKENS = {
-    "PT", "TBK", "PTE", "LTD", "LIMITED", "INC", "CORP", "CORPORATION",
-    "NV", "BV", "B.V.", "GMBH", "LLC", "LP", "LLP", "PLC",
-    "SDN BHD", "BHD", "BERHAD",
-    "BANK", "SECURITIES", "SEKURITAS",
-    "ASSET MANAGEMENT", "MANAJER INVESTASI", "INVESTMENT", "FUND",
-    "YAYASAN", "FOUNDATION", "KOPERASI", "UNIVERSITAS", "PERSERO"
+    # Indonesia
+    "PT", "TBK", "CV", "UD", "PERSERO",
+
+    # English
+    "INC", "INCORPORATED", "CORP", "CORPORATION",
+    "COMPANY", "CO", "HOLDING", "HOLDINGS",
+    "GROUP",
+
+    # UK
+    "LTD", "LIMITED", "PLC",
+
+    # Singapore / Malaysia
+    "PTE", "PTE.", "SDN", "BHD", "BERHAD",
+
+    # Europe
+    "AG", "GMBH", "BV", "NV", "SA", "S.A.",
+    "SPA", "S.P.A.", "AB", "OY",
+
+    # Finance
+    "BANK", "SEKURITAS", "SECURITIES",
+    "CAPITAL", "INVESTMENT", "INVESTMENTS",
+    "ASSET", "MANAGEMENT",
+    "FUND", "TRUST"
 }
 
 SLUG_PATTERN = re.compile(r"[^A-Za-z0-9]+")
@@ -351,3 +370,21 @@ def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split
     except Exception as error:
         LOGGER.error(f'Error run_compute_transaction: {error}')
         return {}
+
+
+def get_db(
+    table: str, 
+    query_modifier,
+    columns ="*",
+) -> list[dict]:
+    query = (
+        SUPABASE_CLIENT
+        .table(table)
+        .select(columns)
+    )
+
+    if query_modifier is not None: 
+        query = query_modifier(query)
+
+    response = query.execute()
+    return response.data 

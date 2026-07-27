@@ -1,12 +1,14 @@
 from typing import Optional 
+from tavily import TavilyClient
 
 from .core import parser_new_document 
 from .llm_parser import parser_with_llm
 from idx_pipeline.utils.helper import open_json, write_json
 from .utils.helper import *
+from .utils.controller_parser import parse_controller
+from src_v2.idx_pipeline.config.settings import TAVILY_API_KEY
 
-import logging 
-import re 
+import logging
 
 
 LOGGER = logging.getLogger(__name__)
@@ -89,27 +91,146 @@ def detect_tags(
     return sorted(tags)
 
 
-def detect_holder_type(holder_name: str) -> str:
-    if not holder_name:
-        return "insider"
-    
-    name_upper = re.sub(r"\s+", " ", holder_name).strip().upper()
-    
-    # Check for organization tokens
-    for token in ORG_TOKENS:
-        if token in name_upper:
-            return "institution"
-    
-    # Check for common prefixes
-    if re.search(r"\b(PT|CV|UD|YAYASAN|KOPERASI|BANK|SEKURITAS)\b", name_upper):
-        return "institution"
-    
-    name_lower = holder_name.lower()
+def search_tavily(
+    holder_name: str,
+    symbol: str,
+    type_question: str = "individual"
+) -> str:
+    companies = open_json("data_v2/idx_companies/company_map.json")
 
-    if "pt" in name_lower or "tbk" in name_lower:
-        return "institution"
-    
-    return "insider" 
+    api_keys = [
+        TAVILY_API_KEY
+    ]
+
+    company = companies.get(symbol)
+    if company is None and symbol and not symbol.upper().endswith(".JK"):
+        company = companies.get(f"{symbol.upper()}.JK")
+
+    company_name = (company or {}).get("company_name") or symbol or "the issuer"
+
+    if type_question == "individual":
+        query = (
+            f"Is '{holder_name}', a shareholder in {company_name}, a person or a company? "
+            "Answer with this format: {company or person}, explanation"
+        )
+
+    elif type_question == "relation":
+        query = (
+            f"Is '{holder_name}' a parent company, subsidiary, or affiliate of {company_name}? "
+            "Answer with this format: {yes or no}, explanation"
+        )
+
+    last_error = None
+
+    for key_number, api_key in enumerate(api_keys, start=1):
+        if not api_key:
+            LOGGER.warning("Tavily API key %d is not configured; skipping it", key_number)
+            continue
+
+        try:
+            client = TavilyClient(api_key)
+            response = client.search(
+                query=query,
+                include_answer="advanced",
+                topic="finance",
+                search_depth="advanced",
+                max_results=7,
+                chunks_per_source=5,
+                include_domains=[
+                    "https://www.idx.co.id/",
+                    "https://id.wikipedia.org/",
+                    "https://id.investing.com/",
+                    "https://ranking.fortuneidn.com/",
+                    "https://finance.yahoo.com/"
+                ]
+            )
+
+            answer = response.get("answer")
+
+            if answer:
+                return answer
+
+            raise RuntimeError("Tavily returned no answer")
+
+        except Exception as error:
+            last_error = error
+            LOGGER.warning(
+                "Tavily request with API key %d failed: %s. Trying the next key.",
+                key_number,
+                error,
+            )
+
+    raise RuntimeError("All configured Tavily API keys failed") from last_error
+
+
+def match_historical_holder_type(holder_name: str) -> str | None:
+    if not holder_name:
+        return None
+
+    records = get_db(
+        table="idx_filings",
+        query_modifier=lambda query: (
+            query
+            .eq("holder_name", holder_name)
+            .not_.is_("holder_type", "null")
+            .limit(1)
+        ),
+        columns="holder_type"
+    )
+
+    return next(
+        (record.get("holder_type") for record in records if record.get("holder_type")),
+        None,
+    )
+
+
+def detect_holder_type(
+    symbol: str,
+    holder_name: str,
+    pdf_local_path: str,
+    share_pct_before: float,
+    share_pct_after: float
+) -> str:
+    holder_type = match_historical_holder_type(holder_name)
+
+    if holder_type:
+        return holder_type
+
+    share_pct = max(
+        share_pct_before or 0,
+        share_pct_after or 0,
+    )
+
+    if share_pct > 5:
+        return "insider"
+
+    try:
+        is_controller = parse_controller(pdf_local_path)
+
+    except Exception as error:
+        LOGGER.warning(
+            "could not parse controller status for %s: %s",
+            pdf_local_path,
+            error
+        )
+        is_controller = None
+
+    if is_controller:
+        return "insider"
+
+    tavily_raw_output_individual = search_tavily(holder_name, symbol)
+    is_individual = tavily_raw_output_individual.split(",", 1)[0].strip().lower()
+
+    if is_individual == "person":
+        return "insider"
+
+    tavily_raw_output_relation = search_tavily(holder_name, symbol, "relation")
+    is_relation = tavily_raw_output_relation.split(",", 1)[0].strip().lower()
+
+    if is_relation == "yes":
+        return "insider"
+
+    return "institution"
 
 
 def run_parser(downloader_ingestion: list[dict]):
@@ -187,7 +308,13 @@ def run_parser(downloader_ingestion: list[dict]):
                 transaction_type=transaction_type
             )
 
-            holder_type = detect_holder_type(holder_name=holder_name)
+            holder_type = detect_holder_type(
+                symbol=symbol,
+                holder_name=holder_name,
+                share_pct_before=share_percentage_before,
+                share_pct_after=share_percentage_after,
+                pdf_local_path=pdf_local_path
+            )
             
             is_share_transfer = 'share-transfer' in tags
 

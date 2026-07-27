@@ -7,7 +7,6 @@ from idx_pipeline.utils.helper import (
     random_sleep,
     parse_wib_datetime
 )
-from idx_pipeline.utils.constant import IDX_FORMAT_TITLE
 
 import logging 
 import re 
@@ -27,7 +26,7 @@ def download_doc(
     output_dir: str, 
     original_filename: str, 
 ): 
-    response = session.get(pdf_url, stream=True)
+    response = session.get(pdf_url, stream=True, timeout=(15, 45))
     response.raise_for_status()
 
     output_path = output_dir / f'{original_filename}.pdf'

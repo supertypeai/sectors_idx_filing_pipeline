@@ -67,6 +67,8 @@ jobs:
           GROQ_API_KEY_DEV:      ${{ secrets.GROQ_API_KEY_DEV }}
           GEMINI_API_KEY:        ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_BACKUP: ${{ secrets.GEMINI_API_KEY_BACKUP }}
+          TAVILY_API_KEY:        ${{ secrets.TAVILY_API_KEY }}
+
         run: |
           set -euo pipefail
           mkdir -p data_v2/ingestion data_v2/alert data_v2/state data_v2/parser
