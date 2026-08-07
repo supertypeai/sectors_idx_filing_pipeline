@@ -8,7 +8,7 @@ from idx_pipeline.generate.news.builder import generate_news
 from idx_pipeline.utils.helper import open_json
 from idx_pipeline.alerts.mailer import send_alert
 
-from .utils.dedup import dedup_with_existing_db
+from .utils.dedup import dedup_with_existing_db, dedup_within_payload
 from .utils.insert import push_db
 from .utils.helper import clean_payload
 
@@ -76,11 +76,15 @@ def run_pipeline(
     
     pdf_parsed_payload = run_parser(downloader_ingestion=downloader_ingestion)
     
-    logger.info('length before dedup %d', len(pdf_parsed_payload))
+    logger.info('length before dedup: %d', len(pdf_parsed_payload))
 
-    payload = dedup_with_existing_db(payload=pdf_parsed_payload)
+    payload = dedup_within_payload(payload=pdf_parsed_payload)
+
+    logger.info('length after incoming dedup: %d', len(payload))
+
+    payload = dedup_with_existing_db(payload=payload)
     
-    logger.info('length after dedup %d', len(payload))
+    logger.info('length after dedup with db: %d', len(payload))
 
     payload_enriched = enrich(payload=payload)
 

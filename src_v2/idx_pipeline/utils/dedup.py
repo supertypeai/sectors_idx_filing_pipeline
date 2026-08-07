@@ -35,6 +35,22 @@ def row_key(row: dict) -> tuple:
     )
 
 
+def dedup_within_payload(payload: list[dict]) -> list[dict]:
+    seen_keys = set()
+    clean_payload = []
+
+    for row in payload:
+        key = row_key(row)
+
+        if key in seen_keys:
+            continue
+
+        seen_keys.add(key)
+        clean_payload.append(row)
+
+    return clean_payload
+
+
 def get_payload_date_bounds(payload: list[dict]) -> tuple[str, str] | tuple[None, None]: 
     dates = sorted(
         {
