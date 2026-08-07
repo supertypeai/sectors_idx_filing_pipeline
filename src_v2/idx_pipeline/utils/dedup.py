@@ -36,19 +36,20 @@ def row_key(row: dict) -> tuple:
 
 
 def dedup_within_payload(payload: list[dict]) -> list[dict]:
-    seen_keys = set()
-    clean_payload = []
+    latest_rows_by_key = {}
 
     for row in payload:
         key = row_key(row)
+        existing_row = latest_rows_by_key.get(key)
 
-        if key in seen_keys:
+        if existing_row is None:
+            latest_rows_by_key[key] = row
             continue
 
-        seen_keys.add(key)
-        clean_payload.append(row)
+        if (row.get("timestamp") or "") > (existing_row.get("timestamp") or ""):
+            latest_rows_by_key[key] = row
 
-    return clean_payload
+    return list(latest_rows_by_key.values())
 
 
 def get_payload_date_bounds(payload: list[dict]) -> tuple[str, str] | tuple[None, None]: 
