@@ -29,7 +29,12 @@ def download_doc(
     response = session.get(pdf_url, stream=True, timeout=(15, 45))
     response.raise_for_status()
 
-    output_path = output_dir / f'{original_filename}.pdf'
+    safe_filename = original_filename.replace('/', '-').replace('\\', '-')
+
+    if not safe_filename.lower().endswith('.pdf'):
+        safe_filename = f'{safe_filename}.pdf'
+
+    output_path = output_dir / safe_filename
 
     with open(output_path, 'wb') as pdf_file:
         for chunk in response.iter_content(chunk_size=8192):
@@ -102,4 +107,4 @@ if __name__ == '__main__':
     downloader_ingestion = pdf_downloader('data_v2/ingestion/result.json')
     print(downloader_ingestion)
 
-# uv run -m idx_pipeline.downloader.pdf  
+# uv run -m idx_pipeline.downloader.pdf

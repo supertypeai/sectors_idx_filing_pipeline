@@ -1,6 +1,6 @@
-from idx_pipeline.config.settings import SUPABASE_CLIENT
+from idx_pipeline.utils.helper import get_db
 from .securities_report import get_securities_data
-from .utils.helper import enrich_transaction
+from .utils.helper import enrich_transaction 
 
 import logging
 
@@ -13,31 +13,13 @@ LOGGER = logging.getLogger(__name__)
 PERCENTAGE_TICK = 0.0001
 
 
-def get_db_records(
-    query_modifier = None,
-    table_name: str = 'idx_filings',
-    columns: str = '*',
-) -> list[dict]:
-    query = (
-        SUPABASE_CLIENT
-        .table(table_name)
-        .select(columns)
-    )
-
-    if query_modifier is not None:
-        query = query_modifier(query)
-
-    response = query.execute()
-
-    return response.data
-
-
 def get_previous_filing(
     holder_name: str,
     symbol: str,
     timestamp: str,
 ) -> dict | None:
-    records = get_db_records(
+    records = get_db(
+        table="idx_filings",
         query_modifier=lambda query: (
             query
             .eq("holder_name", holder_name)

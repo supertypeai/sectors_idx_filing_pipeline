@@ -1,11 +1,9 @@
 from datetime import datetime, timedelta
 from collections import defaultdict 
-from typing import Optional
-from pathlib import Path
 
-from idx_pipeline.config.settings import SUPABASE_CLIENT
+from idx_pipeline.utils.helper import get_db
 from .utils.translator import translator
-from .utils.matching import matching_investor_and_conglomerates, get_db
+from .utils.matching import matching_investor_and_conglomerates
 from .highlight import build_highlights
 
 import logging 
@@ -15,31 +13,33 @@ LOGGER = logging.getLogger(__name__)
 
 
 def fetch_six_month_history_map(
-    supabase_client,
     key_lookup: str,
-    reference_date: Optional[datetime] = None,
+    excluded_filing_ids: list[int],
+    reference_date: datetime | None = None,
 ) -> dict:
     reference_date = reference_date or datetime.now()
     six_months_ago = reference_date - timedelta(days=180)
     six_months_ago_str = six_months_ago.isoformat()
 
     columns_to_fetch = (
-        "symbol, holder_name, transaction_type, amount_transaction, price, "
+        "id, symbol, holder_name, transaction_type, amount_transaction, price, "
         "transaction_value, share_percentage_before, share_percentage_after, timestamp"
     )
 
-    response = (
-        supabase_client.table("idx_filings")
-        .select(columns_to_fetch)
-        .gte("timestamp", six_months_ago_str)
-        .execute()
+    historical_records = get_db(
+        table="idx_filings",
+        columns=columns_to_fetch,
+        query_modifier=lambda query: query.gte(
+            "timestamp", six_months_ago_str
+        ),
     )
     
-    historical_records = response.data
-    
     history_map = defaultdict(list)
-    
+
     for record in historical_records:
+        if record.get("id") in excluded_filing_ids:
+            continue
+
         symbol = record.get(key_lookup)
 
         if not symbol:
@@ -128,9 +128,9 @@ def generate_base_template(
     holder_name: str,
     company_name: str,
     tx_type: str,
-    amount: Optional[int],
-    holding_before: Optional[int],
-    holding_after: Optional[int],
+    amount: int | None,
+    holding_before: int | None,
+    holding_after: int | None,
     purpose_en: str,
 ) -> tuple[str, str]:
     title = generate_title(
@@ -627,9 +627,10 @@ def build_title_and_body(
     return raw_payload
 
 
-def enrich(payload: list[dict]) -> list[dict]:
-    payload_results = []
-
+def enrich(
+    payload: list[dict],
+    excluded_filing_ids: list[int]
+):
     payload_sorted = sorted(
         payload,
         key=lambda record: record.get('timestamp', '')
@@ -641,20 +642,25 @@ def enrich(payload: list[dict]) -> list[dict]:
     )
 
     filing_symbol_lookup = fetch_six_month_history_map(
-        SUPABASE_CLIENT, 
-        'symbol', 
+        'symbol',
+        excluded_filing_ids=excluded_filing_ids,
         reference_date=earliest_timestamp
     )
 
     filing_holder_name_lookup = fetch_six_month_history_map(
-        SUPABASE_CLIENT, 
-        'holder_name', 
+        'holder_name',
+        excluded_filing_ids=excluded_filing_ids,
         reference_date=earliest_timestamp
     )
 
-    idx_investor = get_db(SUPABASE_CLIENT, 'people')
-    idx_conglomerates = get_db(SUPABASE_CLIENT, 'conglomerates')
-    idx_filings = get_db(SUPABASE_CLIENT, 'idx_filings')
+    idx_investor = get_db(table="people", query_modifier=None)
+    idx_conglomerates = get_db(table="conglomerates", query_modifier=None)
+    
+    idx_filings = [
+        record
+        for record in get_db(table="idx_filings", query_modifier=None)
+        if record.get("id") not in excluded_filing_ids
+    ]
 
     for record in payload_sorted: 
         if not isinstance(record, dict):
@@ -687,17 +693,12 @@ def enrich(payload: list[dict]) -> list[dict]:
             idx_filings.append(record)
 
             highlights = build_highlights(
-                client=SUPABASE_CLIENT, 
                 db_filings=idx_filings, 
                 current_filing=record
             )
 
             record['highlights'] = highlights if highlights else None 
 
-            payload_results.append(result)
-
         except Exception as error:
             LOGGER.error(f"Failed generate filings: {error}. Row: {record}", exc_info=True)
-            return []
-        
-    return payload_results 
+            raise

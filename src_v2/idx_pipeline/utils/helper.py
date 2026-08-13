@@ -4,7 +4,7 @@ from urllib3.util.retry import Retry
 from datetime import datetime
 from zoneinfo import ZoneInfo 
 
-from idx_pipeline.config.settings import PROXY
+from idx_pipeline.config.settings import PROXY, SUPABASE_CLIENT
 from .constant import HEADERS
 
 import json 
@@ -98,3 +98,21 @@ def make_session() -> requests.Session:
     session.mount("https://", adapter)
 
     return session
+
+
+def get_db(
+    table: str, 
+    query_modifier,
+    columns ="*",
+) -> list[dict]:
+    query = (
+        SUPABASE_CLIENT
+        .table(table)
+        .select(columns)
+    )
+
+    if query_modifier is not None: 
+        query = query_modifier(query)
+
+    response = query.execute()
+    return response.data 

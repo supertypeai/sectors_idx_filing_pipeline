@@ -1,5 +1,3 @@
-from src_v2.idx_pipeline.config.settings import SUPABASE_CLIENT 
-
 import logging 
 import re
 
@@ -370,21 +368,3 @@ def enrich_transaction(extracted_data: dict[str, any], filing_type: str = 'split
     except Exception as error:
         LOGGER.error(f'Error run_compute_transaction: {error}')
         return {}
-
-
-def get_db(
-    table: str, 
-    query_modifier,
-    columns ="*",
-) -> list[dict]:
-    query = (
-        SUPABASE_CLIENT
-        .table(table)
-        .select(columns)
-    )
-
-    if query_modifier is not None: 
-        query = query_modifier(query)
-
-    response = query.execute()
-    return response.data 

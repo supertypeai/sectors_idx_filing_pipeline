@@ -1,7 +1,7 @@
 from statistics import median 
 from datetime import datetime, timedelta
 
-from .utils.matching import get_db 
+from idx_pipeline.utils.helper import get_db
 
 import logging 
 import bisect 
@@ -65,7 +65,6 @@ def get_nearest_price(
 
 
 def compute_historical_price_movement(
-    client,
     current_symbol: str, 
     current_transaction_type: str,
     current_timestamp: str, 
@@ -96,7 +95,6 @@ def compute_historical_price_movement(
     max_date = max(filing_dates) + timedelta(days=90)
 
     daily_data = get_db(
-        client=client,
         table='idx_daily_data',
         query_modifier=lambda query: query
             .eq('symbol', current_symbol)
@@ -227,7 +225,6 @@ def compute_size_trades(
 
 
 def build_highlights(
-    client,
     db_filings: list[dict], 
     current_filing: dict[str, any]
 ) -> list[dict]:
@@ -251,7 +248,6 @@ def build_highlights(
         higlights.append(signal_size_trade)
 
     signal_price_movement = compute_historical_price_movement(
-        client,
         current_symbol,
         current_transaction_type,
         current_timestamp,
@@ -271,4 +267,3 @@ def build_highlights(
         higlights.append(signal_filing_density)
 
     return higlights
-
