@@ -162,9 +162,9 @@ def run_pipeline(
             )
 
     if is_push_db:
-        push_db(filing_records_to_insert, "idx_filings_")
-        update_db(database_records_to_update, "idx_filings_")
-        push_db(news, "idx_news_")
+        push_db(filing_records_to_insert, "idx_filings")
+        update_db(database_records_to_update, "idx_filings")
+        push_db(news, "idx_news")
 
 
 if __name__ == "__main__":
