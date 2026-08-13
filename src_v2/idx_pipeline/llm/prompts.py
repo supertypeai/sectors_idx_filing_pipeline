@@ -45,6 +45,12 @@ class PriceTransactionItem(BaseModel):
             "(e.g. 'Saham Biasa'). Do not translate or normalize this value."
         )
     )
+    repurchase_agreement: bool | None = Field(
+        description=(
+            "Whether the row's purchase or sale is marked as a repurchase agreement: "
+            "true for 'Ya', false for 'Tidak', and null if not stated."
+        )
+    )
 
 
 class FilingPayload(BaseModel):
@@ -211,7 +217,9 @@ class PromptCollections:
                 - date: the row's transaction date, normalized to YYYY-MM-DD.
                 - purpose: the stated purpose/reason for that row.
                 - classification: the share classification exactly as written in the document
-                    (e.g. 'Saham Biasa'). Do not translate or normalize this value.
+                  (e.g. 'Saham Biasa'). Do not translate or normalize this value.
+                - repurchase_agreement: true when the row says 'Ya', false when it says
+                  'Tidak', and null when the status is not stated.
 
             Ensure return in the following JSON format.
             {format_instructions}

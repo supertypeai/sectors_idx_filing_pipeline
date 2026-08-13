@@ -16,6 +16,7 @@ from idx_pipeline.parser.core import (
     build_lookup_price_transaction,
     check_filing
 )
+from idx_pipeline.parser.price_validation import validate_and_correct_transaction_prices
 from idx_pipeline.parser.utils.helper import compute_transactions
 
 import time 
@@ -108,6 +109,28 @@ def enrich(
     return result
 
 
+def resolve_symbol(
+    company_name: str | None,
+    company_lookup: dict,
+) -> str | None:
+    if not company_name:
+        return None
+
+    normalized_company_name = normalize_company_name(
+        company_name.split(' - ')[-1]
+    ).lower()
+
+    for company_entry in company_lookup.values():
+        lookup_company_name = normalize_company_name(
+            company_entry['company_name']
+        ).lower()
+
+        if lookup_company_name == normalized_company_name:
+            return company_entry.get('symbol')
+
+    return None
+
+
 def extract_with_llm(
     document_text: str,
     pdf_url: str,
@@ -191,21 +214,34 @@ def parser_with_llm(
         LOGGER.info('llm parser found no ownership data for %s', pdf_url)
         return [], [f"llm parser could not extract: {', '.join(missing_fields)}"]
 
-    extracted_data = enrich(
-        result=response,
+    symbol = resolve_symbol(
+        company_name=response.get('company_name'),
         company_lookup=company_lookup,
-        pdf_url=pdf_url
     )
 
-    if not extracted_data.get('symbol'):
+    if not symbol:
         LOGGER.error(
             'company %s not found in company_map for PDF: %s',
-            extracted_data.get('company_name'), pdf_url
+            response.get('company_name'), pdf_url
         )
 
         return [], [
-            f"company '{extracted_data.get('company_name')}' might not in company_map.json"
+            f"company '{response.get('company_name')}' might not in company_map.json"
         ]
+
+    reasons = validate_and_correct_transaction_prices(
+        transactions=response.get('price_transaction') or [],
+        symbol=symbol,
+    )
+
+    if reasons:
+        return [], reasons
+
+    extracted_data = enrich(
+        result=response,
+        company_lookup=company_lookup,
+        pdf_url=pdf_url,
+    )
 
     # run_ammend looks up the holder's previous filing by timestamp
     extracted_data['timestamp'] = timestamp
