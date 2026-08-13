@@ -125,6 +125,9 @@ jobs:
           name: filings-v2-${{ steps.ts.outputs.stamp }}-run${{ github.run_number }}
           path: |
             data_v2/**/*.json
+            filing_records_to_insert.json
+            database_records_to_update.json
+            news_records.json
             pipeline.log
           if-no-files-found: warn
           retention-days: 90
