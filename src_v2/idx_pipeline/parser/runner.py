@@ -7,6 +7,7 @@ from idx_pipeline.utils.helper import open_json, write_json
 from .utils.helper import *
 from .utils.controller_parser import parse_controller
 from src_v2.idx_pipeline.config.settings import TAVILY_API_KEY
+from src_v2.idx_pipeline.utils.helper import get_db
 
 import logging
 
@@ -257,7 +258,10 @@ def run_parser(downloader_ingestion: list[dict]):
             # The regex parser reads a fixed layout. When it comes up short the data
             # is still on the page, so hand the same PDF to the LLM before giving up
             if not results and is_retryable(reasons):
-                LOGGER.info('regex parser failed, retrying with the llm: %s', pdf_url)
+                LOGGER.info(
+                    "regex parser failed, retrying with the llm: %s", 
+                    pdf_url
+                )
 
                 results, reasons = parser_with_llm(
                     pdf_local_path=pdf_local_path,

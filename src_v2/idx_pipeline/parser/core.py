@@ -13,7 +13,7 @@ from idx_pipeline.parser.utils.helper import (
     pop_classification,
     enrich_transaction
 )
-from idx_pipeline.utils.helper import write_json, open_json
+from idx_pipeline.parser.price_validation import validate_and_correct_transaction_prices
 from idx_pipeline.alerts.filter import (
     check_classification_shares,
     check_missing_fields,
@@ -245,7 +245,10 @@ def extract_price_transaction(text: str) -> tuple[list[dict] | None, list[str]]:
                     LOGGER.error('extract price transaction: %s', reason)
                     return None, [reason]
 
+                repurchase_agreement = None
+
                 if index < len(lines) and lines[index] in ["Tidak", "Ya"]:
+                    repurchase_agreement = lines[index] == "Ya"
                     index += 1
 
                 if index < len(lines) and lines[index] == "Langsung": 
@@ -394,13 +397,7 @@ def extract_price_transaction(text: str) -> tuple[list[dict] | None, list[str]]:
 
                 purpose = ' '.join(purpose_parts)
 
-                LOGGER.info(
-                    f"DEBUG: transaction_type='{transaction_type}', amount={amount}, price={price}, date={date}"
-                )
-
                 # Build Object
-                # print(f'raw tx type: {transaction_type} | purpose: {purpose}')
-
                 type_mapped = map_transaction_type(transaction_type)
                 amount_clean = clean_number(amount) 
                 price_clean = clean_number(price) 
@@ -412,7 +409,8 @@ def extract_price_transaction(text: str) -> tuple[list[dict] | None, list[str]]:
                     "price": price_clean,
                     "date": date_clean,
                     "purpose": purpose,
-                    "classification": classification_saham
+                    "classification": classification_saham,
+                    "repurchase_agreement": repurchase_agreement,
                 }
 
                 transactions.append(transaction)
@@ -739,9 +737,18 @@ def parse_document(
         return [], reasons
 
     # run_ammend looks up the holder's previous filing by timestamp
-    extracted_data['timestamp'] = timestamp
+    extracted_data["timestamp"] = timestamp
 
     price_transactions, reasons = extract_prices(doc)
+
+    if reasons:
+        return [], reasons
+
+    # The validator corrects price_transactions in place before enrichment.
+    reasons = validate_and_correct_transaction_prices(
+        transactions=price_transactions,
+        symbol=extracted_data["symbol"]
+    )
 
     if reasons:
         return [], reasons
@@ -750,8 +757,8 @@ def parse_document(
     # holding_after only reconciles across the whole document. Each filing below
     # then overrides price_transaction with its own rows and re-runs
     # enrich_transaction in 'split' mode, so nothing from 'combine' survives
-    extracted_data['price_transaction'] = price_transactions
-    enrich_transaction(extracted_data, 'combine')
+    extracted_data["price_transaction"] = price_transactions
+    enrich_transaction(extracted_data, "combine")
 
     reasons = check_filing(extracted_data, pdf_url)
 
