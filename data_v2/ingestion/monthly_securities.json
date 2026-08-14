@@ -87028,5 +87028,37 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-08:WINS.JK": {
+    "scraped_at": "2026-08-14",
+    "items": [
+      {
+        "Id": "20260807165750-2065/A.20/VIII/2026/WINS.274_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "2065/A.20/VIII/2026/WINS.274",
+        "PublishDate": "2026-08-07T16:57:50",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "WINS                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32118594-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "66b947502c_5bd178c43b.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/66b947502c_5bd178c43b.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260806_WINS_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32118594.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32118594-0\",\"PDFFilename\":\"66b947502c_5bd178c43b.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/66b947502c_5bd178c43b.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260806_WINS_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32118594.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
