@@ -87060,5 +87060,76 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-08:CASH.JK": {
+    "scraped_at": "2026-08-21",
+    "items": [
+      {
+        "Id": "20260807165334-320/SK/CSC-CWI/VIII/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "320/SK/CSC-CWI/VIII/2026",
+        "PublishDate": "2026-08-07T16:53:34",
+        "Title": "Monthly Report of Securities Holders Registration (CORRECTION)",
+        "AnnouncementType": "(Form Koreksi)",
+        "Code": "CASH                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32119031-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "3828682085_18ecc54c48.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/3828682085_18ecc54c48.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260807_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119031.pdf"
+          },
+          {
+            "PDFFilename": "3e3cd7e083_2cc1434604.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/3e3cd7e083_2cc1434604.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260807_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119031_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32119031-0\",\"PDFFilename\":\"3e3cd7e083_2cc1434604.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/3e3cd7e083_2cc1434604.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260807_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119031_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32119031-0\",\"PDFFilename\":\"3828682085_18ecc54c48.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/3828682085_18ecc54c48.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260807_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119031.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      },
+      {
+        "Id": "20260804161851-318/SK/CSC-CWI/VIII/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "318/SK/CSC-CWI/VIII/2026",
+        "PublishDate": "2026-08-04T16:18:51",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "CASH                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32117550-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "1d6133646c_0e4f37e4b3.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/1d6133646c_0e4f37e4b3.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260804_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32117550.pdf"
+          },
+          {
+            "PDFFilename": "19e06462be_02de5fea18.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/19e06462be_02de5fea18.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260804_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32117550_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32117550-0\",\"PDFFilename\":\"19e06462be_02de5fea18.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/19e06462be_02de5fea18.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260804_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32117550_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32117550-0\",\"PDFFilename\":\"1d6133646c_0e4f37e4b3.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/1d6133646c_0e4f37e4b3.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260804_CASH_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32117550.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
