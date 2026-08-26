@@ -10,7 +10,12 @@ def push_db(payload: list[dict], table: str):
     if not payload: 
         LOGGER.info('payload is null: %s', len(payload))
         return 
-    
+
+    if table == "idx_filings":
+        for record in payload:
+            for transaction in record.get("price_transaction") or []:
+                transaction.pop("repurchase_agreement", None)
+
     try:
         response = (
             SUPABASE_CLIENT
@@ -35,6 +40,10 @@ def update_db(replacements: list[dict], table: str):
     for replacement in replacements:
         database_id = replacement["database_id"]
         current_record = replacement["current_record"]
+
+        if table == "idx_filings":
+            for transaction in current_record.get("price_transaction") or []:
+                transaction.pop("repurchase_agreement", None)
 
         try:
             (
