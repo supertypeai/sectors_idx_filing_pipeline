@@ -87207,5 +87207,37 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-07:ATIC.JK": {
+    "scraped_at": "2026-08-28",
+    "items": [
+      {
+        "Id": "20260708171825-0040/LO-CS/ATI/VII/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "0040/LO-CS/ATI/VII/2026",
+        "PublishDate": "2026-07-08T17:18:25",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "ATIC                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32109929-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "ce5f5867af_cdec31087d.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/ce5f5867af_cdec31087d.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260708_ATIC_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109929.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32109929-0\",\"PDFFilename\":\"ce5f5867af_cdec31087d.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/ce5f5867af_cdec31087d.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260708_ATIC_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109929.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
