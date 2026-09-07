@@ -138,14 +138,15 @@ def search_tavily(
                 max_results=7,
                 chunks_per_source=5,
                 include_domains=[
-                    "https://www.idx.co.id/",
-                    "https://id.wikipedia.org/",
-                    "https://id.investing.com/",
-                    "https://ranking.fortuneidn.com/",
-                    "https://finance.yahoo.com/"
+                    "idx.co.id",
+                    "id.wikipedia.org",
+                    "id.investing.com",
+                    "ranking.fortuneidn.com",
+                    "finance.yahoo.com",
                 ]
             )
 
+            LOGGER.info("response tavily raw: %s", response)
             answer = response.get("answer")
 
             if answer:
