@@ -87251,5 +87251,43 @@
   "2026-09:LOPI.JK": {
     "scraped_at": "2026-09-08",
     "items": []
+  },
+  "2026-09:GOTO.JK": {
+    "scraped_at": "2026-09-09",
+    "items": [
+      {
+        "Id": "20260908165541-087/GOTO/CS/JKT/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "087/GOTO/CS/JKT/IX/2026",
+        "PublishDate": "2026-09-08T16:55:41",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "GOTO                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32144925-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "91d9ef971e_49ab545357.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/91d9ef971e_49ab545357.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260904_GOTO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144925.pdf"
+          },
+          {
+            "PDFFilename": "b6a7e1dfe0_b85e58c71b.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/b6a7e1dfe0_b85e58c71b.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260904_GOTO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144925_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32144925-0\",\"PDFFilename\":\"b6a7e1dfe0_b85e58c71b.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/b6a7e1dfe0_b85e58c71b.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260904_GOTO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144925_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32144925-0\",\"PDFFilename\":\"91d9ef971e_49ab545357.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/91d9ef971e_49ab545357.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260904_GOTO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144925.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
