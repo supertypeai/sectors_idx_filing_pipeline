@@ -113,9 +113,6 @@ def get_unit_price_candidate(
 
     candidate_price = reported_price / amount
 
-    if candidate_price != candidate_price.to_integral_value():
-        return None
-
     return candidate_price
 
 
