@@ -87289,5 +87289,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-09:EMMI.JK": {
+    "scraped_at": "2026-09-11",
+    "items": [
+      {
+        "Id": "20260904152513-186/ESA/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "186/ESA/IX/2026",
+        "PublishDate": "2026-09-04T15:25:13",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "EMMI                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32144597-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "e584ac3932_08b2abee2a.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e584ac3932_08b2abee2a.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260903_EMMI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144597.pdf"
+          },
+          {
+            "PDFFilename": "c3bc7932eb_fcf37ad46c.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/c3bc7932eb_fcf37ad46c.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260903_EMMI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144597_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32144597-0\",\"PDFFilename\":\"c3bc7932eb_fcf37ad46c.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/c3bc7932eb_fcf37ad46c.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260903_EMMI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144597_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32144597-0\",\"PDFFilename\":\"e584ac3932_08b2abee2a.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e584ac3932_08b2abee2a.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260903_EMMI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32144597.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
