@@ -87327,5 +87327,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-04:BAJA.JK": {
+    "scraped_at": "2026-09-14",
+    "items": [
+      {
+        "Id": "20260407155054-075/SCB/OJK/IDX/IV/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "075/SCB/OJK/IDX/IV/2026",
+        "PublishDate": "2026-04-07T15:50:54",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "BAJA                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32068304-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "922c422bc9_4efd7af213.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202604/922c422bc9_4efd7af213.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260407_BAJA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32068304.pdf"
+          },
+          {
+            "PDFFilename": "50380c4693_83b6827971.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202604/50380c4693_83b6827971.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260407_BAJA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32068304_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32068304-0\",\"PDFFilename\":\"50380c4693_83b6827971.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202604/50380c4693_83b6827971.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260407_BAJA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32068304_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32068304-0\",\"PDFFilename\":\"922c422bc9_4efd7af213.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202604/922c422bc9_4efd7af213.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260407_BAJA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32068304.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
