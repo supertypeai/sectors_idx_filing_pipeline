@@ -54,7 +54,7 @@ def detect_filing_correction(records: list[dict]):
             + db_historical_records
         )
 
-        for older_record in records_sorted[current_index + 1:]:
+        for older_record in older_records:
             older_timestamp = older_record.get("timestamp") or ""
             older_holding_before = older_record.get("holding_before")
             older_holding_after = older_record.get("holding_after")
