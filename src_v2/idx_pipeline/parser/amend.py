@@ -48,6 +48,29 @@ def get_transaction_month(filing_record: dict) -> str | None:
     return min(dates)[:7] if dates else None
 
 
+def find_duplicate_transction( 
+    price_transactions: list[dict],
+) -> list[dict]:
+    duplicate_transactions = []
+    
+    for transaction in price_transactions: 
+        if transaction.get("type") not in {"buy", "sell"}:
+            continue 
+
+        duplicate_count = sum(
+            candidate == transaction 
+            for candidate in price_transactions
+        )
+
+        if duplicate_count < 2:
+            continue
+
+        if transaction not in duplicate_transactions:
+            duplicate_transactions.append(transaction)
+
+    return duplicate_transactions
+
+
 def run_ammend(filing_record: dict) -> bool:
     holder_name = filing_record.get('holder_name')
     symbol = filing_record.get('symbol')
@@ -144,72 +167,64 @@ def run_ammend(filing_record: dict) -> bool:
 
     # Branch B - the percentage contradicts the rows, so holding_after stands and
     # a transaction row never made it out of the parser. Add it back without a price
-    missing_shares = holding_after - holding_before - net_shares
-
     price_transaction = filing_record.get('price_transaction') or []
-    
-    price_transaction.append({
-        'date': str(timestamp)[:10],
-        'type': 'buy' if missing_shares > 0 else 'sell',
-        'price': None,
-        'amount_transacted': abs(missing_shares),
-    })
 
-    filing_record['price_transaction'] = price_transaction
+    duplicate_transactions = find_duplicate_transction(price_transactions=price_transaction)
 
-    enrich_transaction(filing_record, 'split')
+    reconciled_candidates = []
 
-    LOGGER.info('amend: added missing transaction row of %s shares', missing_shares)
-    return True
+    for duplicate_transaction in duplicate_transactions: 
+        transaction_type = duplicate_transaction.get("type")
+        amount_transacted = duplicate_transaction.get("amount_transacted")
 
+        if amount_transacted is None:
+            continue
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(message)s')
+        if transaction_type == "buy": 
+            removed_net_effect = amount_transacted
+        else: 
+            removed_net_effect = -amount_transacted
 
-    record = {
-        "holding_before": 45425300,
-        "holding_after": 428253,
-        "share_percentage_before": 5.63,
-        "share_percentage_after": 5.3,
-        "share_percentage_transaction": 0.33,
-        "symbol": "NASI.JK",
-        "company_name": "Wahana Inti Makmur",
-        "holder_name": "Hartarto Ciputra",
-        "timestamp": "2026-06-17 20:27:53",
-        "source": "doc2.pdf",
-        "sector": "consumer-non-cyclicals",
-        "sub_sector": "food-beverage",
-        "price_transaction": [
-        {
-            "type": "sell",
-            "amount_transacted": 2900000,
-            "price": 125,
-            "date": "2026-06-08",
-            "purpose": "trading",
-            "classification": "Saham Biasa"
-        },
-        {
-            "type": "buy",
-            "amount_transacted": 300000,
-            "price": 114,
-            "date": "2026-06-08",
-            "purpose": "averaging down",
-            "classification": "Saham Biasa"
-        }
-        ],
-        "price": 126.269,
-        "transaction_value": 328300000,
-        "transaction_type": "sell",
-        "net_shares_transacted": -2600000,
-        "amount_transaction": 44997047,
-        "reasons": [
-        "transaction value mismatch: holding_before=45425300 + net_shares=-2600000 = 42825300, but holding_after=428253"
+        candidate_net_shares = net_shares - removed_net_effect
+        candidate_holding_after = holding_before + candidate_net_shares
+
+        if candidate_holding_after != holding_after:
+            continue
+
+        candidate_transactions = price_transaction.copy()
+        candidate_transactions.remove(duplicate_transaction)
+
+        reconciled_candidates.append({
+            "removed_transaction": duplicate_transaction,
+            "price_transactions": candidate_transactions,
+        })
+
+    if len(reconciled_candidates) == 1:
+        reconciled_candidate = reconciled_candidates[0]
+
+        filing_record["price_transaction"] = reconciled_candidate[
+            "price_transactions"
         ]
-    }
-    
-    result = run_ammend(record)
-    print(f'\nresult: {result}\n')
-    # print(f'new record: {record}')
 
+        enrich_transaction(filing_record, "combine")
 
-    # uv run -m idx_pipeline.parser.amend
+        LOGGER.info(
+            "amend: removed exact duplicate transaction row %s",
+            reconciled_candidate["removed_transaction"],
+        )
+
+        return True
+
+    if len(reconciled_candidates) > 1:
+        LOGGER.warning(
+            "amend: multiple duplicate transaction removals reconcile holdings; "
+            "cannot determine which row is incorrect"
+        )
+        return False
+
+    LOGGER.warning(
+        "amend: transaction rows do not reconcile and no exact duplicate removal "
+        "resolves the mismatch"
+    )
+
+    return False

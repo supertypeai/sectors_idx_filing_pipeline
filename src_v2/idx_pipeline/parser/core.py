@@ -760,11 +760,15 @@ def parse_document(
     extracted_data["price_transaction"] = price_transactions
     enrich_transaction(extracted_data, "combine")
 
+    # potentially change the price transaction on branch B 
     reasons = check_filing(extracted_data, pdf_url)
 
     if reasons:
         return [], reasons
 
+    # in case price transaction changed from check_filing (mutable)
+    # so access it once again 
+    price_transactions = extracted_data["price_transaction"]
     price_data_list = build_lookup_price_transaction(price_transactions)
 
     if len(price_data_list) > 1:
