@@ -87365,5 +87365,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-09:TCPI.JK": {
+    "scraped_at": "2026-09-21",
+    "items": [
+      {
+        "Id": "20260907104128-198/LGC/LTR/TCP-OJK-BEI/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "198/LGC/LTR/TCP-OJK-BEI/IX/2026",
+        "PublishDate": "2026-09-07T10:41:28",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "TCPI                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32145403-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "b6756e03cb_07367bfdfd.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/b6756e03cb_07367bfdfd.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260907_TCPI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145403.pdf"
+          },
+          {
+            "PDFFilename": "e1d4035027_47d6aa24b6.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e1d4035027_47d6aa24b6.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260907_TCPI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145403_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32145403-0\",\"PDFFilename\":\"e1d4035027_47d6aa24b6.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e1d4035027_47d6aa24b6.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260907_TCPI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145403_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32145403-0\",\"PDFFilename\":\"b6756e03cb_07367bfdfd.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/b6756e03cb_07367bfdfd.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260907_TCPI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145403.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
