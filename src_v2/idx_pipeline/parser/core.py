@@ -15,7 +15,6 @@ from idx_pipeline.parser.utils.helper import (
 )
 from idx_pipeline.parser.price_validation import validate_and_correct_transaction_prices
 from idx_pipeline.alerts.filter import (
-    check_classification_shares,
     check_missing_fields,
     check_transaction_mismatch
 )
@@ -694,7 +693,7 @@ def check_filing(filing_record: dict, pdf_url: str) -> list[str]:
 
     Returns the reasons the filing cannot be used, empty if it can.
     """
-    reasons = check_classification_shares(filing_record) + check_missing_fields(filing_record)
+    reasons = check_missing_fields(filing_record)
 
     if reasons:
         return reasons
