@@ -87527,5 +87527,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-09:CYBR.JK": {
+    "scraped_at": "2026-10-14",
+    "items": [
+      {
+        "Id": "20260909183620-045/ADM/ITSECASIA/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "045/ADM/ITSECASIA/IX/2026",
+        "PublishDate": "2026-09-09T18:36:20",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "CYBR                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32145559-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "eeb64aaee9_10bef40562.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/eeb64aaee9_10bef40562.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260907_CYBR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145559.pdf"
+          },
+          {
+            "PDFFilename": "5874312fbf_00247789fe.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/5874312fbf_00247789fe.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260907_CYBR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145559_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32145559-0\",\"PDFFilename\":\"5874312fbf_00247789fe.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/5874312fbf_00247789fe.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260907_CYBR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145559_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32145559-0\",\"PDFFilename\":\"eeb64aaee9_10bef40562.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/eeb64aaee9_10bef40562.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260907_CYBR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145559.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
