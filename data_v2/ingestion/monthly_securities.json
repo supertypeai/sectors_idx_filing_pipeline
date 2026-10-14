@@ -87471,5 +87471,61 @@
   "2026-10:PEGE.JK": {
     "scraped_at": "2026-10-06",
     "items": []
+  },
+  "2026-10:AMOR.JK": {
+    "scraped_at": "2026-10-14",
+    "items": [
+      {
+        "Id": "20261007164451-010/OJK/ASH/1026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "010/OJK/ASH/1026",
+        "PublishDate": "2026-10-07T16:44:51",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "AMOR                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164322-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "c6756a24f0_7865280efc.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c6756a24f0_7865280efc.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322.pdf"
+          },
+          {
+            "PDFFilename": "33dcee143f_8a364ed6c2.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/33dcee143f_8a364ed6c2.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp4.pdf"
+          },
+          {
+            "PDFFilename": "3730dd87fa_34510784b3.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/3730dd87fa_34510784b3.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp2.pdf"
+          },
+          {
+            "PDFFilename": "76be95ee95_21b54b3dbe.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/76be95ee95_21b54b3dbe.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp3.pdf"
+          },
+          {
+            "PDFFilename": "8484025ea3_a94172f587.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/8484025ea3_a94172f587.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32164322-0\",\"PDFFilename\":\"33dcee143f_8a364ed6c2.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/33dcee143f_8a364ed6c2.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp4.pdf\"},{\"JMSXGroupID\":\"f-32164322-0\",\"PDFFilename\":\"3730dd87fa_34510784b3.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/3730dd87fa_34510784b3.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32164322-0\",\"PDFFilename\":\"76be95ee95_21b54b3dbe.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/76be95ee95_21b54b3dbe.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp3.pdf\"},{\"JMSXGroupID\":\"f-32164322-0\",\"PDFFilename\":\"8484025ea3_a94172f587.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/8484025ea3_a94172f587.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32164322-0\",\"PDFFilename\":\"c6756a24f0_7865280efc.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c6756a24f0_7865280efc.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261007_AMOR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164322.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
