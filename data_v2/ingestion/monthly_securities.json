@@ -87565,5 +87565,55 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:ENRG.JK": {
+    "scraped_at": "2026-10-15",
+    "items": [
+      {
+        "Id": "20261006160051-335/EMP.DIR/1070/10-26/E_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "335/EMP.DIR/1070/10-26/E",
+        "PublishDate": "2026-10-06T16:00:51",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "ENRG                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32163115-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "71105b6887_4a9ffadd84.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/71105b6887_4a9ffadd84.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115.pdf"
+          },
+          {
+            "PDFFilename": "d115dfc503_4ea41da936.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/d115dfc503_4ea41da936.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp1.pdf"
+          },
+          {
+            "PDFFilename": "d977ef6560_f5dd69d90d.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/d977ef6560_f5dd69d90d.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp2.pdf"
+          },
+          {
+            "PDFFilename": "e87a592539_7a3f8bfb3c.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/e87a592539_7a3f8bfb3c.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp3.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32163115-0\",\"PDFFilename\":\"d115dfc503_4ea41da936.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/d115dfc503_4ea41da936.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32163115-0\",\"PDFFilename\":\"d977ef6560_f5dd69d90d.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/d977ef6560_f5dd69d90d.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32163115-0\",\"PDFFilename\":\"e87a592539_7a3f8bfb3c.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/e87a592539_7a3f8bfb3c.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115_lamp3.pdf\"},{\"JMSXGroupID\":\"f-32163115-0\",\"PDFFilename\":\"71105b6887_4a9ffadd84.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/71105b6887_4a9ffadd84.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261005_ENRG_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163115.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
