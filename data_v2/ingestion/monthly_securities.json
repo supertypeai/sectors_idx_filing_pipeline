@@ -87615,5 +87615,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:ERAA.JK": {
+    "scraped_at": "2026-10-16",
+    "items": [
+      {
+        "Id": "20261008155057-131/ERAA/CS/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "131/ERAA/CS/X/2026",
+        "PublishDate": "2026-10-08T15:50:57",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "ERAA                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164697-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "9bdcbf0f22_fdcc4f00f5.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/9bdcbf0f22_fdcc4f00f5.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261008_ERAA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164697.pdf"
+          },
+          {
+            "PDFFilename": "fc449f6ae6_b05bdcbe39.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/fc449f6ae6_b05bdcbe39.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261008_ERAA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164697_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32164697-0\",\"PDFFilename\":\"fc449f6ae6_b05bdcbe39.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/fc449f6ae6_b05bdcbe39.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261008_ERAA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164697_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32164697-0\",\"PDFFilename\":\"9bdcbf0f22_fdcc4f00f5.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/9bdcbf0f22_fdcc4f00f5.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261008_ERAA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164697.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
