@@ -87685,5 +87685,37 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-08:BEEF.JK": {
+    "scraped_at": "2026-10-19",
+    "items": [
+      {
+        "Id": "20260808105242-B.025-Corpsec-ETT-BEEF-VIII-2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "B.025-Corpsec-ETT-BEEF-VIII-2026",
+        "PublishDate": "2026-08-08T10:52:42",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "BEEF                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32119155-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "5eeea0a457_ba045efdf0.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/5eeea0a457_ba045efdf0.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260808_BEEF_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119155.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32119155-0\",\"PDFFilename\":\"5eeea0a457_ba045efdf0.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202608/5eeea0a457_ba045efdf0.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260808_BEEF_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32119155.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
