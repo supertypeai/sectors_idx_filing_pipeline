@@ -87717,5 +87717,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:DEWI.JK": {
+    "scraped_at": "2026-10-20",
+    "items": [
+      {
+        "Id": "20261007085521-596/DSF/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "596/DSF/X/2026",
+        "PublishDate": "2026-10-07T08:55:21",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "DEWI                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32163960-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "32acef57f1_8f3f45fc5c.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/32acef57f1_8f3f45fc5c.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261007_DEWI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163960.pdf"
+          },
+          {
+            "PDFFilename": "51c085182c_11bd526e18.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/51c085182c_11bd526e18.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_DEWI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163960_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32163960-0\",\"PDFFilename\":\"51c085182c_11bd526e18.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/51c085182c_11bd526e18.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_DEWI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163960_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32163960-0\",\"PDFFilename\":\"32acef57f1_8f3f45fc5c.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/32acef57f1_8f3f45fc5c.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261007_DEWI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163960.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
