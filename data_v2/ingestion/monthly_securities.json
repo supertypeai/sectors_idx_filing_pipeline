@@ -87755,5 +87755,124 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:NANO.JK": {
+    "scraped_at": "2026-10-20",
+    "items": [
+      {
+        "Id": "20261012110308-016a/GCS/BEI/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "016a/GCS/BEI/X/2026",
+        "PublishDate": "2026-10-12T11:03:08",
+        "Title": "Monthly Report of Securities Holders Registration (CORRECTION)",
+        "AnnouncementType": "(Form Koreksi)",
+        "Code": "NANO                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32165528-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "ee833add3d_11db420f05.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/ee833add3d_11db420f05.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528.pdf"
+          },
+          {
+            "PDFFilename": "20ed1ea8b0_0014a89376.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/20ed1ea8b0_0014a89376.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp3.pdf"
+          },
+          {
+            "PDFFilename": "453bb32e1d_d79e7998af.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/453bb32e1d_d79e7998af.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp1.pdf"
+          },
+          {
+            "PDFFilename": "83fa194511_d26384eed5.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/83fa194511_d26384eed5.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp4.pdf"
+          },
+          {
+            "PDFFilename": "b24431ada0_4838c69f34.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/b24431ada0_4838c69f34.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp2.pdf"
+          },
+          {
+            "PDFFilename": "c3498cd0d1_e06920741c.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c3498cd0d1_e06920741c.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp5.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"20ed1ea8b0_0014a89376.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/20ed1ea8b0_0014a89376.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp3.pdf\"},{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"453bb32e1d_d79e7998af.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/453bb32e1d_d79e7998af.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"83fa194511_d26384eed5.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/83fa194511_d26384eed5.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp4.pdf\"},{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"b24431ada0_4838c69f34.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/b24431ada0_4838c69f34.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"c3498cd0d1_e06920741c.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c3498cd0d1_e06920741c.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528_lamp5.pdf\"},{\"JMSXGroupID\":\"f-32165528-0\",\"PDFFilename\":\"ee833add3d_11db420f05.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/ee833add3d_11db420f05.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261012_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32165528.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      },
+      {
+        "Id": "20261007145240-016/GCS/BEI/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "016/GCS/BEI/X/2026",
+        "PublishDate": "2026-10-07T14:52:40",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "NANO                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164160-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "3cf44e0b00_402307a6ec.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/3cf44e0b00_402307a6ec.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160.pdf"
+          },
+          {
+            "PDFFilename": "524ef9e2c4_1108273e18.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/524ef9e2c4_1108273e18.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp5.pdf"
+          },
+          {
+            "PDFFilename": "6335388d31_6781f960a9.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6335388d31_6781f960a9.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp3.pdf"
+          },
+          {
+            "PDFFilename": "6ce4ae41ec_7b246bbda5.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6ce4ae41ec_7b246bbda5.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp2.pdf"
+          },
+          {
+            "PDFFilename": "868b7aab14_6b681dfd8f.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/868b7aab14_6b681dfd8f.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp4.pdf"
+          },
+          {
+            "PDFFilename": "f81a0aa2ed_e14afce415.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/f81a0aa2ed_e14afce415.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"524ef9e2c4_1108273e18.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/524ef9e2c4_1108273e18.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp5.pdf\"},{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"6335388d31_6781f960a9.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6335388d31_6781f960a9.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp3.pdf\"},{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"6ce4ae41ec_7b246bbda5.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6ce4ae41ec_7b246bbda5.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"868b7aab14_6b681dfd8f.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/868b7aab14_6b681dfd8f.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp4.pdf\"},{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"f81a0aa2ed_e14afce415.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/f81a0aa2ed_e14afce415.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32164160-0\",\"PDFFilename\":\"3cf44e0b00_402307a6ec.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/3cf44e0b00_402307a6ec.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261007_NANO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164160.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
