@@ -87469,8 +87469,36 @@
     ]
   },
   "2026-10:PEGE.JK": {
-    "scraped_at": "2026-10-06",
-    "items": []
+    "scraped_at": "2026-10-21",
+    "items": [
+      {
+        "Id": "20261008154712-057/PGK-CS/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "057/PGK-CS/X/2026",
+        "PublishDate": "2026-10-08T15:47:12",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "PEGE                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164650-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "5253a02751_05cd9ebf75.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/5253a02751_05cd9ebf75.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261008_PEGE_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164650.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32164650-0\",\"PDFFilename\":\"5253a02751_05cd9ebf75.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/5253a02751_05cd9ebf75.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261008_PEGE_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164650.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   },
   "2026-10:AMOR.JK": {
     "scraped_at": "2026-10-14",
