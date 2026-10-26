@@ -87902,5 +87902,49 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:VISI.JK": {
+    "scraped_at": "2026-10-26",
+    "items": [
+      {
+        "Id": "20261008103441-04/SAVITRA/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "04/SAVITRA/X/2026",
+        "PublishDate": "2026-10-08T10:34:41",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "VISI                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164032-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "0f34abbc63_3ab787d5e1.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/0f34abbc63_3ab787d5e1.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032.pdf"
+          },
+          {
+            "PDFFilename": "c291c1c24d_dd278e7160.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c291c1c24d_dd278e7160.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032_lamp1.pdf"
+          },
+          {
+            "PDFFilename": "ec20da7bd8_d0a80c68e8.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/ec20da7bd8_d0a80c68e8.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032_lamp2.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32164032-0\",\"PDFFilename\":\"c291c1c24d_dd278e7160.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/c291c1c24d_dd278e7160.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32164032-0\",\"PDFFilename\":\"ec20da7bd8_d0a80c68e8.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/ec20da7bd8_d0a80c68e8.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32164032-0\",\"PDFFilename\":\"0f34abbc63_3ab787d5e1.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/0f34abbc63_3ab787d5e1.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261007_VISI_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164032.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
