@@ -88017,5 +88017,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:HOME.JK": {
+    "scraped_at": "2026-10-28",
+    "items": [
+      {
+        "Id": "20261006093442-014/DIR/HMR/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "014/DIR/HMR/X/2026",
+        "PublishDate": "2026-10-06T09:34:42",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "HOME                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32163515-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "5e7ca599e2_87e5eba69d.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/5e7ca599e2_87e5eba69d.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261006_HOME_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163515.pdf"
+          },
+          {
+            "PDFFilename": "6cb6e079a5_e46e9bf7ea.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6cb6e079a5_e46e9bf7ea.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261006_HOME_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163515_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32163515-0\",\"PDFFilename\":\"6cb6e079a5_e46e9bf7ea.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/6cb6e079a5_e46e9bf7ea.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261006_HOME_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163515_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32163515-0\",\"PDFFilename\":\"5e7ca599e2_87e5eba69d.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/5e7ca599e2_87e5eba69d.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261006_HOME_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163515.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
