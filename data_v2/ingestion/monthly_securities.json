@@ -88055,5 +88055,43 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-09:BDKR.JK": {
+    "scraped_at": "2026-10-30",
+    "items": [
+      {
+        "Id": "20260909151554-162/BDKR-CORSEC/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "162/BDKR-CORSEC/IX/2026",
+        "PublishDate": "2026-09-09T15:15:54",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "BDKR                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32145582-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "e2779f9fa9_244cbeaa2d.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e2779f9fa9_244cbeaa2d.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260907_BDKR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145582.pdf"
+          },
+          {
+            "PDFFilename": "ca3aa56692_3426272fe3.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/ca3aa56692_3426272fe3.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260907_BDKR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145582_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32145582-0\",\"PDFFilename\":\"ca3aa56692_3426272fe3.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/ca3aa56692_3426272fe3.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260907_BDKR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145582_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32145582-0\",\"PDFFilename\":\"e2779f9fa9_244cbeaa2d.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202609/e2779f9fa9_244cbeaa2d.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260907_BDKR_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32145582.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
