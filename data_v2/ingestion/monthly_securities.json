@@ -88097,5 +88097,37 @@
   "2026-11:ENRG.JK": {
     "scraped_at": "2026-11-06",
     "items": []
+  },
+  "2026-11:NSSS.JK": {
+    "scraped_at": "2026-11-11",
+    "items": [
+      {
+        "Id": "20261109173037-012/NSSS/LB-RPE/XI/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "012/NSSS/LB-RPE/XI/2026",
+        "PublishDate": "2026-11-09T17:30:37",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "NSSS                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32171937-0-1",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "f07f983597_76d080fa3b.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/f07f983597_76d080fa3b.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261104_NSSS_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171937.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32171937-0-1\",\"PDFFilename\":\"f07f983597_76d080fa3b.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/f07f983597_76d080fa3b.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261104_NSSS_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171937.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
