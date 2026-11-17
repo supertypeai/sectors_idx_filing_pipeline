@@ -105,7 +105,7 @@ def generate_news_title_body(record: dict):
     for model in ['gpt-oss-120b', 'gpt-oss-20b', 'gemini-2.5-flash', 'llama-3.3-70b']:
         try:
             llm = get_llm(model, temperature=0.4)
-            LOGGER.info(f"LLM used for news: {model}")
+            LOGGER.debug("LLM used: %s", model)
 
             context = record.get('context_data', {})
 
@@ -128,7 +128,7 @@ def generate_news_title_body(record: dict):
                 continue
 
             if not response.get("title") or not response.get("body"):
-                LOGGER.info("LLM news returned incomplete result")
+                LOGGER.debug("LLM news returned incomplete result")
                 continue
             
             return response.get('title'), response.get('body')
@@ -137,7 +137,7 @@ def generate_news_title_body(record: dict):
             LOGGER.warning(f"LLM failed with error: {error}", exc_info=True)
             continue  
 
-    LOGGER.error("All LLMs failed to return a valid generation for news")
+    LOGGER.debug("All LLMs failed to return a valid generation for news")
     return None
 
 
@@ -172,7 +172,7 @@ def generate_news(payload: list[dict]) -> list[dict]:
         random_sleep(2, 5)
 
         if result is None:
-            LOGGER.warning(f"Skipping news generation for {record.get('symbol')} — all LLMs failed")
+            LOGGER.warning("[NEWS] %s: every LLM failed, no article generated", record.get("symbol"))
             continue
 
         title, body = result

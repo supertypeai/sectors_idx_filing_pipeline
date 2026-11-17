@@ -35,13 +35,21 @@ def attach_file(file_path: str, msg: MIMEMultipart):
 def send_alert(
     payload_alert: list[dict[str, any]],
     attachments_path: list[str] | None = None,
+    mismatch_alerts: list[dict[str, any]] | None = None,
 ):
-    if not payload_alert:
-        LOGGER.info("No IDX filing alerts to send.")
+    """
+    payload_alert: filings that could not be inserted.
+    mismatch_alerts: filings inserted as filed although their holdings do not add
+    up, with the evidence from the holdings check, so someone can review them.
+    """
+    if not payload_alert and not mismatch_alerts:
+        LOGGER.info("[ALERT] nothing to email")
         return
 
     subject, body_text, body_html = render_email_content(
-        payload_alert, title="IDX Non-Insertable Transaction Alerts"
+        payload_alert,
+        title="IDX Non-Insertable Transaction Alerts",
+        mismatch_alerts=mismatch_alerts,
     )
 
     msg = MIMEMultipart()
@@ -71,7 +79,7 @@ def send_alert(
             Destinations=[ALERT_TO_EMAIL],
             RawMessage={"Data": msg.as_string()},
         )
-        LOGGER.info(f"Email sent! Message ID: {response.get('MessageId')}")
+        LOGGER.info("[ALERT] email sent (%d not inserted, %d kept as filed)", len(payload_alert), len(mismatch_alerts or []))
 
     except ClientError as error:
         error_code = error.response["Error"].get("Code", "Unknown")

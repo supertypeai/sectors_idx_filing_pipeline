@@ -19,6 +19,13 @@ from idx_pipeline.alerts.filter import (
     check_transaction_mismatch
 )
 from .amend import run_ammend
+from .audit import (
+    HoldingsCheck,
+    record_check,
+    RECONCILES,
+    AMENDED,
+    KEPT_AS_FILED,
+)
 
 import fitz
 import re
@@ -479,7 +486,7 @@ def collect_extract_shares(doc: fitz.Document, pdf_url: str) -> dict | None:
 
         if share_before is not None and share_after is not None:
             if share_before == share_after:
-                LOGGER.info(f"skipping {pdf_url}: shares unchanged")
+                LOGGER.debug("skipping %s: shares unchanged", pdf_url)
                 return None
 
     # LOGGER.info(f"extracted shares: {extracted_data}\n")
@@ -700,11 +707,30 @@ def check_filing(filing_record: dict, pdf_url: str) -> list[str]:
 
     mismatch_reasons = check_transaction_mismatch(filing_record)
 
-    if mismatch_reasons and not run_ammend(filing_record):
-        LOGGER.warning(
-            'could not amend, inserting as filed: %s | %s',
-            pdf_url, mismatch_reasons
-        )
+    check = HoldingsCheck(
+        holding_before=filing_record.get("holding_before"),
+        net_shares=filing_record.get("net_shares_transacted"),
+        filed_holding_after=filing_record.get("holding_after"),
+    )
+
+    if mismatch_reasons:
+        if run_ammend(filing_record, check):
+            check.status = AMENDED
+        else:
+            check.status = KEPT_AS_FILED
+            check.action = "none, inserted as filed"
+            LOGGER.debug("could not amend, inserting as filed: %s | %s", pdf_url, mismatch_reasons)
+
+    # check_transaction_mismatch also returns nothing when it skips the check (missing
+    # numbers, others mixed with buy/sell), so an empty result alone does not prove the sum holds
+    elif (
+        check.expected_holding_after is not None
+        and check.expected_holding_after == check.filed_holding_after
+        and check.net_shares
+    ):
+        check.status = RECONCILES
+
+    record_check(pdf_url, check)
 
     return []
 

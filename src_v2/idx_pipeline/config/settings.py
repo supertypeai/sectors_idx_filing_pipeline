@@ -8,6 +8,7 @@ load_dotenv()
 
 
 PROXY = os.getenv('PROXY')
+SCRAPINGANT_API_KEY = os.getenv("SCRAPINGANT_API_KEY")
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
 

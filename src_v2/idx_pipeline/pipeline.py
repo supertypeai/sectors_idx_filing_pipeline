@@ -1,7 +1,12 @@
 from typing import Annotated, Optional
 
+from idx_pipeline.ingestion import announcements
 from idx_pipeline.ingestion.announcements import fetch_announcement_window
-from idx_pipeline.downloader.pdf import pdf_downloader
+from idx_pipeline.downloader.pdf import (
+    pdf_downloader,
+    has_pending_downloads,
+    load_pending_downloads,
+)
 from idx_pipeline.parser.runner import run_parser
 from idx_pipeline.parser.correction_detector import (
     detect_filing_correction,
@@ -15,30 +20,18 @@ from idx_pipeline.alerts.mailer import send_alert
 from .utils.dedup import dedup_with_existing_db, dedup_within_payload
 from .utils.insert import push_db, update_db
 from .utils.helper import clean_payload
+from .utils.log_setup import setup_logging, stage
+from .fetcher.client import fetch_summary
+from .utils.run_report import (
+    RunSummary,
+    log_run_summary,
+    write_corrections,
+    write_job_summary,
+)
 
 import typer 
 import logging
 import sys 
-
-
-def setup_logging():
-    """
-    Configures logging for the whole application
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s [%(levelname)s] %(name)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler("pipeline.log") 
-        ]
-    )
-
-    logging.getLogger("httpx").setLevel(logging.WARNING)
-    logging.getLogger("httpcore").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 app = typer.Typer(
@@ -66,62 +59,120 @@ def run_pipeline(
     is_write_json: Annotated[bool, typer.Option(help="Write output to json")] = True
 ):
     logger = logging.getLogger(__name__)
+    summary = RunSummary(pushed_to_db=is_push_db)
 
-    ingestion_payload = fetch_announcement_window(start=start_date, end=end_date)
+    # A dry or manual date-range run must not use up the retries the scheduled runs rely on
+    is_auto = start_date is None and end_date is None
+    track_pending = is_auto and is_push_db
 
-    if not ingestion_payload:
-        logger.info(
-            "No announcements in the requested window; skipping downstream stages."
+    with stage(1, "INGEST", logger):
+        ingestion_payload = fetch_announcement_window(start=start_date, end=end_date)
+
+    if announcements.LAST_WINDOW:
+        window_start, window_end = announcements.LAST_WINDOW
+        summary.window = (
+            f"{window_start:%Y-%m-%d %H:%M} → {window_end:%Y-%m-%d %H:%M} WIB"
         )
+
+    summary.announcements = len(ingestion_payload or [])
+
+    if not ingestion_payload and not (track_pending and has_pending_downloads()):
+        logger.info("[INGEST] nothing new and no PDFs waiting for a retry, stopping here")
+        summary.fetch = fetch_summary()
+        write_job_summary(summary)
         return
-    
-    ingestion_result_path = 'data_v2/ingestion/result.json'
-    downloader_ingestion = pdf_downloader(ingestion_result_path=ingestion_result_path)
-    
-    pdf_parsed_payload = run_parser(downloader_ingestion=downloader_ingestion)
-    
-    logger.info('length before dedup: %d', len(pdf_parsed_payload))
 
-    payload_deduped = dedup_within_payload(payload=pdf_parsed_payload)
+    with stage(2, "DOWNLOAD", logger):
+        ingestion_result_path = "data_v2/ingestion/result.json"
+        downloader_ingestion = pdf_downloader(
+            ingestion_result_path=ingestion_result_path,
+            track_pending=track_pending,
+        )
 
-    correction_candidates, distinct_records = detect_filing_correction(
-        records=payload_deduped
-    )
+    summary.pdfs_downloaded = len(downloader_ingestion)
+    summary.pdfs_queued = len(load_pending_downloads()) if track_pending else 0
 
-    logger.info(
-        "current-payload relationship candidates: %d | distinct records: %d",
-        len(correction_candidates),
-        len(distinct_records),
-    )
+    with stage(3, "PARSE & CHECK", logger):
+        pdf_parsed_payload, flagged = run_parser(downloader_ingestion=downloader_ingestion)
 
-    payload_current_records, database_replacements = resolve_correction_candidates(
-        relationship_candidates=correction_candidates,
-    )
+        summary.filings_parsed = len(pdf_parsed_payload)
 
-    distinct_records = dedup_with_existing_db(payload=distinct_records)
+        logger.info(
+            "[PARSE] %d PDF(s) → %d filing(s) | amended %d | kept as filed %d",
+            len(downloader_ingestion),
+            len(pdf_parsed_payload),
+            sum(entry["status"] == "amended" for entry in flagged),
+            sum(entry["status"] == "kept_as_filed" for entry in flagged),
+        )
 
-    records_to_insert = distinct_records + payload_current_records
+    with stage(4, "DEDUP & ENRICH", logger):
+        payload_deduped = dedup_within_payload(payload=pdf_parsed_payload)
 
-    database_current_records = [
-        replacement["current_record"]
-        for replacement in database_replacements
-    ]
+        correction_candidates, distinct_records = detect_filing_correction(
+            records=payload_deduped
+        )
 
-    database_record_ids = [
-        replacement["database_id"]
-        for replacement in database_replacements
-    ]
+        payload_current_records, database_replacements = resolve_correction_candidates(
+            relationship_candidates=correction_candidates,
+        )
 
-    records_to_enrich = records_to_insert + database_current_records
+        before_db_dedup = len(distinct_records)
+        distinct_records = dedup_with_existing_db(payload=distinct_records)
 
-    enrich(
-        payload=records_to_enrich,
-        excluded_filing_ids=database_record_ids
-    )
+        records_to_insert = distinct_records + payload_current_records
 
-    news = generate_news(payload=records_to_insert)
+        summary.already_in_db = before_db_dedup - len(distinct_records)
+        summary.replacements = len(database_replacements)
+
+        logger.info(
+            "[DEDUP] %d filing(s): %d repeated in this run, %d already in the DB, "
+            "%d correction(s) of earlier filings → %d to insert",
+            len(pdf_parsed_payload),
+            len(pdf_parsed_payload) - len(payload_deduped),
+            summary.already_in_db,
+            len(database_replacements),
+            len(records_to_insert),
+        )
+
+        database_current_records = [
+            replacement["current_record"]
+            for replacement in database_replacements
+        ]
+
+        database_record_ids = [
+            replacement["database_id"]
+            for replacement in database_replacements
+        ]
+
+        records_to_enrich = records_to_insert + database_current_records
+
+        enrich(
+            payload=records_to_enrich,
+            excluded_filing_ids=database_record_ids
+        )
+
+        summary.highlights = sorted({
+            record.get("symbol") for record in records_to_enrich
+            if record.get("highlights")
+        })
+
+        logger.info(
+            "[ENRICH] %d filing(s) enriched | highlights: %s",
+            len(records_to_enrich),
+            ", ".join(summary.highlights) or "none",
+        )
+
+    with stage(5, "NEWS", logger):
+        news = generate_news(payload=records_to_insert)
+
+        logger.info(
+            "[NEWS] %d/%d article(s) generated", len(news), len(records_to_insert)
+        )
+
+    summary.news = len(news)
 
     filing_records_to_insert = clean_payload(payload=records_to_insert)
+    summary.filings_to_insert = len(filing_records_to_insert)
 
     database_records_to_update = [
         {
@@ -133,38 +184,49 @@ def run_pipeline(
         for replacement in database_replacements
     ]
 
-    logger.info(
-        "records to insert: %d | database records to update: %d",
-        len(filing_records_to_insert),
-        len(database_records_to_update),
-    )
+    # Filings dropped as already in the DB were reported by the run that inserted them
+    inserted_sources = {record.get("source") for record in records_to_insert}
+    summary.flagged = [
+        entry for entry in flagged if entry.get("source") in inserted_sources
+    ]
 
-    if is_send_alert:
-        not_inserted_path = 'data_v2/alert/not_inserted.json'
-        existing_not_inserted = open_json(not_inserted_path) or []
+    with stage(6, "ALERT & INSERT", logger):
+        if is_send_alert:
+            not_inserted_path = "data_v2/alert/not_inserted.json"
+            existing_not_inserted = open_json(not_inserted_path) or []
 
-        send_alert(
-            payload_alert=existing_not_inserted,
-            attachments_path=[not_inserted_path]
-        )
-
-    if is_write_json:
-        payloads = {
-            "filing_records_to_insert": filing_records_to_insert,
-            "database_records_to_update": database_records_to_update,
-            "news_records": news,
-        }
-
-        for name, payload in payloads.items():
-            write_json(
-                payload=payload,
-                filename=f"{name}.json",
+            send_alert(
+                payload_alert=existing_not_inserted,
+                attachments_path=[not_inserted_path],
+                mismatch_alerts=summary.kept_as_filed,
             )
 
-    if is_push_db:
-        push_db(filing_records_to_insert, "idx_filings")
-        update_db(database_records_to_update, "idx_filings")
-        push_db(news, "idx_news")
+        if is_write_json:
+            payloads = {
+                "filing_records_to_insert": filing_records_to_insert,
+                "database_records_to_update": database_records_to_update,
+                "news_records": news,
+            }
+
+            for name, payload in payloads.items():
+                write_json(
+                    payload=payload,
+                    filename=f"{name}.json",
+                )
+
+        write_corrections(summary.flagged)
+
+        if is_push_db:
+            push_db(filing_records_to_insert, "idx_filings")
+            update_db(database_records_to_update, "idx_filings")
+            push_db(news, "idx_news")
+
+        else:
+            logger.info("[INSERT] dry run, nothing written to the DB")
+
+    summary.fetch = fetch_summary()
+    log_run_summary(summary, logger)
+    write_job_summary(summary)
 
 
 if __name__ == "__main__":

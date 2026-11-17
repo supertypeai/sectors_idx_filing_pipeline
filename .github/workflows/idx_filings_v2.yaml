@@ -29,10 +29,12 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     env:
       TZ: Asia/Jakarta
+      # Lets a run be repeated with full detail (repo variable LOG_LEVEL=DEBUG) without a code change
+      LOG_LEVEL: ${{ vars.LOG_LEVEL || 'INFO' }}
 
     steps:
       - name: Checkout
@@ -56,6 +58,8 @@ jobs:
       - name: Run pipeline
         env:
           PROXY: ${{ secrets.PROXY }}
+          # idx.co.id stalls Bright Data 50-90s per request, ScrapingAnt usually gets through in seconds
+          SCRAPINGANT_API_KEY: ${{ secrets.SCRAPINGANT_API_KEY }}
           NO_PROXY: "localhost,127.0.0.1,supabase.co,.supabase.co,amazonaws.com,.amazonaws.com,generativelanguage.googleapis.com,.googleapis.com,translate.google.com,.google.com,openai.com,.openai.com,groq.com,.groq.com"
           SUPABASE_URL:          ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY:          ${{ secrets.SUPABASE_KEY }}

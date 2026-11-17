@@ -13,6 +13,10 @@ HEADERS = {
 IDX_API = "https://www.idx.co.id/primary/NewsAnnouncement/GetAllAnnouncement"
 DEFAULT_PAGE_SIZE = 10
 DEFAULT_OVERLAP_MINUTES = 1
+# A PDF that fails to download is retried by the next scheduled runs (every two
+# hours). Three attempts covers a slow spell on idx.co.id without letting a dead
+# link cost every run another few minutes of timeouts
+MAX_DOWNLOAD_ATTEMPTS = 3
 
 
 MODEL_CONFIG = { 

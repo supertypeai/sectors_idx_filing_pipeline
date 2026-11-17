@@ -154,7 +154,7 @@ def validate_and_correct_transaction_prices(
             continue
 
         if transaction.get("repurchase_agreement") is True:
-            LOGGER.info(
+            LOGGER.debug(
                 "price validation skipped %s on %s because it is a repurchase agreement",
                 symbol,
                 transaction_date,
@@ -169,7 +169,7 @@ def validate_and_correct_transaction_prices(
 
         if market_price_range is None:
             LOGGER.warning(
-                "price validation kept filed price for %s on %s because market data is unavailable",
+                "[PARSE] %s %s: no market data, price check skipped (filed price kept)",
                 symbol,
                 transaction_date,
             )
@@ -193,7 +193,7 @@ def validate_and_correct_transaction_prices(
             transaction["price"] = normalize_price(unit_price_candidate)
 
             LOGGER.warning(
-                "price validation corrected %s on %s from %s to %s",
+                "[PARSE] %s %s: price corrected %s → %s (filed value was outside the market range)",
                 symbol,
                 transaction_date,
                 reported_price,
@@ -203,11 +203,11 @@ def validate_and_correct_transaction_prices(
             continue
 
         LOGGER.warning(
-            "price validation kept filed price for %s on %s: %s outside market range %s",
+            "[PARSE] %s %s: filed price %s kept, outside market range %s",
             symbol,
             transaction_date,
             reported_price,
-            market_price_range,
+            f"{market_price_range[0]}–{market_price_range[1]}",
         )
 
     return []

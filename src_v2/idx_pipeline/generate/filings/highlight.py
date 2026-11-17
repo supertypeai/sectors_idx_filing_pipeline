@@ -31,7 +31,7 @@ def compute_mad_score(
     ]
 
     if len(non_zero_values) < 6:
-        LOGGER.info('Not enough historical data to compute median, length: %s', len(non_zero_values))
+        LOGGER.debug("Not enough historical data to compute median, length: %s", len(non_zero_values))
         return 0.0, 0.0, len(non_zero_values)
 
     central_value = median(non_zero_values)
@@ -80,7 +80,7 @@ def compute_historical_price_movement(
     ]
 
     if len(historical_filings) < 10:
-        LOGGER.info(
+        LOGGER.debug(
             'Not enough historical data to compute price movement: %s',
             len(historical_filings)
         )
@@ -131,7 +131,7 @@ def compute_historical_price_movement(
         )
 
         if price_at_filing is None or price_60_days_later is None:
-            LOGGER.info(
+            LOGGER.debug(
                 'Price is missing for filing: %s and price + 60 days: %s', 
                 price_at_filing, price_60_days_later
             )
@@ -179,7 +179,7 @@ def compute_filing_density(
     )
 
     if len(distinct_holders) < 2: 
-        LOGGER.info('Not enough distinct holder for higlight filing density: %s', len(distinct_holders))
+        LOGGER.debug("Not enough distinct holder for highlight filing density: %s", len(distinct_holders))
         return None 
     
     cleaned_symbol = current_symbol.removesuffix('.JK')
@@ -207,7 +207,7 @@ def compute_size_trades(
         current_trade=current_transaction_value
     )
 
-    LOGGER.info('score: %s, central_value: %s, ratio: %s', score, central_value, current_transaction_value / central_value if central_value > 0 else 0)
+    LOGGER.debug("score: %s, central_value: %s, ratio: %s", score, central_value, current_transaction_value / central_value if central_value > 0 else 0)
 
     ratio = current_transaction_value / central_value if central_value > 0 else 0
 
@@ -234,7 +234,7 @@ def build_highlights(
     current_transaction_type = current_filing.get('transaction_type')
     current_symbol = current_filing.get('symbol')
 
-    higlights = []
+    highlights = []
     
     signal_size_trade = compute_size_trades(
         db_filings,
@@ -245,7 +245,7 @@ def build_highlights(
     )
 
     if signal_size_trade:
-        higlights.append(signal_size_trade)
+        highlights.append(signal_size_trade)
 
     signal_price_movement = compute_historical_price_movement(
         current_symbol,
@@ -255,7 +255,7 @@ def build_highlights(
     )
 
     if signal_price_movement:
-        higlights.append(signal_price_movement)
+        highlights.append(signal_price_movement)
 
     signal_filing_density = compute_filing_density(
         db_filings, 
@@ -264,6 +264,6 @@ def build_highlights(
     )
 
     if signal_filing_density:
-        higlights.append(signal_filing_density)
+        highlights.append(signal_filing_density)
 
-    return higlights
+    return highlights

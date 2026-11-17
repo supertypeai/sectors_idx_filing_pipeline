@@ -181,7 +181,7 @@ def fetch_securities_report(month: str, symbol: str) -> list[dict]:
     cache[cache_key] = {'scraped_at': today_str, 'items': items}
     write_json(cache, CACHE_PATH)
 
-    LOGGER.info(
+    LOGGER.debug(
         'securities report: cached %s items for %s in %s',
         len(items),
         symbol,
@@ -194,12 +194,21 @@ def get_securities_data(
     symbol: str,
     holder_name: str,
     month: str,
-    threshold: int = 95
+    threshold: int = 95,
+    details: dict | None = None,
 ) -> int | None:
     """
     Shares the holder held at the end of the month before their transaction,
     read from that company's monthly securities report. None if not found.
+
+    details, when given, is filled with whether the report existed and which name
+    in it matched, so the caller can say why it got None.
     """
+    if details is None:
+        details = {}
+
+    details["found"] = False
+
     securities_records = fetch_securities_report(month, symbol)
 
     securities_records_sorted = sorted(
@@ -229,7 +238,7 @@ def get_securities_data(
             break
 
     if not securities_source:
-        LOGGER.warning(
+        LOGGER.debug(
             'no securities report for symbol: %s in %s (holder: %s)',
             symbol, month, holder_name
         )
@@ -246,16 +255,19 @@ def get_securities_data(
     )
 
     holders = read_pdf(output_path)
+    details["found"] = True
+    details["url"] = securities_source
 
     for name, shares in holders.items():
         if holder_names_match(holder_name, name, threshold):
-            LOGGER.info(
+            LOGGER.debug(
                 'securities report: %s -> %s shares (matched %s)',
                 holder_name, shares, name
             )
+            details["matched_name"] = name
             return shares
 
-    LOGGER.warning(
+    LOGGER.debug(
         'holder %s not found in securities report for %s', holder_name, symbol
     )
 

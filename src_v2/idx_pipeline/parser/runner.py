@@ -8,6 +8,8 @@ from .utils.helper import *
 from .utils.controller_parser import parse_controller
 from src_v2.idx_pipeline.config.settings import TAVILY_API_KEY
 from src_v2.idx_pipeline.utils.helper import get_db
+from idx_pipeline.utils.log_setup import pdf_id
+from .audit import pop_check, marker, format_card, AMENDED, KEPT_AS_FILED
 
 import logging
 
@@ -146,10 +148,13 @@ def search_tavily(
                 ]
             )
 
-            LOGGER.info("response tavily raw: %s", response)
+            LOGGER.debug("tavily raw response for %r: %s", query, response)
             answer = response.get("answer")
 
             if answer:
+                LOGGER.debug(
+                    "tavily answered in %ss with key %d", response.get("response_time"), key_number
+                )
                 return answer
 
             raise RuntimeError("Tavily returned no answer")
@@ -157,9 +162,9 @@ def search_tavily(
         except Exception as error:
             last_error = error
             LOGGER.warning(
-                "Tavily request with API key %d failed: %s. Trying the next key.",
+                "[PARSE] Tavily key %d failed (%s), trying the next key",
                 key_number,
-                error,
+                str(error)[:160],
             )
 
     raise RuntimeError("All configured Tavily API keys failed") from last_error
@@ -211,8 +216,8 @@ def detect_holder_type(
 
     except Exception as error:
         LOGGER.warning(
-            "could not parse controller status for %s: %s",
-            pdf_local_path,
+            "[PARSE] could not read controller status from %s: %s",
+            pdf_id(pdf_local_path),
             error
         )
         is_controller = None
@@ -224,21 +229,73 @@ def detect_holder_type(
     is_individual = tavily_raw_output_individual.split(",", 1)[0].strip().lower()
 
     if is_individual == "person":
+        LOGGER.info("[PARSE] %s: Tavily says person → holder type insider", holder_name)
         return "insider"
 
     tavily_raw_output_relation = search_tavily(holder_name, symbol, "relation")
     is_relation = tavily_raw_output_relation.split(",", 1)[0].strip().lower()
 
     if is_relation == "yes":
+        LOGGER.info(
+            "[PARSE] %s: Tavily says company related to %s → holder type insider",
+            holder_name, symbol
+        )
         return "insider"
 
+    LOGGER.info(
+        "[PARSE] %s: Tavily says unrelated company → holder type institution", holder_name
+    )
     return "institution"
 
 
-def run_parser(downloader_ingestion: list[dict]):
+def log_pdf_outcome(pdf_url: str, results: list[dict], check) -> None:
+    """
+    One line per PDF saying what came out of it, plus a card when the holdings
+    did not add up
+    """
+    first = results[0]
+    transaction_types = sorted({
+        result.get("transaction_type") or "-" for result in results
+    })
+
+    line = (
+        f"[PARSE] {pdf_id(pdf_url)} {first.get('symbol')}  {first.get('holder_name')}  "
+        f"{'/'.join(transaction_types)}  → {len(results)} filing(s) {marker(check)}"
+    ).rstrip()
+
+    if check is not None and check.status == AMENDED:
+        LOGGER.info("%s\n%s", line, format_card(check, pdf_url))
+
+    elif check is not None and check.status == KEPT_AS_FILED:
+        LOGGER.warning("%s\n%s", line, format_card(check, pdf_url))
+
+    else:
+        LOGGER.info(line)
+
+
+def flagged_entry(pdf_url: str, timestamp: str, results: list[dict], check) -> dict:
+    first = results[0]
+
+    return {
+        "pdf_id": pdf_id(pdf_url),
+        "source": pdf_url,
+        "timestamp": timestamp,
+        "symbol": first.get("symbol"),
+        "holder_name": first.get("holder_name"),
+        "transaction_type": first.get("transaction_type"),
+        **check.to_dict(),
+    }
+
+
+def run_parser(downloader_ingestion: list[dict]) -> tuple[list[dict], list[dict]]:
+    """
+    Returns (filings, flagged). flagged holds one entry per PDF whose holdings did
+    not add up, amended or kept as filed, for the corrections file and the alert email.
+    """
     company_lookup = open_json('data_v2/idx_companies/company_map.json')
 
     payload_combined = []
+    flagged = []
 
     for record in downloader_ingestion: 
         pdf_local_path = record.get('pdf_local')
@@ -246,7 +303,7 @@ def run_parser(downloader_ingestion: list[dict]):
         timestamp = record.get('timestamp') 
         type_document = record.get('type')  # return only idx or non_idx
 
-        LOGGER.info("parsing pdf_url: %s", pdf_url)
+        LOGGER.debug("parsing pdf_url: %s", pdf_url)
         
         if type_document == 'idx':
             results, reasons = parser_new_document(
@@ -260,8 +317,8 @@ def run_parser(downloader_ingestion: list[dict]):
             # is still on the page, so hand the same PDF to the LLM before giving up
             if not results and is_retryable(reasons):
                 LOGGER.info(
-                    "regex parser failed, retrying with the llm: %s", 
-                    pdf_url
+                    "[PARSE] %s regex parser fell short (%s), retrying with the LLM",
+                    pdf_id(pdf_url), "; ".join(reasons)
                 )
 
                 results, reasons = parser_with_llm(
@@ -272,6 +329,7 @@ def run_parser(downloader_ingestion: list[dict]):
                 )
 
         elif type_document == 'non_idx':
+            LOGGER.debug("non-idx layout, parsing with the LLM: %s", pdf_url)
             results, reasons = parser_with_llm(
                 pdf_local_path=pdf_local_path,
                 pdf_url=pdf_url,
@@ -280,8 +338,10 @@ def run_parser(downloader_ingestion: list[dict]):
             )
 
         else:
-            LOGGER.warning(f"unknown document type '{type_document}' for: {pdf_url}")
+            LOGGER.warning("[PARSE] %s unknown document type '%s'", pdf_id(pdf_url), type_document)
             continue
+
+        check = pop_check(pdf_url)
 
         if not results:
             # No reasons means nothing went wrong the holdings were unchanged, so
@@ -294,8 +354,20 @@ def run_parser(downloader_ingestion: list[dict]):
                     'symbol': '-'
                 })
 
-            LOGGER.info('no insertable results for %s: %s', pdf_url, reasons or 'holdings unchanged')
+                LOGGER.warning(
+                    "[PARSE] %s not inserted: %s (sent to the alert email)",
+                    pdf_id(pdf_url), "; ".join(reasons)
+                )
+
+            else:
+                LOGGER.info("[PARSE] %s holdings unchanged, nothing to insert", pdf_id(pdf_url))
+
             continue
+
+        log_pdf_outcome(pdf_url, results, check)
+
+        if check is not None and check.is_flagged:
+            flagged.append(flagged_entry(pdf_url, timestamp, results, check))
 
         for result in results: 
             purpose = result.get('purpose')
@@ -332,6 +404,11 @@ def run_parser(downloader_ingestion: list[dict]):
                     'source': source,
                     'symbol': symbol
                 })
+
+                LOGGER.warning(
+                    "[PARSE] %s %s share transfer, not inserted (sent to the alert email for a manual check)",
+                    pdf_id(pdf_url), symbol
+                )
                 continue
 
             result['tags'] = tags
@@ -343,7 +420,7 @@ def run_parser(downloader_ingestion: list[dict]):
     filename = 'data_v2/parser/pdf_parsed.json'
     write_json(payload_combined, filename)
 
-    return payload_combined
+    return payload_combined, flagged
 
 
 if __name__ == '__main__': 
@@ -355,7 +432,7 @@ if __name__ == '__main__':
     downloader_path = 'data_v2/downloader/downlod_ingestion.json'
     downloader_ingestion = open_json(downloader_path)
 
-    payload = run_parser(downloader_ingestion=downloader_ingestion)
+    payload, flagged = run_parser(downloader_ingestion=downloader_ingestion)
     print(payload)
 
 

@@ -74,16 +74,16 @@ def get_payload_date_bounds(payload: list[dict]) -> tuple[str, str] | tuple[None
 
 def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
     if not payload:
-        LOGGER.info("dedup skipped: empty payload")
+        LOGGER.debug("dedup skipped: empty payload")
         return []
     
     start_date, end_date_exclusive = get_payload_date_bounds(payload)
 
     if not start_date:
-        LOGGER.info("dedup skipped: payload has no timestamp")
+        LOGGER.debug("dedup skipped: payload has no timestamp")
         return payload
     
-    LOGGER.info(f'date bounds dedup start: {start_date} end: {end_date_exclusive}')
+    LOGGER.debug("date bounds dedup start: %s end: %s", start_date, end_date_exclusive)
 
     columns = (
         'symbol, timestamp, holder_name, '
@@ -100,7 +100,7 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
             .lt("timestamp", f"{end_date_exclusive} 00:00:00")
             .execute()
         ) 
-        LOGGER.info(f'response data db for dedup: {response.data}')
+        LOGGER.debug("db rows for dedup: %s", response.data)
 
         existing_keys_set = existing_keys(response.data)
     
@@ -111,13 +111,13 @@ def dedup_with_existing_db(payload: list[dict]) -> list[dict]:
         ]
 
         if not clean_payload: 
-            LOGGER.info(f'dedup with existing db return Null: {len(clean_payload)}')
+            LOGGER.debug("every filing already exists in the db")
             return []
 
         return clean_payload
     
     except Exception as error: 
-        LOGGER.error('Dedup with existing db error %s', error)
+        LOGGER.error("[DEDUP] checking the db for duplicates failed, nothing will be inserted: %s", error)
         return []
     
 

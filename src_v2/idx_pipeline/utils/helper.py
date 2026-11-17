@@ -4,11 +4,13 @@ from urllib3.util.retry import Retry
 from datetime import datetime
 from zoneinfo import ZoneInfo 
 
-from idx_pipeline.config.settings import PROXY, SUPABASE_CLIENT
+from idx_pipeline.config.settings import PROXY, SCRAPINGANT_API_KEY, SUPABASE_CLIENT
 from .constant import HEADERS
+from idx_pipeline.fetcher.client import IdxClient
 
 import json 
 import requests
+import urllib3
 import time 
 import random 
 
@@ -78,7 +80,22 @@ def parse_wib_datetime(raw: str) -> datetime:
     return dt.astimezone(WIB)
 
 
-def make_session() -> requests.Session:
+def make_session() -> IdxClient:
+    """
+    Client for idx.co.id: ScrapingAnt first, Bright Data (PROXY) as the fallback.
+    See fetcher/client.py.
+    """
+    return IdxClient(
+        proxy_session=make_proxy_session(),
+        scrapingant_key=SCRAPINGANT_API_KEY,
+    )
+
+
+def make_proxy_session() -> requests.Session:
+    # The proxy re-signs TLS, so verify is off. Without this urllib3 prints an
+    # InsecureRequestWarning on every single request
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
     session = requests.Session()
     session.verify = False
     session.headers.update(HEADERS)
@@ -87,8 +104,10 @@ def make_session() -> requests.Session:
         "https": PROXY,
     })
 
+    # Bright Data Web Unlocker takes 50-90s on idx and a retry restarts the unlock
+    # from zero, so more retries only multiply the wait
     retry = Retry(
-        total=3,
+        total=1,
         backoff_factor=2,
         status_forcelist=(429, 500, 502, 504),
         allowed_methods=frozenset(["GET"]),

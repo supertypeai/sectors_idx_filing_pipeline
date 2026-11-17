@@ -23,6 +23,9 @@ LOGGER = logging.getLogger(__name__)
 
 STATE_FILE = Path("data_v2/state/last_run.json")
 
+# The run summary needs the window, and in auto mode it cannot be recomputed once last_end has moved
+LAST_WINDOW: tuple[datetime, datetime] | None = None
+
 
 def load_last_end() -> datetime | None:
     try:
@@ -175,7 +178,15 @@ def fetch_announcement_window(
         overlap_minutes=overlap_minutes,
     )
     
-    LOGGER.info(f"start window: {start_dt} end window: {end_dt}")
+    global LAST_WINDOW
+    LAST_WINDOW = (start_dt, end_dt)
+
+    LOGGER.info(
+        "[INGEST] window %s → %s WIB (keyword: %s)",
+        start_dt.strftime("%Y-%m-%d %H:%M"),
+        end_dt.strftime("%Y-%m-%d %H:%M"),
+        keyword,
+    )
 
     start_date = start_dt.strftime("%Y%m%d")
     end_date = end_dt.strftime("%Y%m%d")
@@ -191,7 +202,7 @@ def fetch_announcement_window(
     )
 
     if not all_items: 
-        LOGGER.info(f"no announcements returned for {start_date}..{end_date}")
+        LOGGER.info("[INGEST] no announcements returned for %s..%s", start_date, end_date)
         write_json(payload=[], filename=filename)
         
         if is_auto:
@@ -206,7 +217,7 @@ def fetch_announcement_window(
     
     clean_payload = dedup_payload(payload)
 
-    LOGGER.info(f"total items fetched this session: {len(clean_payload)}")
+    LOGGER.info("[INGEST] %d announcement(s) found", len(clean_payload))
 
     write_json(payload=clean_payload, filename=filename)
 

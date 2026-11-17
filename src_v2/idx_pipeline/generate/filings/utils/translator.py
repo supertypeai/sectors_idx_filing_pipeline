@@ -30,7 +30,7 @@ def llm_transalator(text: str) -> str:
     for model in ['gpt-oss-120b', 'gpt-oss-20b', 'gemini-2.5-flash', 'llama-3.3-70b']:
         try:
             llm = get_llm(model, temperature=0.4)
-            LOGGER.info(f"LLM used for news: {model}")
+            LOGGER.debug("LLM used: %s", model)
 
             input_data = {
                 'purpose': text, 
@@ -46,7 +46,7 @@ def llm_transalator(text: str) -> str:
                 continue
 
             if not response.get("purpose"):
-                LOGGER.info("LLM translator returned incomplete result")
+                LOGGER.debug("LLM translator returned incomplete result")
                 continue
             
             return response.get('purpose')

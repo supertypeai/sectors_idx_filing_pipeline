@@ -82,7 +82,7 @@ def filter_idx_filings(payload: dict) -> bool:
 
 def get_data_alert(payload: list[dict]) -> tuple[list[dict[str, any]], list[dict[str, any]]]:
     if not payload:
-        LOGGER.info("No IDX filings data to filter.")
+        LOGGER.debug("No IDX filings data to filter.")
         return [], []
 
     data_insertable = []
@@ -95,7 +95,7 @@ def get_data_alert(payload: list[dict]) -> tuple[list[dict[str, any]], list[dict
         else: 
             data_insertable.append(payload)
     
-    LOGGER.info(f'Filtering completed. Insertable: {len(data_insertable)} | Not insertable: {len(data_not_insertable)}')
+    LOGGER.debug("Filtering completed. Insertable: %d | Not insertable: %d", len(data_insertable), len(data_not_insertable))
     return data_insertable, data_not_insertable
 
 

@@ -18,7 +18,7 @@ class TokenUsageLogger(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
         completion_details = token_usage.get("completion_tokens_details") or {}
 
-        LOGGER.info(
+        LOGGER.debug(
             "token usage: prompt=%d completion=%d reasoning=%d total=%d finish_reason=%s",
             token_usage.get("prompt_tokens", 0),
             token_usage.get("completion_tokens", 0),

@@ -81,7 +81,7 @@ def find_investor(
     if score >= threshold:
         original_name = cleaned_lookup[matched_name]
 
-        LOGGER.info('raw matching: %s | holder name filing: %s', result, clean_holder_name)
+        LOGGER.debug("raw matching: %s | holder name filing: %s", result, clean_holder_name)
         return investor_lookup[original_name]
     
     return None

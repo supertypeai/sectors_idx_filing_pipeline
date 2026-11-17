@@ -380,9 +380,9 @@ def route_cluster_template(
         for transaction in cluster_transactions_sorted
     ))
 
-    LOGGER.info(f"cluster current holder names: {holder_name}")
-    LOGGER.info(f"cluster other holder names: {other_holder_names}")
-    LOGGER.info(f"distinct buy holder count: {distinct_buy_holder_count}")
+    LOGGER.debug(f"cluster current holder names: {holder_name}")
+    LOGGER.debug(f"cluster other holder names: {other_holder_names}")
+    LOGGER.debug(f"distinct buy holder count: {distinct_buy_holder_count}")
 
     body = generate_cluster_template(
         holder_name=holder_name,
@@ -540,11 +540,11 @@ def route_body_template(
         )
     )
 
-    LOGGER.info(f'data curent holder: {holder_name}, current symbol: {symbol}, current transaction type: {transaction_type}')
-    LOGGER.info(f'data buy cluster: {len(buy_transactions)} for symbol: {symbol}')
-    LOGGER.info(f'data sell cluster: {len(sell_transactions)} for symbol: {symbol}')
-    LOGGER.info(f'chain: {len(repeated_holder_transactions)} for symbol: {symbol}')
-    LOGGER.info(f'cross stock: {len(cross_stock_transactions)} for symbol: {symbol}')
+    LOGGER.debug(f"current holder: {holder_name}, current symbol: {symbol}, current transaction type: {transaction_type}")
+    LOGGER.debug(f"data buy cluster: {len(buy_transactions)} for symbol: {symbol}")
+    LOGGER.debug(f"data sell cluster: {len(sell_transactions)} for symbol: {symbol}")
+    LOGGER.debug(f"chain: {len(repeated_holder_transactions)} for symbol: {symbol}")
+    LOGGER.debug(f"cross stock: {len(cross_stock_transactions)} for symbol: {symbol}")
 
     cluster_result = route_cluster_template(
         current_filing=current_filing,

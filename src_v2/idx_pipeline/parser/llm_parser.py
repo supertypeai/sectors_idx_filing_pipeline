@@ -165,7 +165,7 @@ def extract_with_llm(
 
         response = chain.invoke(input_data)
 
-        LOGGER.info('LLM parser reasoning: %s', response['reasoning'])
+        LOGGER.debug("LLM parser reasoning: %s", response["reasoning"])
 
         response.pop('reasoning')
 
@@ -211,7 +211,7 @@ def parser_with_llm(
     ]
 
     if missing_fields:
-        LOGGER.info('llm parser found no ownership data for %s', pdf_url)
+        LOGGER.debug("llm parser found no ownership data for %s", pdf_url)
         return [], [f"llm parser could not extract: {', '.join(missing_fields)}"]
 
     symbol = resolve_symbol(

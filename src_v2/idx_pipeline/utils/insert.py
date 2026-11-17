@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 
 def push_db(payload: list[dict], table: str):
     if not payload: 
-        LOGGER.info('payload is null: %s', len(payload))
+        LOGGER.info("[INSERT] %s: nothing to insert", table)
         return 
 
     if table == "idx_filings":
@@ -24,17 +24,17 @@ def push_db(payload: list[dict], table: str):
             .execute()
         )
 
-        LOGGER.info("Inserted %d records into %s", len(payload), table)
+        LOGGER.info("[INSERT] %s: +%d", table, len(payload))
         return response
     
     except Exception as error:
-        LOGGER.error("Failed to insert into %s: %s", table, error)
+        LOGGER.error("[INSERT] %s: insert failed: %s", table, error)
         raise
 
 
 def update_db(replacements: list[dict], table: str):
     if not replacements:
-        LOGGER.info("database replacements are empty")
+        LOGGER.debug("database replacements are empty")
         return
 
     for replacement in replacements:
@@ -54,13 +54,13 @@ def update_db(replacements: list[dict], table: str):
                 .execute()
             )
 
-            LOGGER.info("Updated Correction record %s in %s", database_id, table)
+            LOGGER.info("[INSERT] %s: replaced record %s with its correction filing", table, database_id)
 
         except Exception as error:
             LOGGER.error(
-                "Failed to update record %s in %s: %s",
-                database_id,
+                "[INSERT] %s: replacing record %s failed: %s",
                 table,
+                database_id,
                 error,
             )
             raise
