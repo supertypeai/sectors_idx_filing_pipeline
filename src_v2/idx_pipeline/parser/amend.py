@@ -109,14 +109,19 @@ def holding_from_previous_filing(filing_record: dict, check: HoldingsCheck) -> i
 
     anchor_holding = previous_filing.get("holding_after")
 
+    # The id lets a reviewer open the exact row the decision was based on
+    previous_label = (
+        f"previous filing (id {previous_filing.get('id')}, "
+        f"{(previous_filing.get('timestamp') or '')[:10]})"
+    )
+
     if anchor_holding == holding_before:
         check.evidence.append(
-            f"holding_before {number(holding_before)} matches the previous filing "
-            f"({(previous_filing.get('timestamp') or '')[:10]})"
+            f"holding_before {number(holding_before)} matches the {previous_label}"
         )
     else:
         check.evidence.append(
-            f"previous filing holding_after = {number(anchor_holding)} (no match)"
+            f"{previous_label} holding_after = {number(anchor_holding)} (no match)"
         )
 
     return anchor_holding
