@@ -88129,5 +88129,152 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-10:SATU.JK": {
+    "scraped_at": "2026-11-18",
+    "items": [
+      {
+        "Id": "20261007115635-116/SATU/EKT-LB/CORSEC/SA-MI/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "116/SATU/EKT-LB/CORSEC/SA-MI/X/2026",
+        "PublishDate": "2026-10-07T11:56:35",
+        "Title": "Monthly Report of Securities Holders Registration (CORRECTION)",
+        "AnnouncementType": "(Form Koreksi)",
+        "Code": "SATU                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32164143-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "672e14de54_4b9dd0a009.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/672e14de54_4b9dd0a009.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261007_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164143.pdf"
+          },
+          {
+            "PDFFilename": "97e0534670_8e629f4b52.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/97e0534670_8e629f4b52.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261007_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164143_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32164143-0\",\"PDFFilename\":\"97e0534670_8e629f4b52.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/97e0534670_8e629f4b52.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261007_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164143_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32164143-0\",\"PDFFilename\":\"672e14de54_4b9dd0a009.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/672e14de54_4b9dd0a009.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261007_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32164143.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      },
+      {
+        "Id": "20261006141455-115/SATU/EKT-LB/CORSEC/SA-MI/X/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "115/SATU/EKT-LB/CORSEC/SA-MI/X/2026",
+        "PublishDate": "2026-10-06T14:14:55",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "SATU                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32163691-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "10897f5df5_89146b64a3.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/10897f5df5_89146b64a3.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261006_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163691.pdf"
+          },
+          {
+            "PDFFilename": "eb72266fe7_df1cc56b3f.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/eb72266fe7_df1cc56b3f.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261006_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163691_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32163691-0\",\"PDFFilename\":\"eb72266fe7_df1cc56b3f.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/eb72266fe7_df1cc56b3f.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261006_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163691_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32163691-0\",\"PDFFilename\":\"10897f5df5_89146b64a3.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202610/10897f5df5_89146b64a3.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261006_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32163691.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
+  },
+  "2026-07:SATU.JK": {
+    "scraped_at": "2026-11-18",
+    "items": [
+      {
+        "Id": "20260708094947-084/SATU/EKT-LB/CORSEC/SA-MI/VII/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "084/SATU/EKT-LB/CORSEC/SA-MI/VII/2026",
+        "PublishDate": "2026-07-08T09:49:47",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "SATU                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32109647-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "18e4ec931c_1609bc5e9c.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/18e4ec931c_1609bc5e9c.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20260708_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109647.pdf"
+          },
+          {
+            "PDFFilename": "766bfe9e1e_f1a67932c8.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/766bfe9e1e_f1a67932c8.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20260708_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109647_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32109647-0\",\"PDFFilename\":\"766bfe9e1e_f1a67932c8.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/766bfe9e1e_f1a67932c8.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20260708_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109647_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32109647-0\",\"PDFFilename\":\"18e4ec931c_1609bc5e9c.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202607/18e4ec931c_1609bc5e9c.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20260708_SATU_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32109647.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
+  },
+  "2026-11:ARKO.JK": {
+    "scraped_at": "2026-11-18",
+    "items": [
+      {
+        "Id": "20261109114326-410/06/CS-AH/IX/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "410/06/CS-AH/IX/2026",
+        "PublishDate": "2026-11-09T11:43:26",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "ARKO                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32183588-0-1",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "c71061b9f1_67a458369b.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/c71061b9f1_67a458369b.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261109_ARKO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183588.pdf"
+          },
+          {
+            "PDFFilename": "6939619d9a_bb559d9e7f.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/6939619d9a_bb559d9e7f.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261109_ARKO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183588_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32183588-0-1\",\"PDFFilename\":\"6939619d9a_bb559d9e7f.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/6939619d9a_bb559d9e7f.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261109_ARKO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183588_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32183588-0-1\",\"PDFFilename\":\"c71061b9f1_67a458369b.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/c71061b9f1_67a458369b.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261109_ARKO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183588.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
