@@ -88352,5 +88352,137 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-11:NAYZ.JK": {
+    "scraped_at": "2026-11-24",
+    "items": [
+      {
+        "Id": "20261109154602-086/01/DIR/HBS/XI/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "086/01/DIR/HBS/XI/2026",
+        "PublishDate": "2026-11-09T15:46:02",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "NAYZ                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32183508-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "a46884cab7_a8186bc17b.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/a46884cab7_a8186bc17b.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261109_NAYZ_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183508.pdf"
+          },
+          {
+            "PDFFilename": "559c1c487a_1d503ccb04.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/559c1c487a_1d503ccb04.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261109_NAYZ_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183508_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32183508-0\",\"PDFFilename\":\"559c1c487a_1d503ccb04.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/559c1c487a_1d503ccb04.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261109_NAYZ_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183508_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32183508-0\",\"PDFFilename\":\"a46884cab7_a8186bc17b.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/a46884cab7_a8186bc17b.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261109_NAYZ_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32183508.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
+  },
+  "2026-11:AXIO.JK": {
+    "scraped_at": "2026-11-24",
+    "items": [
+      {
+        "Id": "20261105145801-0004/CRSC-E019/AXIO/XI/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "0004/CRSC-E019/AXIO/XI/2026",
+        "PublishDate": "2026-11-05T14:58:01",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "AXIO                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32182350-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "797469cb10_7779529588.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/797469cb10_7779529588.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261105_AXIO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182350.pdf"
+          },
+          {
+            "PDFFilename": "9d8b4ce8bd_5080e82d8e.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/9d8b4ce8bd_5080e82d8e.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261105_AXIO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182350_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32182350-0\",\"PDFFilename\":\"9d8b4ce8bd_5080e82d8e.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/9d8b4ce8bd_5080e82d8e.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261105_AXIO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182350_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32182350-0\",\"PDFFilename\":\"797469cb10_7779529588.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/797469cb10_7779529588.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261105_AXIO_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182350.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
+  },
+  "2026-11:PRDA.JK": {
+    "scraped_at": "2026-11-24",
+    "items": [
+      {
+        "Id": "20261106164917-187/CORSEC/EKS/XI/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "187/CORSEC/EKS/XI/2026",
+        "PublishDate": "2026-11-06T16:49:17",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "PRDA                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32171864-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "24237f4e95_0a43e4f4fb.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/24237f4e95_0a43e4f4fb.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864.pdf"
+          },
+          {
+            "PDFFilename": "1745c81b54_5a4f730c7f.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/1745c81b54_5a4f730c7f.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp3.pdf"
+          },
+          {
+            "PDFFilename": "49b57586fd_d63648a4bc.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/49b57586fd_d63648a4bc.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp2.pdf"
+          },
+          {
+            "PDFFilename": "8e316063eb_b7e922bbd5.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/8e316063eb_b7e922bbd5.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp4.pdf"
+          },
+          {
+            "PDFFilename": "93af0b5bf2_a78b9f8853.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/93af0b5bf2_a78b9f8853.pdf",
+            "IsAttachment": 1,
+            "OriginalFilename": "20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp1.pdf"
+          }
+        ],
+        "PdfPath": "[{\"JMSXGroupID\":\"f-32171864-0\",\"PDFFilename\":\"1745c81b54_5a4f730c7f.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/1745c81b54_5a4f730c7f.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp3.pdf\"},{\"JMSXGroupID\":\"f-32171864-0\",\"PDFFilename\":\"49b57586fd_d63648a4bc.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/49b57586fd_d63648a4bc.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp2.pdf\"},{\"JMSXGroupID\":\"f-32171864-0\",\"PDFFilename\":\"8e316063eb_b7e922bbd5.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/8e316063eb_b7e922bbd5.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp4.pdf\"},{\"JMSXGroupID\":\"f-32171864-0\",\"PDFFilename\":\"93af0b5bf2_a78b9f8853.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/93af0b5bf2_a78b9f8853.pdf\",\"IsAttachment\":\"1\",\"OriginalFilename\":\"20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864_lamp1.pdf\"},{\"JMSXGroupID\":\"f-32171864-0\",\"PDFFilename\":\"24237f4e95_0a43e4f4fb.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/24237f4e95_0a43e4f4fb.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261104_PRDA_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32171864.pdf\"}]",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
