@@ -232,6 +232,8 @@ def parser_with_llm(
     reasons = validate_and_correct_transaction_prices(
         transactions=response.get('price_transaction') or [],
         symbol=symbol,
+        holding_before=response.get('holding_before'),
+        holding_after=response.get('holding_after'),
     )
 
     if reasons:

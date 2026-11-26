@@ -116,10 +116,25 @@ def get_unit_price_candidate(
     return candidate_price
 
 
+def get_holdings_change(
+    holding_before: object,
+    holding_after: object,
+) -> Decimal | None:
+    before = parse_decimal(holding_before)
+    after = parse_decimal(holding_after)
+
+    if before is None or after is None or before == after:
+        return None
+
+    return abs(after - before)
+
+
 def validate_and_correct_transaction_prices(
     transactions: list[dict],
     symbol: str,
     market_window_days: int = 5,
+    holding_before: object = None,
+    holding_after: object = None,
 ) -> list[str]:
     transaction_dates = [
         date.fromisoformat(transaction["date"])
@@ -153,14 +168,8 @@ def validate_and_correct_transaction_prices(
         if not transaction_date or reported_price is None:
             continue
 
-        if transaction.get("repurchase_agreement") is True:
-            LOGGER.debug(
-                "price validation skipped %s on %s because it is a repurchase agreement",
-                symbol,
-                transaction_date,
-            )
-            continue
-
+        # Repurchase agreements are validated too: filers put the total value in
+        # the price column there just as often as on plain trades
         market_price_range = get_market_price_range(
             daily_data=daily_data,
             transaction_date=transaction_date,
@@ -198,6 +207,47 @@ def validate_and_correct_transaction_prices(
                 transaction_date,
                 reported_price,
                 unit_price_candidate,
+            )
+
+            continue
+
+        # Some filers shift the row one column left: the share count lands in
+        # "unexercised shares", the price in "Number of Shares" and the total in
+        # "Transaction Price". The holdings change is then the only true share
+        # count, and it only belongs to this row when the filing has one row
+        holdings_change = (
+            get_holdings_change(holding_before, holding_after)
+            if len(transactions) == 1
+            else None
+        )
+
+        holdings_price_candidate = (
+            get_unit_price_candidate(reported_price, holdings_change)
+            if holdings_change is not None
+            else None
+        )
+
+        if (
+            holdings_price_candidate is not None
+            and is_price_in_market_range(
+                holdings_price_candidate,
+                market_price_range
+            )
+        ):
+            filed_amount = transaction.get("amount_transacted")
+
+            transaction["price"] = normalize_price(holdings_price_candidate)
+            transaction["amount_transacted"] = int(holdings_change)
+
+            LOGGER.warning(
+                "[PARSE] %s %s: price corrected %s → %s and shares %s → %s "
+                "(filed share count did not match the holdings change)",
+                symbol,
+                transaction_date,
+                reported_price,
+                holdings_price_candidate,
+                filed_amount,
+                int(holdings_change),
             )
 
             continue

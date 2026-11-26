@@ -772,7 +772,9 @@ def parse_document(
     # The validator corrects price_transactions in place before enrichment.
     reasons = validate_and_correct_transaction_prices(
         transactions=price_transactions,
-        symbol=extracted_data["symbol"]
+        symbol=extracted_data["symbol"],
+        holding_before=extracted_data.get("holding_before"),
+        holding_after=extracted_data.get("holding_after"),
     )
 
     if reasons:
