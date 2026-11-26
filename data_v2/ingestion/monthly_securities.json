@@ -88484,5 +88484,37 @@
         "IsHidden": false
       }
     ]
+  },
+  "2026-11:MSIN.JK": {
+    "scraped_at": "2026-11-26",
+    "items": [
+      {
+        "Id": "20261110221100-309/MDE-CORSEC/XI/2026_en-us",
+        "ItemID": null,
+        "AnnouncementNo": "309/MDE-CORSEC/XI/2026",
+        "PublishDate": "2026-11-10T22:11:00",
+        "Title": "Monthly Report of Securities Holders Registration",
+        "AnnouncementType": "",
+        "Code": "MSIN                                                                                                ",
+        "FormID": null,
+        "JmsxGroupId": "f-32182249-0",
+        "Jenis": "STOCK",
+        "Attachments": [
+          {
+            "PDFFilename": "04e93dad18_4cc0e9aece.pdf",
+            "FullSavePath": "https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/04e93dad18_4cc0e9aece.pdf",
+            "IsAttachment": 0,
+            "OriginalFilename": "20261105_MSIN_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182249.pdf"
+          }
+        ],
+        "PdfPath": "{\"JMSXGroupID\":\"f-32182249-0\",\"PDFFilename\":\"04e93dad18_4cc0e9aece.pdf\",\"FullSavePath\":\"https://www.idx.co.id/StaticData/NewsAndAnnouncement/ANNOUNCEMENTSTOCK/From_EREP/202611/04e93dad18_4cc0e9aece.pdf\",\"IsAttachment\":\"0\",\"OriginalFilename\":\"20261105_MSIN_Laporan Bulanan Registrasi Pemegang Efek/Perubahan Struktur Pemegang Saham_32182249.pdf\"}",
+        "Perihal": null,
+        "Lang": null,
+        "KodeDivisi": null,
+        "Divisi": null,
+        "JenisEmiten": null,
+        "IsHidden": false
+      }
+    ]
   }
 }
